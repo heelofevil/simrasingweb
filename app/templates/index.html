@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PITLINE — сетапы под ключ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="bg-grid"></div>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo"><span class="dot"></span>PITLINE</div>
+    <nav class="tabs" id="mainTabs" aria-label="Разделы">
+      <button type="button" class="tab active" data-tab="home">Старт</button>
+      <button type="button" class="tab" data-tab="config">Конфигуратор</button>
+    </nav>
+    <button type="button" class="nav-cta" id="openContactModal">Получить расчёт</button>
+  </div>
+</header>
+
+<main>
+  <!-- START -->
+  <section class="panel active" id="tab-home" data-panel>
+    <section class="hero">
+      <div class="wrap">
+        <div class="eyebrow">Сборка сим-рейсинг сетапов под ключ</div>
+        <h1>Не собирай железо<br>по обзорам. <span class="hl">Садись</span><br>и езжай быстро.</h1>
+        <p class="lede">Говоришь бюджет и цель — получаешь готовый сетап: кокпит, база, педали, руль. Доставим, соберём, настроим FFB под твой стиль и научим выжимать из него всё — очно или по видеосвязи.</p>
+        <div class="hero-actions">
+          <button type="button" class="btn btn-primary" data-goto="config">Подобрать сетап →</button>
+          <button type="button" class="btn btn-ghost" data-scroll="#home-featured">Смотреть топ сборки</button>
+        </div>
+
+        <div class="telemetry reveal">
+          <div class="telemetry-head">
+            <span class="lbl">FFB · Force Feedback Trace</span>
+            <span class="val" id="telemetryVal">18.0 Н·м</span>
+          </div>
+          <svg viewBox="0 0 1000 120" preserveAspectRatio="none">
+            <path class="trace-path" id="tracePath" d=""></path>
+            <path class="trace-path amber" id="tracePath2" d=""></path>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap section-pad" id="home-featured">
+      <div class="section-head reveal">
+        <div class="eyebrow">Топ сборки</div>
+        <h2>Три самых жёстких сетапа</h2>
+        <p>Готовые конфигурации — открой и запроси расчёт.</p>
+      </div>
+      <div class="featured-grid reveal" id="featuredGrid"></div>
+    </section>
+
+    <section class="wrap section-pad">
+      <div class="section-head reveal">
+        <div class="eyebrow">Маршрут</div>
+        <h2>От конфигуратора до первого круга</h2>
+      </div>
+      <div class="track reveal">
+        <div class="track-line"></div>
+        <div class="checkpoints">
+          <div class="checkpoint"><div class="num">01</div><h4>Путь</h4><p>Готовая сборка или набор по категориям.</p></div>
+          <div class="checkpoint"><div class="num">02</div><h4>Железо</h4><p>Руль, база, педали, кокпит и остальное.</p></div>
+          <div class="checkpoint"><div class="num">03</div><h4>Цена</h4><p>Сразу видишь сумму выбранной конфигурации.</p></div>
+          <div class="checkpoint"><div class="num">04</div><h4>Город</h4><p>Очная установка или удалённая по видео.</p></div>
+          <div class="checkpoint"><div class="num">05</div><h4>Инженер</h4><p>Подтверждает расчёт и сроки сборки.</p></div>
+          <div class="checkpoint"><div class="num">06</div><h4>Круг</h4><p>Доставка, сборка, FFB и первый заезд.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap section-pad">
+      <div class="install reveal">
+        <div>
+          <div class="eyebrow">Доставка и установка</div>
+          <h2 style="font-size:32px;">Очно в своём городе.<br>Удалённо — по всей стране.</h2>
+          <p style="color:var(--dim); margin-top:16px; max-width:440px;">В своём городе инженер приезжает, собирает кокпит и настраивает FFB на месте. В остальных регионах — доставка + разборная сборка с инженером на видеосвязи.</p>
+          <div class="badge-row">
+            <div class="badge"><span class="d"></span>Очная установка + обучение</div>
+            <div class="badge"><span class="d" style="background:var(--amber);"></span>Удалённая настройка по видео</div>
+            <div class="badge"><span class="d"></span>Доставка по России</div>
+          </div>
+        </div>
+        <div class="install-visual">
+          <div class="radar-ring" style="width:60%; height:60%;"></div>
+          <div class="radar-ring" style="width:90%; height:90%;"></div>
+          <div class="radar-ring" style="width:120%; height:120%;"></div>
+          <div class="pulse-dot" style="top:48%; left:52%;"></div>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <!-- CONFIGURATOR -->
+  <section class="panel" id="tab-config" data-panel>
+    <div class="wrap section-pad">
+      <div class="section-head reveal">
+        <div class="eyebrow">Конфигуратор</div>
+        <h2>Собери сетап как в боксах</h2>
+        <p>Два пути: взять готовую сборку или собрать самому по категориям. В конце — точный расчёт от инженера.</p>
+      </div>
+
+      <div class="cfg-shell reveal" id="cfgApp">
+        <div class="cfg-topbar">
+          <div class="cfg-total mono" id="cfgTotal">0 ₽</div>
+          <button type="button" class="cfg-back" id="cfgBack" hidden>← Назад</button>
+        </div>
+
+        <div class="cfg-screen active" data-screen="start" id="screenStart">
+          <div class="cfg-hub">
+            <div class="cfg-hub-brand">PITLINE</div>
+            <h3 class="cfg-hub-title">Конфигуратор</h3>
+            <p class="cfg-hub-sub">Соберите свой идеальный сетап</p>
+            <div class="cfg-branches">
+              <button type="button" class="cfg-branch" data-mode="presets">
+                <span class="cfg-branch-icon" aria-hidden="true">▣</span>
+                <span class="cfg-branch-label">Готовые<br>сборки</span>
+              </button>
+              <button type="button" class="cfg-branch" data-mode="diy">
+                <span class="cfg-branch-icon" aria-hidden="true">⚒</span>
+                <span class="cfg-branch-label">Собрать<br>самому</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="cfg-screen" data-screen="presets" id="screenPresets">
+          <div class="cfg-screen-head"><h3>Готовые сборки</h3></div>
+          <div class="cfg-tags" id="bundleTags"></div>
+          <div class="cfg-bundle-grid" id="bundleGrid"></div>
+        </div>
+
+        <div class="cfg-screen" data-screen="diy" id="screenDiy">
+          <div class="cfg-screen-head"><h3>Подбор сетапа</h3></div>
+          <div class="cfg-cats" id="catBar"></div>
+          <div class="cfg-diy-layout">
+            <div class="cfg-product-list" id="productList"></div>
+            <aside class="cfg-build">
+              <div class="cfg-build-title mono">Твоя сборка</div>
+              <div class="cfg-build-items" id="buildItems"></div>
+              <div class="cfg-build-sum">
+                <span>Итого</span>
+                <strong class="mono" id="buildSum">0 ₽</strong>
+              </div>
+              <button type="button" class="btn btn-primary" id="buildContinue" disabled>К расчёту →</button>
+            </aside>
+          </div>
+        </div>
+
+        <div class="cfg-screen" data-screen="checkout" id="screenCheckout">
+          <div class="cfg-screen-head">
+            <h3>Запрос расчёта</h3>
+            <p>Инженер подтвердит состав и точную цену под твой город.</p>
+          </div>
+          <div class="cfg-checkout">
+            <div class="cfg-checkout-summary">
+              <div class="mono cfg-checkout-label" id="checkoutLabel">Сборка</div>
+              <div class="cfg-checkout-price mono" id="checkoutPrice">0 ₽</div>
+              <ul class="cfg-checkout-list" id="checkoutList"></ul>
+            </div>
+            <div class="form-panel">
+              <form id="leadForm">
+                <div class="form-error" id="formError"></div>
+                <label for="leadName">Имя</label>
+                <input id="leadName" name="name" type="text" placeholder="Как к тебе обращаться" required maxlength="120">
+                <label for="leadContact">Telegram или телефон</label>
+                <input id="leadContact" name="contact" type="text" placeholder="@username или +7 ..." required maxlength="200">
+                <label for="formTier">Название сборки</label>
+                <input type="text" id="formTier" name="tier" value="Кастом" readonly>
+                <button type="submit" class="btn btn-primary">Запросить расчёт</button>
+              </form>
+              <div class="form-success" id="formSuccess">
+                <div class="num">ЗАЯВКА ПРИНЯТА</div>
+                <p style="margin-top:10px; color:var(--dim); font-size:14px;">Инженер сборки свяжется в течение дня.</p>
+              </div>
+              <div class="form-note">Оставляя заявку, ты не платишь ничего — это запрос на точный расчёт.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<dialog class="contact-dialog" id="contactDialog">
+  <form method="dialog" class="dialog-close-row">
+    <button value="cancel" class="dialog-x" aria-label="Закрыть">✕</button>
+  </form>
+  <div class="eyebrow">Контакт</div>
+  <h2 style="font-size:28px;">Оставь контакт</h2>
+  <p style="color:var(--dim); margin:10px 0 18px;">Спросим бюджет, дисциплины и город — без оплаты онлайн.</p>
+  <form id="simpleLeadForm">
+    <div class="form-error" id="simpleFormError"></div>
+    <label for="simpleName">Имя</label>
+    <input id="simpleName" type="text" required maxlength="120" placeholder="Как к тебе обращаться">
+    <label for="simpleContact">Telegram или телефон</label>
+    <input id="simpleContact" type="text" required maxlength="200" placeholder="@username или +7 ...">
+    <button type="submit" class="btn btn-primary" style="width:100%;">Связаться с инженером</button>
+  </form>
+  <div class="form-success" id="simpleFormSuccess">
+    <div class="num">ЗАЯВКА ПРИНЯТА</div>
+    <p style="margin-top:10px; color:var(--dim); font-size:14px;">Свяжемся в течение дня.</p>
+  </div>
+</dialog>
+
+<footer>
+  <div class="wrap foot-row">
+    <div>PITLINE — сетапы под ключ</div>
+    <div>© 2026</div>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
