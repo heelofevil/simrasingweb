@@ -12,3 +12,4 @@ class Config:
         "postgresql+psycopg2://pitline:pitline@localhost:5432/pitline",
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    TEMPLATES_AUTO_RELOAD = True

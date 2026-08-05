@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PITLINE — сетапы под ключ</title>
+  <title>PITLINE — демо (один файл)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
@@ -433,17 +433,28 @@ header {
   border-radius: 6px;
   min-height: 560px;
   overflow: hidden;
+  transition: min-height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 0.35s ease,
+              border-color 0.35s ease,
+              box-shadow 0.35s ease;
+}
+
+.cfg-shell.is-switching {
+  border-color: rgba(201, 166, 104, 0.28);
 }
 
 .cfg-topbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  padding: 16px 24px;
+  padding: 12px 20px;
   border-bottom: 1px solid var(--line);
+  transition: border-color 0.3s ease, opacity 0.3s ease;
 }
 
-.cfg-total { color: var(--amber); font-size: 14px; }
+.cfg-topbar[hidden] {
+  display: none !important;
+}
 
 .cfg-back {
   background: transparent;
@@ -457,8 +468,28 @@ header {
 
 .cfg-back:hover { border-color: var(--dim); }
 
-.cfg-screen { display: none; padding: 40px 28px 48px; }
-.cfg-screen.active { display: block; }
+.cfg-screen {
+  display: none;
+  padding: 40px 28px 48px;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.cfg-screen.active {
+  display: block;
+  animation: cfg-screen-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes cfg-screen-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 .cfg-hub {
   text-align: center;
@@ -528,14 +559,29 @@ header {
 .cfg-screen-head h3 { font-size: 32px; }
 .cfg-screen-head p { color: var(--dim); margin-top: 8px; }
 
-.cfg-tags, .cfg-cats {
+.cfg-checkout-tier {
+  margin-top: 14px !important;
+  color: var(--amber) !important;
+  font-family: "Oswald", sans-serif;
+  font-size: clamp(22px, 3vw, 30px);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.cfg-checkout-head-note {
+  margin-top: 8px;
+}
+
+.cfg-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin: 20px 0;
 }
 
-.cfg-tag, .cfg-cat {
+.cfg-tag {
   background: var(--bg);
   border: 1px solid var(--line-strong);
   color: var(--dim);
@@ -546,15 +592,10 @@ header {
   border-radius: 2px;
 }
 
-.cfg-tag.active, .cfg-cat.active {
+.cfg-tag.active {
   border-color: var(--amber);
   color: var(--amber);
   background: var(--amber-dim);
-}
-
-.cfg-cat.has-pick:not(.active) {
-  border-color: rgba(201, 166, 104, 0.45);
-  color: var(--text);
 }
 
 .cfg-bundle-grid {
@@ -605,38 +646,391 @@ header {
   font-size: 14px;
 }
 
-.cfg-diy-layout {
+/* DIY FULL COCKPIT */
+.cfg-shell:has(.cfg-screen--diy.active) {
+  min-height: min(78vh, 740px);
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--panel);
+  box-shadow: 0 0 0 1px rgba(201, 166, 104, 0.06);
+}
+
+.cfg-shell:has(.cfg-screen--diy.active) .cfg-topbar {
+  border-bottom: 1px solid var(--line);
+  padding-left: 20px;
+}
+
+.cfg-screen--diy {
+  padding: 0 14px 14px !important;
+  position: relative;
+}
+
+.cfg-screen--diy.active {
+  animation: cfg-diy-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes cfg-diy-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.diy-stage {
+  position: relative;
+  min-height: min(68vh, 640px);
+  height: min(68vh, 640px);
+  background: #0d0e10;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+}
+
+.diy-stage .cockpit-stage {
+  position: absolute;
+  inset: 0;
+  left: 92px;
+  right: 88px;
+  border: none;
+  border-radius: 0;
+  padding: 12px 8px;
+  min-height: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.diy-stage .cockpit-svg {
+  width: 100%;
+  height: 100%;
+  max-width: 780px;
+  max-height: 560px;
+  object-fit: contain;
+  display: block;
+}
+
+.ck-part {
+  cursor: pointer;
+}
+
+.ck-part .ck-solid {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.ck-part .ck-ghost {
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
+}
+
+.ck-part.is-focus .ck-ghost {
+  opacity: 0.85;
+}
+
+.ck-part.is-on .ck-ghost {
+  opacity: 0;
+}
+
+.ck-part.is-on .ck-solid {
+  opacity: 1;
+}
+
+.ck-part.is-flash .ck-solid {
+  animation: ck-flash 0.28s ease-out;
+}
+
+@keyframes ck-flash {
+  0% { opacity: 0; }
+  40% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+.diy-cats {
+  position: absolute;
+  left: 14px;
+  top: 16px;
+  bottom: 16px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  max-height: calc(100% - 32px);
+  overflow-y: auto;
+  overflow-x: visible;
+  padding: 4px 2px;
+  scrollbar-width: none;
+}
+
+.diy-cats::-webkit-scrollbar {
+  display: none;
+}
+
+.diy-cat-btn {
+  position: relative;
+  flex: 0 0 auto;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: rgba(23, 24, 27, 0.92);
+  color: var(--dim);
+  cursor: pointer;
   display: grid;
-  grid-template-columns: 1.4fr 0.8fr;
-  gap: 24px;
+  place-items: center;
+  backdrop-filter: blur(6px);
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.diy-cat-btn svg {
+  width: 26px;
+  height: 26px;
+  display: block;
+}
+
+.diy-cat-btn:hover,
+.diy-cat-btn.is-open {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: rgba(201, 166, 104, 0.12);
+}
+
+.diy-cat-btn.has-pick {
+  border-color: rgba(74, 180, 110, 0.55);
+  color: #7dcea0;
+}
+
+.diy-cat-btn.has-pick.is-open {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+.diy-cat-btn .diy-tip {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  background: #12131a;
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border-radius: 3px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+  z-index: 6;
+}
+
+.diy-cat-btn:hover .diy-tip,
+.diy-cat-btn:focus-visible .diy-tip {
+  opacity: 1;
+}
+
+.diy-cat-btn .diy-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ab46e;
+  display: none;
+}
+
+.diy-cat-btn.has-pick .diy-dot {
+  display: block;
+}
+
+.diy-cart {
+  position: absolute;
+  right: 22px;
+  bottom: 22px;
+  z-index: 5;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: rgba(23, 24, 27, 0.95);
+  color: var(--text);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  backdrop-filter: blur(6px);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.diy-cart svg {
+  width: 28px;
+  height: 28px;
+}
+
+.diy-cart:hover {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+.diy-cart-count {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #c44a3a;
+  color: #fff;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  font-weight: 700;
+  display: none;
+  place-items: center;
+  line-height: 1;
+  border: 2px solid #0d0e10;
+}
+
+.diy-cart-count.is-on {
+  display: grid;
+}
+
+.diy-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  background: rgba(8, 9, 11, 0.45);
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 16px 16px 16px 92px;
+}
+
+.diy-overlay[hidden] {
+  display: none !important;
+}
+
+.diy-overlay-panel {
+  width: min(420px, 100%);
+  max-height: 100%;
+  background: rgba(23, 24, 27, 0.96);
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  animation: cfg-screen-in 0.28s ease forwards;
+}
+
+.diy-overlay-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.diy-overlay-head h4 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.diy-overlay-close {
+  border: none;
+  background: transparent;
+  color: var(--dim-2);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.diy-overlay-list {
+  overflow: auto;
+  padding: 4px 0;
+  max-height: none;
+  flex: 1;
+}
+
+.diy-overlay-list .cfg-product {
+  grid-template-columns: 56px 1fr;
+  gap: 10px;
+  padding: 12px 14px;
   align-items: start;
 }
 
-@media (max-width: 900px) {
-  .cfg-diy-layout { grid-template-columns: 1fr; }
+.diy-overlay-list .cfg-product-photo {
+  width: 56px;
+  height: 42px;
+}
+
+.diy-overlay-list .cfg-product .meta {
+  grid-column: 1 / -1;
+  justify-content: space-between;
+}
+
+.lead-summary {
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.contact-dialog--lead {
+  width: min(480px, calc(100% - 32px));
 }
 
 .cfg-product-list {
   display: flex;
   flex-direction: column;
-  max-height: 520px;
-  overflow: auto;
-  border-top: 1px solid var(--line);
 }
 
 .cfg-product {
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
+  grid-template-columns: 72px 1fr auto;
+  gap: 14px;
   align-items: center;
-  padding: 14px 4px;
+  padding: 12px 4px;
   border-bottom: 1px solid var(--line);
+}
+
+.cfg-product-photo {
+  width: 72px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 3px;
+  border: 1px solid var(--line);
+  background: var(--bg);
 }
 
 .cfg-product.is-selected {
   background: var(--amber-dim);
   box-shadow: inset 3px 0 0 var(--amber);
-  padding-left: 10px;
+}
+
+@media (max-width: 700px) {
+  .diy-overlay { padding: 12px; }
+  .diy-cats { left: 8px; gap: 8px; }
+  .diy-cat-btn { width: 48px; height: 48px; }
+  .diy-cat-btn svg { width: 22px; height: 22px; }
+  .diy-cart { width: 60px; height: 60px; }
+  .diy-stage .cockpit-stage { left: 64px; right: 16px; }
+  .diy-stage {
+    min-height: min(66vh, 580px);
+    height: min(66vh, 580px);
+  }
+  .cfg-screen--diy {
+    padding: 0 10px 10px !important;
+  }
 }
 
 .cfg-product h4 {
@@ -742,26 +1136,19 @@ header {
 
 .cfg-checkout {
   display: grid;
-  grid-template-columns: 1fr 360px;
+  grid-template-columns: 1fr auto;
   gap: 32px;
   margin-top: 24px;
+  align-items: start;
 }
 
 @media (max-width: 900px) {
   .cfg-checkout { grid-template-columns: 1fr; }
 }
 
-.cfg-checkout-label {
-  color: var(--dim-2);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
 .cfg-checkout-price {
   color: var(--amber);
   font-size: 28px;
-  margin-top: 8px;
 }
 
 .cfg-checkout-list {
@@ -779,6 +1166,25 @@ header {
   color: var(--dim);
   border-bottom: 1px solid var(--line);
   padding-bottom: 8px;
+}
+
+.cfg-checkout-cta {
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.cfg-checkout-cta .btn {
+  justify-content: center;
+  width: 100%;
+}
+
+.cfg-checkout-cta .form-success {
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  padding: 16px;
 }
 
 .form-panel {
@@ -845,7 +1251,13 @@ header {
   color: var(--text);
   padding: 28px;
   width: min(420px, calc(100% - 32px));
+  max-height: calc(100vh - 48px);
+  overflow: auto;
   border-radius: 4px;
+  /* * { margin:0 } kills UA centering for <dialog> */
+  margin: auto;
+  position: fixed;
+  inset: 0;
 }
 
 .contact-dialog::backdrop {
@@ -896,9 +1308,18 @@ footer {
   transform: translateY(0);
 }
 
+.cfg-product-photo{width:56px;height:42px;border-radius:2px;flex-shrink:0;}
+
+.demo-banner{
+  position:sticky;top:0;z-index:100;background:#c9a668;color:#0d0e10;
+  font:600 12px/1.2 Manrope,sans-serif;letter-spacing:.04em;text-transform:uppercase;
+  text-align:center;padding:8px 12px;
+}
+header{top:36px;}
 </style>
 </head>
 <body>
+<div class="demo-banner">Демо · один HTML-файл · заявки только в console</div>
 
 <div class="bg-grid"></div>
 
@@ -998,9 +1419,8 @@ footer {
       </div>
 
       <div class="cfg-shell reveal" id="cfgApp">
-        <div class="cfg-topbar">
-          <div class="cfg-total mono" id="cfgTotal">0 ₽</div>
-          <button type="button" class="cfg-back" id="cfgBack" hidden>← Назад</button>
+        <div class="cfg-topbar" id="cfgTopbar" hidden>
+          <button type="button" class="cfg-back" id="cfgBack">← Назад</button>
         </div>
 
         <div class="cfg-screen active" data-screen="start" id="screenStart">
@@ -1027,50 +1447,124 @@ footer {
           <div class="cfg-bundle-grid" id="bundleGrid"></div>
         </div>
 
-        <div class="cfg-screen" data-screen="diy" id="screenDiy">
-          <div class="cfg-screen-head"><h3>Подбор сетапа</h3></div>
-          <div class="cfg-cats" id="catBar"></div>
-          <div class="cfg-diy-layout">
-            <div class="cfg-product-list" id="productList"></div>
-            <aside class="cfg-build">
-              <div class="cfg-build-title mono">Твоя сборка</div>
-              <div class="cfg-build-items" id="buildItems"></div>
-              <div class="cfg-build-sum">
-                <span>Итого</span>
-                <strong class="mono" id="buildSum">0 ₽</strong>
-              </div>
-              <button type="button" class="btn btn-primary" id="buildContinue" disabled>К расчёту →</button>
-            </aside>
-          </div>
-        </div>
+        <div class="cfg-screen cfg-screen--diy" data-screen="diy" id="screenDiy">
+          <div class="diy-stage">
+            <div class="cockpit-stage" id="cockpitStage" aria-label="Визуализация кокпита">
+              <svg class="cockpit-svg" viewBox="0 0 640 460" preserveAspectRatio="xMidYMid meet" role="img">
+                <defs>
+                  <linearGradient id="ckFloor" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#1a1c20"/>
+                    <stop offset="100%" stop-color="#0d0e10"/>
+                  </linearGradient>
+                  <linearGradient id="ckMetal" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#2a2d33"/>
+                    <stop offset="100%" stop-color="#15171a"/>
+                  </linearGradient>
+                </defs>
 
-        <div class="cfg-screen" data-screen="checkout" id="screenCheckout">
-          <div class="cfg-screen-head">
-            <h3>Запрос расчёта</h3>
-            <p>Инженер подтвердит состав и точную цену под твой город.</p>
-          </div>
-          <div class="cfg-checkout">
-            <div class="cfg-checkout-summary">
-              <div class="mono cfg-checkout-label" id="checkoutLabel">Сборка</div>
-              <div class="cfg-checkout-price mono" id="checkoutPrice">0 ₽</div>
-              <ul class="cfg-checkout-list" id="checkoutList"></ul>
+                <rect width="640" height="460" fill="url(#ckFloor)"/>
+                <ellipse cx="320" cy="420" rx="220" ry="18" fill="#000" opacity="0.45"/>
+
+                <g class="ck-part" data-part="cockpit">
+                  <path class="ck-solid" d="M110 390 L150 210 L490 210 L530 390 Z" fill="url(#ckMetal)" stroke="#c9a668" stroke-width="2"/>
+                  <path class="ck-solid" d="M190 210 L210 140 L430 140 L450 210" fill="none" stroke="#606266" stroke-width="3"/>
+                  <path class="ck-ghost" d="M110 390 L150 210 L490 210 L530 390 Z M190 210 L210 140 L430 140 L450 210" fill="none" stroke="#c9a668" stroke-width="1.5" stroke-dasharray="6 5"/>
+                </g>
+
+                <g class="ck-part" data-part="monitor">
+                  <g class="ck-solid">
+                    <rect x="230" y="48" width="180" height="88" rx="4" fill="#12141a" stroke="#c9a668" stroke-width="2"/>
+                    <rect x="240" y="58" width="160" height="68" rx="2" fill="#0a0c10"/>
+                    <path d="M300 136 L320 158 L340 136" fill="#2a2d33" stroke="#c9a668" stroke-width="1.5"/>
+                  </g>
+                  <rect class="ck-ghost" x="230" y="48" width="180" height="88" rx="4" fill="none" stroke="#c9a668" stroke-width="1.5" stroke-dasharray="5 4"/>
+                </g>
+
+                <g class="ck-part" data-part="base">
+                  <g class="ck-solid">
+                    <rect x="268" y="200" width="104" height="58" rx="8" fill="#1c1f24" stroke="#c9a668" stroke-width="2"/>
+                    <rect x="288" y="188" width="64" height="18" rx="4" fill="#252830" stroke="#96999e" stroke-width="1"/>
+                    <circle cx="320" cy="228" r="14" fill="#0d0e10" stroke="#c9a668" stroke-width="2"/>
+                  </g>
+                  <rect class="ck-ghost" x="268" y="200" width="104" height="58" rx="8" fill="none" stroke="#c9a668" stroke-width="1.5" stroke-dasharray="5 4"/>
+                </g>
+
+                <g class="ck-part" data-part="wheel">
+                  <g class="ck-solid">
+                    <circle cx="320" cy="168" r="46" fill="none" stroke="#c9a668" stroke-width="10"/>
+                    <circle cx="320" cy="168" r="14" fill="#c9a668"/>
+                    <path d="M320 122 L320 142 M320 194 L320 214 M274 168 L294 168 M346 168 L366 168" stroke="#c9a668" stroke-width="5" stroke-linecap="round"/>
+                  </g>
+                  <circle class="ck-ghost" cx="320" cy="168" r="46" fill="none" stroke="#c9a668" stroke-width="2" stroke-dasharray="6 5"/>
+                </g>
+
+                <g class="ck-part" data-part="pedals">
+                  <g class="ck-solid">
+                    <rect x="250" y="318" width="28" height="52" rx="3" fill="#22262c" stroke="#c9a668" stroke-width="1.5"/>
+                    <rect x="290" y="308" width="30" height="62" rx="3" fill="#2a2f36" stroke="#c9a668" stroke-width="2"/>
+                    <rect x="332" y="318" width="28" height="52" rx="3" fill="#22262c" stroke="#c9a668" stroke-width="1.5"/>
+                  </g>
+                  <g class="ck-ghost" fill="none" stroke="#c9a668" stroke-width="1.5" stroke-dasharray="4 3">
+                    <rect x="250" y="318" width="28" height="52" rx="3"/>
+                    <rect x="290" y="308" width="30" height="62" rx="3"/>
+                    <rect x="332" y="318" width="28" height="52" rx="3"/>
+                  </g>
+                </g>
+
+                <g class="ck-part" data-part="shifter">
+                  <g class="ck-solid">
+                    <rect x="430" y="268" width="44" height="28" rx="4" fill="#1c1f24" stroke="#c9a668" stroke-width="1.5"/>
+                    <path d="M452 268 L452 220 L470 204" fill="none" stroke="#c9a668" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="472" cy="200" r="8" fill="#e0c08a"/>
+                  </g>
+                  <g class="ck-ghost" fill="none" stroke="#c9a668" stroke-width="1.5" stroke-dasharray="4 3">
+                    <rect x="430" y="268" width="44" height="28" rx="4"/>
+                    <path d="M452 268 L452 220 L470 204" stroke-width="2"/>
+                    <circle cx="472" cy="200" r="8"/>
+                  </g>
+                </g>
+
+                <g class="ck-part" data-part="handbrake">
+                  <g class="ck-solid">
+                    <rect x="168" y="278" width="40" height="18" rx="3" fill="#1c1f24" stroke="#c9a668" stroke-width="1.5"/>
+                    <path d="M188 278 L168 230" stroke="#c9a668" stroke-width="7" stroke-linecap="round"/>
+                    <circle cx="166" cy="226" r="7" fill="#e0c08a"/>
+                  </g>
+                  <g class="ck-ghost" fill="none" stroke="#c9a668" stroke-width="1.5" stroke-dasharray="4 3">
+                    <rect x="168" y="278" width="40" height="18" rx="3"/>
+                    <path d="M188 278 L168 230" stroke-width="2"/>
+                    <circle cx="166" cy="226" r="7"/>
+                  </g>
+                </g>
+
+                <g class="ck-part" data-part="accessories">
+                  <g class="ck-solid">
+                    <ellipse cx="320" cy="300" rx="70" ry="16" fill="#1a1c20" stroke="#c9a668" stroke-width="1.5" opacity="0.9"/>
+                    <path d="M270 248 Q320 268 370 248" fill="none" stroke="#c9a668" stroke-width="3" opacity="0.7"/>
+                  </g>
+                  <ellipse class="ck-ghost" cx="320" cy="300" rx="70" ry="16" fill="none" stroke="#c9a668" stroke-width="1.5" stroke-dasharray="5 4"/>
+                </g>
+              </svg>
             </div>
-            <div class="form-panel">
-              <form id="leadForm">
-                <div class="form-error" id="formError"></div>
-                <label for="leadName">Имя</label>
-                <input id="leadName" name="name" type="text" placeholder="Как к тебе обращаться" required maxlength="120">
-                <label for="leadContact">Telegram или телефон</label>
-                <input id="leadContact" name="contact" type="text" placeholder="@username или +7 ..." required maxlength="200">
-                <label for="formTier">Название сборки</label>
-                <input type="text" id="formTier" name="tier" value="Кастом" readonly>
-                <button type="submit" class="btn btn-primary">Запросить расчёт</button>
-              </form>
-              <div class="form-success" id="formSuccess">
-                <div class="num">ЗАЯВКА ПРИНЯТА</div>
-                <p style="margin-top:10px; color:var(--dim); font-size:14px;">Инженер сборки свяжется в течение дня.</p>
+
+            <nav class="diy-cats" id="catBar" aria-label="Категории"></nav>
+
+            <button type="button" class="diy-cart" id="diyCartBtn" aria-label="Сборка и заявка">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M4 7h16l-1.2 11.2a2 2 0 0 1-2 1.8H7.2a2 2 0 0 1-2-1.8L4 7Z"/>
+                <path d="M8 7V5.5A3.5 3.5 0 0 1 11.5 2h1A3.5 3.5 0 0 1 16 5.5V7"/>
+              </svg>
+              <span class="diy-cart-count" id="diyCartCount" hidden>0</span>
+            </button>
+
+            <div class="diy-overlay" id="diyOverlay" hidden>
+              <div class="diy-overlay-panel">
+                <div class="diy-overlay-head">
+                  <h4 id="diyOverlayTitle">Категория</h4>
+                  <button type="button" class="diy-overlay-close" id="diyOverlayClose" aria-label="Закрыть">✕</button>
+                </div>
+                <div class="diy-overlay-list cfg-product-list" id="productList"></div>
               </div>
-              <div class="form-note">Оставляя заявку, ты не платишь ничего — это запрос на точный расчёт.</div>
             </div>
           </div>
         </div>
@@ -1100,33 +1594,50 @@ footer {
   </div>
 </dialog>
 
+<dialog class="contact-dialog contact-dialog--lead" id="leadDialog">
+  <form method="dialog" class="dialog-close-row">
+    <button value="cancel" class="dialog-x" aria-label="Закрыть">✕</button>
+  </form>
+  <div class="eyebrow">Расчёт</div>
+  <h2 style="font-size:28px;">Запросить расчёт</h2>
+  <p style="color:var(--dim); margin:10px 0 12px;" id="leadDialogTier">Сборка</p>
+  <div class="lead-summary">
+    <div class="cfg-checkout-price mono" id="checkoutPrice">0 ₽</div>
+    <ul class="cfg-checkout-list" id="checkoutList"></ul>
+  </div>
+  <form id="leadForm">
+    <div class="form-error" id="formError"></div>
+    <input type="hidden" id="formTier" name="tier" value="Кастом">
+    <label for="leadName">Имя</label>
+    <input id="leadName" name="name" type="text" placeholder="Как к тебе обращаться" required maxlength="120">
+    <label for="leadContact">Telegram или телефон</label>
+    <input id="leadContact" name="contact" type="text" placeholder="@username или +7 ..." required maxlength="200">
+    <button type="submit" class="btn btn-primary" style="width:100%;">Отправить заявку</button>
+  </form>
+  <div class="form-success" id="formSuccess">
+    <div class="num">ЗАЯВКА ПРИНЯТА</div>
+    <p style="margin-top:10px; color:var(--dim); font-size:14px;">Инженер сборки свяжется в течение дня.</p>
+  </div>
+</dialog>
+
 <footer>
   <div class="wrap foot-row">
     <div>PITLINE — сетапы под ключ</div>
-    <div>© 2026 · демо-файл</div>
+    <div>© 2026</div>
   </div>
 </footer>
-
-
-<script>window.PITLINE_DATA = {"categories": [{"id": 1, "slug": "wheel", "name": "Руль", "sort_order": 1}, {"id": 2, "slug": "base", "name": "База", "sort_order": 2}, {"id": 3, "slug": "pedals", "name": "Педали", "sort_order": 3}, {"id": 4, "slug": "shifter", "name": "Шифтер", "sort_order": 4}, {"id": 5, "slug": "cockpit", "name": "Кокпит", "sort_order": 5}, {"id": 6, "slug": "monitor", "name": "Монитор", "sort_order": 6}, {"id": 7, "slug": "handbrake", "name": "Ручник", "sort_order": 7}, {"id": 8, "slug": "accessories", "name": "Аксессуары", "sort_order": 8}], "products": [{"id": 1, "sku": "PL-W-01", "name": "Apex Rim 28 GT", "brand": "ApexDrive", "category": "wheel", "category_name": "Руль", "price": 18990, "specs": "Ø280 мм · 22 кнопки · Alcantara", "description": "Круглый руль для GT и дрифта.", "badge": null}, {"id": 2, "sku": "PL-W-02", "name": "Apex Rim 32 Formula", "brand": "ApexDrive", "category": "wheel", "category_name": "Руль", "price": 24990, "specs": "Ø320 мм · Formula grip · QR", "description": "Формульный обод с быстрым QR.", "badge": "HIT"}, {"id": 3, "sku": "PL-W-03", "name": "Nova GT Pro Leather", "brand": "NovaTorque", "category": "wheel", "category_name": "Руль", "price": 32990, "specs": "Ø300 мм · кожа · RGB", "description": "Кожаный GT-обод с подсветкой.", "badge": null}, {"id": 4, "sku": "PL-W-04", "name": "Nova Rally Open", "brand": "NovaTorque", "category": "wheel", "category_name": "Руль", "price": 27990, "specs": "Ø330 мм · open rim · paddles", "description": "Открытый обод под ралли.", "badge": "NEW"}, {"id": 5, "sku": "PL-W-05", "name": "Pulse GT-X Carbon", "brand": "PulseSim", "category": "wheel", "category_name": "Руль", "price": 41990, "specs": "Карбон · magnetic paddles", "description": "Лёгкий карбон для длинных стинтов.", "badge": "PRO"}, {"id": 6, "sku": "PL-W-06", "name": "Pulse F1 Replica", "brand": "PulseSim", "category": "wheel", "category_name": "Руль", "price": 45990, "specs": "Formula · LED rev · QR2", "description": "Реплика F1-штурвала.", "badge": null}, {"id": 7, "sku": "PL-W-07", "name": "Grid Clubsport Round", "brand": "GridForce", "category": "wheel", "category_name": "Руль", "price": 55990, "specs": "Ø330 мм · Clubsport QR", "description": "Универсальный клубный круг.", "badge": null}, {"id": 8, "sku": "PL-W-08", "name": "Grid Podium Formula", "brand": "GridForce", "category": "wheel", "category_name": "Руль", "price": 78990, "specs": "Podium · APM · carbon", "description": "Топовый формульный штурвал.", "badge": "PRO"}, {"id": 9, "sku": "PL-W-09", "name": "TL Steering Disc 18", "brand": "TorqueLab", "category": "wheel", "category_name": "Руль", "price": 38990, "specs": "Ø457 мм · truck/classic", "description": "Большой диск под классику и траки.", "badge": null}, {"id": 10, "sku": "PL-W-10", "name": "TX Leather Round 28", "brand": "ThrottleX", "category": "wheel", "category_name": "Руль", "price": 15990, "specs": "Ø280 мм · кожа · 12 кнопок", "description": "Доступный кожаный круг.", "badge": null}, {"id": 11, "sku": "PL-W-11", "name": "Apex Bundle Rim Lite", "brand": "ApexDrive", "category": "wheel", "category_name": "Руль", "price": 12990, "specs": "Ø280 мм · комплектный", "description": "Лёгкий обод из стартовых бандлов.", "badge": null}, {"id": 12, "sku": "PL-W-12", "name": "Force Invicta Wheel", "brand": "ForceCore", "category": "wheel", "category_name": "Руль", "price": 94990, "specs": "Invicta · APM · alcantara", "description": "Премиум-обод под мощные базы.", "badge": "PRO"}, {"id": 13, "sku": "PL-B-01", "name": "Apex Base T3", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 22990, "specs": "FFB 3.9 Н·м · belt", "description": "Вход в FFB после геймпада.", "badge": null}, {"id": 14, "sku": "PL-B-02", "name": "Apex Base T5", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 25990, "specs": "FFB 5.5 Н·м · belt", "description": "Популярная база среднего входа.", "badge": "HIT"}, {"id": 15, "sku": "PL-B-03", "name": "Apex Base T5 Kit 26", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 37990, "specs": "5.5 Н·м · rim+base kit", "description": "База с комплектным рулём.", "badge": "HIT"}, {"id": 16, "sku": "PL-B-04", "name": "Apex Base D9", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 27290, "specs": "FFB 9 Н·м · DD", "description": "Первый direct drive.", "badge": null}, {"id": 17, "sku": "PL-B-05", "name": "Apex Base D12", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 37490, "specs": "FFB 12 Н·м · DD", "description": "Универсальный DD для лиг.", "badge": null}, {"id": 18, "sku": "PL-B-06", "name": "Apex Base D12 Console Kit", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 64990, "specs": "12 Н·м · PC/console", "description": "DD-кит с консольной совместимостью.", "badge": "NEW"}, {"id": 19, "sku": "PL-B-07", "name": "Apex Base D16", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 57990, "specs": "FFB 16 Н·м · DD", "description": "Мощная база без компромиссов.", "badge": null}, {"id": 20, "sku": "PL-B-08", "name": "Apex Base D16 Ultra", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 48990, "specs": "FFB 16 Н·м · Ultra firmware", "description": "Обновлённая прошивка Ultra.", "badge": "NEW"}, {"id": 21, "sku": "PL-B-09", "name": "Apex Base D21", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 59990, "specs": "FFB 21 Н·м · DD", "description": "Для тяжёлых ободов и GT.", "badge": null}, {"id": 22, "sku": "PL-B-10", "name": "Apex Base D21 Ultra", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 65990, "specs": "FFB 21 Н·м · Ultra", "description": "Максимум линейки Apex.", "badge": "NEW"}, {"id": 23, "sku": "PL-B-11", "name": "Apex Base D25 TrueTorque", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 81990, "specs": "FFB 25 Н·м · TrueTorque", "description": "Флагман Apex с TrueTorque.", "badge": "NEW"}, {"id": 24, "sku": "PL-B-12", "name": "Pulse Alpha Mini", "brand": "PulseSim", "category": "base", "category_name": "База", "price": 47990, "specs": "FFB 10 Н·м · DD", "description": "Компактный DD Pulse.", "badge": null}, {"id": 25, "sku": "PL-B-13", "name": "Pulse Alpha Evo Sport", "brand": "PulseSim", "category": "base", "category_name": "База", "price": 48990, "specs": "FFB 9 Н·м · Evo", "description": "Спортивная Evo-серия.", "badge": null}, {"id": 26, "sku": "PL-B-14", "name": "Pulse Alpha Evo 12", "brand": "PulseSim", "category": "base", "category_name": "База", "price": 56990, "specs": "FFB 12 Н·м · Evo", "description": "Баланс мощности и цены.", "badge": null}, {"id": 27, "sku": "PL-B-15", "name": "Pulse Alpha Classic", "brand": "PulseSim", "category": "base", "category_name": "База", "price": 59990, "specs": "FFB 15 Н·м · DD", "description": "Классика Pulse Alpha.", "badge": null}, {"id": 28, "sku": "PL-B-16", "name": "Pulse Alpha Evo Pro", "brand": "PulseSim", "category": "base", "category_name": "База", "price": 75990, "specs": "FFB 18 Н·м · Evo Pro", "description": "Для соревновательных пилотов.", "badge": "PRO"}, {"id": 29, "sku": "PL-B-17", "name": "Pulse Alpha Ultimate", "brand": "PulseSim", "category": "base", "category_name": "База", "price": 84990, "specs": "FFB 23 Н·м · Ultimate", "description": "Топовая база Pulse.", "badge": "PRO"}, {"id": 30, "sku": "PL-B-18", "name": "Grid CSL DD 8", "brand": "GridForce", "category": "base", "category_name": "База", "price": 62990, "specs": "FFB 8 Н·м · CSL", "description": "Вход в экосистему Grid.", "badge": null}, {"id": 31, "sku": "PL-B-19", "name": "Grid DD Pro 12", "brand": "GridForce", "category": "base", "category_name": "База", "price": 89990, "specs": "FFB 12 Н·м · console ready", "description": "Консольный DD Pro.", "badge": "HIT"}, {"id": 32, "sku": "PL-B-20", "name": "TL Drive 25", "brand": "TorqueLab", "category": "base", "category_name": "База", "price": 189990, "specs": "FFB 25 Н·м · servo", "description": "Сервопривод лабораторного уровня.", "badge": "PRO"}, {"id": 33, "sku": "PL-B-21", "name": "Force Invicta 27", "brand": "ForceCore", "category": "base", "category_name": "База", "price": 219990, "specs": "FFB 27 Н·м · Invicta", "description": "Максимальный момент ForceCore.", "badge": "PRO"}, {"id": 34, "sku": "PL-B-22", "name": "TX T248 Hybrid", "brand": "ThrottleX", "category": "base", "category_name": "База", "price": 29990, "specs": "Hybrid FFB · console", "description": "Гибрид для консолей.", "badge": null}, {"id": 35, "sku": "PL-B-23", "name": "Apex Aero Stick Bundle", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 34990, "specs": "Flight stick kit", "description": "Авиа-бандл для симпилотов.", "badge": "NEW"}, {"id": 36, "sku": "PL-B-24", "name": "Apex Aero Stick Pro", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 38990, "specs": "Flight · active knobs", "description": "Авиа-база с активными рукоятями.", "badge": "NEW"}, {"id": 37, "sku": "PL-B-25", "name": "Apex Aero Base 12", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 54990, "specs": "Flight FFB 12 Н·м", "description": "Отдельная авиа-база.", "badge": null}, {"id": 38, "sku": "PL-P-01", "name": "Apex Pedal Lite", "brand": "ApexDrive", "category": "pedals", "category_name": "Педали", "price": 14990, "specs": "2 педали · potentiometer", "description": "Стартовый блок без сцепления.", "badge": null}, {"id": 39, "sku": "PL-P-02", "name": "Apex Pedal Lite Clutch", "brand": "ApexDrive", "category": "pedals", "category_name": "Педали", "price": 18990, "specs": "3 педали · clutch add-on", "description": "Lite со сцеплением.", "badge": null}, {"id": 40, "sku": "PL-P-03", "name": "Apex Load Cell Sport", "brand": "ApexDrive", "category": "pedals", "category_name": "Педали", "price": 27990, "specs": "Load cell brake · 2 pedal", "description": "Тормоз с тензодатчиком.", "badge": "HIT"}, {"id": 41, "sku": "PL-P-04", "name": "Apex Load Cell Pro", "brand": "ApexDrive", "category": "pedals", "category_name": "Педали", "price": 34990, "specs": "Load cell · 3 pedal · heel", "description": "Полный блок Load Cell.", "badge": null}, {"id": 42, "sku": "PL-P-05", "name": "Apex Active Booster", "brand": "ApexDrive", "category": "pedals", "category_name": "Педали", "price": 45990, "specs": "Active throttle/brake", "description": "Активный блок газ/тормоз.", "badge": "NEW"}, {"id": 43, "sku": "PL-P-06", "name": "Pulse P1000", "brand": "PulseSim", "category": "pedals", "category_name": "Педали", "price": 52990, "specs": "Hydraulic feel · LC", "description": "Гидравлическое ощущение.", "badge": null}, {"id": 44, "sku": "PL-P-07", "name": "Pulse P2000 Ultimate", "brand": "PulseSim", "category": "pedals", "category_name": "Педали", "price": 78990, "specs": "Ultimate LC · haptics", "description": "Хаптика и точная настройка.", "badge": "PRO"}, {"id": 45, "sku": "PL-P-08", "name": "Grid CSL Pedals LC", "brand": "GridForce", "category": "pedals", "category_name": "Педали", "price": 39990, "specs": "Load cell · CSL", "description": "Клубный LC-блок.", "badge": null}, {"id": 46, "sku": "PL-P-09", "name": "Grid Clubsport V3", "brand": "GridForce", "category": "pedals", "category_name": "Педали", "price": 69990, "specs": "V3 · damper kit ready", "description": "Эталон клубных педалей.", "badge": "HIT"}, {"id": 47, "sku": "PL-P-10", "name": "Force Invicta Pedals", "brand": "ForceCore", "category": "pedals", "category_name": "Педали", "price": 129990, "specs": "Invicta · telemetry", "description": "Топовые педали ForceCore.", "badge": "PRO"}, {"id": 48, "sku": "PL-P-11", "name": "TX T3PM Pedals", "brand": "ThrottleX", "category": "pedals", "category_name": "Педали", "price": 12990, "specs": "3 pedal · console", "description": "Консольный комплект.", "badge": null}, {"id": 49, "sku": "PL-P-12", "name": "TL Pedal Stack", "brand": "TorqueLab", "category": "pedals", "category_name": "Педали", "price": 99990, "specs": "Servo brake · telemetry", "description": "Сервотормоз TorqueLab.", "badge": "PRO"}, {"id": 50, "sku": "PL-S-01", "name": "Apex H-Pattern", "brand": "ApexDrive", "category": "shifter", "category_name": "Шифтер", "price": 16990, "specs": "H-pattern · 6+R", "description": "Классическая кулиса.", "badge": null}, {"id": 51, "sku": "PL-S-02", "name": "Apex Sequential", "brand": "ApexDrive", "category": "shifter", "category_name": "Шифтер", "price": 18990, "specs": "Sequential · short throw", "description": "Секвенталка для ралли.", "badge": "HIT"}, {"id": 52, "sku": "PL-S-03", "name": "Pulse DS-8X", "brand": "PulseSim", "category": "shifter", "category_name": "Шифтер", "price": 28990, "specs": "H + sequential dual", "description": "Два режима в одном корпусе.", "badge": null}, {"id": 53, "sku": "PL-S-04", "name": "Grid SQ Shifter", "brand": "GridForce", "category": "shifter", "category_name": "Шифтер", "price": 34990, "specs": "Clubsport sequential", "description": "Клубная секвенталка.", "badge": null}, {"id": 54, "sku": "PL-S-05", "name": "TX TH8S", "brand": "ThrottleX", "category": "shifter", "category_name": "Шифтер", "price": 14990, "specs": "H-pattern · console", "description": "Доступная кулиса.", "badge": null}, {"id": 55, "sku": "PL-S-06", "name": "Nova Gate Pro", "brand": "NovaTorque", "category": "shifter", "category_name": "Шифтер", "price": 24990, "specs": "CNC · magnetic gates", "description": "Магнитные ворота.", "badge": "NEW"}, {"id": 56, "sku": "PL-C-01", "name": "Ridge Fold Stand", "brand": "RidgeRig", "category": "cockpit", "category_name": "Кокпит", "price": 24990, "specs": "Складная стойка · wheel desk", "description": "Компактный вход без рамы.", "badge": null}, {"id": 57, "sku": "PL-C-02", "name": "Ridge Start Frame", "brand": "RidgeRig", "category": "cockpit", "category_name": "Кокпит", "price": 54990, "specs": "Профиль 4080 · seat ready", "description": "Стартовый кокпит PITLINE.", "badge": "HIT"}, {"id": 58, "sku": "PL-C-03", "name": "Ridge RSS-1", "brand": "RidgeRig", "category": "cockpit", "category_name": "Кокпит", "price": 79990, "specs": "RSS-1 · adjustable", "description": "Универсальная рама энтузиаста.", "badge": null}, {"id": 59, "sku": "PL-C-04", "name": "Ridge Formula Tub", "brand": "RidgeRig", "category": "cockpit", "category_name": "Кокпит", "price": 99990, "specs": "F1 seating · low CG", "description": "Формульная посадка.", "badge": null}, {"id": 60, "sku": "PL-C-05", "name": "Ridge Pro Chassis", "brand": "RidgeRig", "category": "cockpit", "category_name": "Кокпит", "price": 129990, "specs": "PRO · triple ready", "description": "Рама под тройной монитор.", "badge": "PRO"}, {"id": 61, "sku": "PL-C-06", "name": "Ridge Ultimate", "brand": "RidgeRig", "category": "cockpit", "category_name": "Кокпит", "price": 189990, "specs": "Ultimate · motion ready", "description": "Топовая рама под motion.", "badge": "PRO"}, {"id": 62, "sku": "PL-C-07", "name": "PitLine Turnkey Cockpit", "brand": "PitKit", "category": "cockpit", "category_name": "Кокпит", "price": 114990, "specs": "Сборка под ключ · seat", "description": "Готовый кокпит с установкой.", "badge": "HIT"}, {"id": 63, "sku": "PL-C-08", "name": "Ridge Business Dual", "brand": "RidgeRig", "category": "cockpit", "category_name": "Кокпит", "price": 219990, "specs": "Dual seat · club layout", "description": "Для сим-клубов.", "badge": null}, {"id": 64, "sku": "PL-M-01", "name": "ViewSpan 34 Ultrawide", "brand": "ViewSpan", "category": "monitor", "category_name": "Монитор", "price": 54990, "specs": "34\" · 144 Гц · UW", "description": "Один широкий экран.", "badge": "HIT"}, {"id": 65, "sku": "PL-M-02", "name": "ViewSpan 49 SuperUW", "brand": "ViewSpan", "category": "monitor", "category_name": "Монитор", "price": 109990, "specs": "49\" · 165 Гц · 32:9", "description": "Суперширокий иммерсив.", "badge": null}, {"id": 66, "sku": "PL-M-03", "name": "ViewSpan Triple 27 Kit", "brand": "ViewSpan", "category": "monitor", "category_name": "Монитор", "price": 129990, "specs": "3×27\" · stands", "description": "Тройной комплект с креплениями.", "badge": "PRO"}, {"id": 67, "sku": "PL-M-04", "name": "ViewSpan VR Crystal", "brand": "ViewSpan", "category": "monitor", "category_name": "Монитор", "price": 89990, "specs": "VR headset · controllers", "description": "VR-шлем для иммерсива.", "badge": "NEW"}, {"id": 68, "sku": "PL-M-05", "name": "ViewSpan 32 OLED", "brand": "ViewSpan", "category": "monitor", "category_name": "Монитор", "price": 79990, "specs": "32\" OLED · 240 Гц", "description": "OLED для чёткой картинки.", "badge": null}, {"id": 69, "sku": "PL-H-01", "name": "Apex HB Progressive", "brand": "ApexDrive", "category": "handbrake", "category_name": "Ручник", "price": 14990, "specs": "Progressive sensor", "description": "Прогрессивный ручник.", "badge": "HIT"}, {"id": 70, "sku": "PL-H-02", "name": "Pulse HB-X", "brand": "PulseSim", "category": "handbrake", "category_name": "Ручник", "price": 19990, "specs": "Load cell · CNC", "description": "Точный LC-ручник.", "badge": null}, {"id": 71, "sku": "PL-H-03", "name": "Grid Clubsport HB", "brand": "GridForce", "category": "handbrake", "category_name": "Ручник", "price": 27990, "specs": "Clubsport · QR mount", "description": "Клубный ручник.", "badge": null}, {"id": 72, "sku": "PL-H-04", "name": "Nova Rally HB", "brand": "NovaTorque", "category": "handbrake", "category_name": "Ручник", "price": 16990, "specs": "Rally angle · adjustable", "description": "Под раллийный хват.", "badge": "NEW"}, {"id": 73, "sku": "PL-A-01", "name": "Коврик PITLINE Standard", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 7990, "specs": "200×120 · anti-slip", "description": "Защита пола и акустика.", "badge": "HIT"}, {"id": 74, "sku": "PL-A-02", "name": "Коврик PITLINE XL", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 11990, "specs": "240×140 · XL", "description": "Под широкие кокпиты.", "badge": null}, {"id": 75, "sku": "PL-A-03", "name": "Держатель кулисы / ручника", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 4990, "specs": "Clamp · 4080 ready", "description": "Крепление периферии.", "badge": null}, {"id": 76, "sku": "PL-A-04", "name": "Кабель-менеджмент KIT", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 2990, "specs": "Braided sleeves · clips", "description": "Чистая проводка.", "badge": null}, {"id": 77, "sku": "PL-A-05", "name": "QR Adapter Apex↔Pulse", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 6990, "specs": "Cross-brand QR", "description": "Переходник экосистем.", "badge": null}, {"id": 78, "sku": "PL-A-06", "name": "Подставка под монитор single", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 8990, "specs": "VESA · height adjust", "description": "Кронштейн одного экрана.", "badge": null}, {"id": 79, "sku": "PL-A-07", "name": "Подставка triple mount", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 24990, "specs": "Triple VESA · 27–32", "description": "Рама под три монитора.", "badge": "PRO"}, {"id": 80, "sku": "PL-A-08", "name": "Сиденье Bucket Sport", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 34990, "specs": "Bucket · side mount", "description": "Спортивное сиденье.", "badge": null}, {"id": 81, "sku": "PL-A-09", "name": "Сиденье Formula Low", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 42990, "specs": "Low seating · F1 feel", "description": "Низкая формульная посадка.", "badge": null}, {"id": 82, "sku": "PL-A-10", "name": "Настройка FFB + обучение", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 14990, "specs": "Онлайн / очно · 90 мин", "description": "Инженер PITLINE настраивает FFB.", "badge": "HIT"}, {"id": 83, "sku": "PL-A-11", "name": "Доставка и сборка по городу", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 9990, "specs": "Выезд инженера", "description": "Очная установка.", "badge": null}, {"id": 84, "sku": "PL-A-12", "name": "Удалённая сборка по видео", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 4990, "specs": "Видеосвязь · чек-лист", "description": "Пошаговая удалённая сборка.", "badge": null}], "bundles": [{"id": 1, "slug": "drift-start", "name": "Drift / Rally Start", "filter_tag": "Drift / Rally", "description": "Стойка, стартовый DD-кит и педаль сцепления — вход в дрифт/ралли.", "badge": "Start", "price": 75250, "products": [{"id": 56, "sku": "PL-C-01", "name": "Ridge Fold Stand", "brand": "RidgeRig", "category": "cockpit", "category_name": "Кокпит", "price": 24990, "specs": "Складная стойка · wheel desk", "description": "Компактный вход без рамы.", "badge": null}, {"id": 15, "sku": "PL-B-03", "name": "Apex Base T5 Kit 26", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 37990, "specs": "5.5 Н·м · rim+base kit", "description": "База с комплектным рулём.", "badge": "HIT"}, {"id": 39, "sku": "PL-P-02", "name": "Apex Pedal Lite Clutch", "brand": "ApexDrive", "category": "pedals", "category_name": "Педали", "price": 18990, "specs": "3 педали · clutch add-on", "description": "Lite со сцеплением.", "badge": null}, {"id": 69, "sku": "PL-H-01", "name": "Apex HB Progressive", "brand": "ApexDrive", "category": "handbrake", "category_name": "Ручник", "price": 14990, "specs": "Progressive sensor", "description": "Прогрессивный ручник.", "badge": "HIT"}, {"id": 75, "sku": "PL-A-03", "name": "Держатель кулисы / ручника", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 4990, "specs": "Clamp · 4080 ready", "description": "Крепление периферии.", "badge": null}]}, {"id": 2, "slug": "drift-medium", "name": "Drift / Rally Medium", "filter_tag": "Drift / Rally", "description": "Рама RSS-1, база 9 Н·м, открытый раллийный обод и секвенталка.", "badge": "Medium", "price": 116710, "products": [{"id": 58, "sku": "PL-C-03", "name": "Ridge RSS-1", "brand": "RidgeRig", "category": "cockpit", "category_name": "Кокпит", "price": 79990, "specs": "RSS-1 · adjustable", "description": "Универсальная рама энтузиаста.", "badge": null}, {"id": 16, "sku": "PL-B-04", "name": "Apex Base D9", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 27290, "specs": "FFB 9 Н·м · DD", "description": "Первый direct drive.", "badge": null}, {"id": 4, "sku": "PL-W-04", "name": "Nova Rally Open", "brand": "NovaTorque", "category": "wheel", "category_name": "Руль", "price": 27990, "specs": "Ø330 мм · open rim · paddles", "description": "Открытый обод под ралли.", "badge": "NEW"}, {"id": 40, "sku": "PL-P-03", "name": "Apex Load Cell Sport", "brand": "ApexDrive", "category": "pedals", "category_name": "Педали", "price": 27990, "specs": "Load cell brake · 2 pedal", "description": "Тормоз с тензодатчиком.", "badge": "HIT"}, {"id": 51, "sku": "PL-S-02", "name": "Apex Sequential", "brand": "ApexDrive", "category": "shifter", "category_name": "Шифтер", "price": 18990, "specs": "Sequential · short throw", "description": "Секвенталка для ралли.", "badge": "HIT"}, {"id": 69, "sku": "PL-H-01", "name": "Apex HB Progressive", "brand": "ApexDrive", "category": "handbrake", "category_name": "Ручник", "price": 14990, "specs": "Progressive sensor", "description": "Прогрессивный ручник.", "badge": "HIT"}, {"id": 73, "sku": "PL-A-01", "name": "Коврик PITLINE Standard", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 7990, "specs": "200×120 · anti-slip", "description": "Защита пола и акустика.", "badge": "HIT"}]}, {"id": 3, "slug": "drift-pro", "name": "Drift / Rally Pro", "filter_tag": "Drift / Rally", "description": "Кокпит Start, база 12 Н·м и полный LC-блок — серьёзный раллийный сетап.", "badge": "Pro", "price": 249420, "products": [{"id": 57, "sku": "PL-C-02", "name": "Ridge Start Frame", "brand": "RidgeRig", "category": "cockpit", "category_name": "Кокпит", "price": 54990, "specs": "Профиль 4080 · seat ready", "description": "Стартовый кокпит PITLINE.", "badge": "HIT"}, {"id": 17, "sku": "PL-B-05", "name": "Apex Base D12", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 37490, "specs": "FFB 12 Н·м · DD", "description": "Универсальный DD для лиг.", "badge": null}, {"id": 4, "sku": "PL-W-04", "name": "Nova Rally Open", "brand": "NovaTorque", "category": "wheel", "category_name": "Руль", "price": 27990, "specs": "Ø330 мм · open rim · paddles", "description": "Открытый обод под ралли.", "badge": "NEW"}, {"id": 41, "sku": "PL-P-04", "name": "Apex Load Cell Pro", "brand": "ApexDrive", "category": "pedals", "category_name": "Педали", "price": 34990, "specs": "Load cell · 3 pedal · heel", "description": "Полный блок Load Cell.", "badge": null}, {"id": 51, "sku": "PL-S-02", "name": "Apex Sequential", "brand": "ApexDrive", "category": "shifter", "category_name": "Шифтер", "price": 18990, "specs": "Sequential · short throw", "description": "Секвенталка для ралли.", "badge": "HIT"}, {"id": 70, "sku": "PL-H-02", "name": "Pulse HB-X", "brand": "PulseSim", "category": "handbrake", "category_name": "Ручник", "price": 19990, "specs": "Load cell · CNC", "description": "Точный LC-ручник.", "badge": null}, {"id": 73, "sku": "PL-A-01", "name": "Коврик PITLINE Standard", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 7990, "specs": "200×120 · anti-slip", "description": "Защита пола и акустика.", "badge": "HIT"}]}, {"id": 4, "slug": "gt-formula", "name": "GT / Formula", "filter_tag": "Гонки", "description": "Формульная рама и мощная база 21 Н·м Ultra под GT/F1.", "badge": null, "price": 292950, "products": [{"id": 59, "sku": "PL-C-04", "name": "Ridge Formula Tub", "brand": "RidgeRig", "category": "cockpit", "category_name": "Кокпит", "price": 99990, "specs": "F1 seating · low CG", "description": "Формульная посадка.", "badge": null}, {"id": 22, "sku": "PL-B-10", "name": "Apex Base D21 Ultra", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 65990, "specs": "FFB 21 Н·м · Ultra", "description": "Максимум линейки Apex.", "badge": "NEW"}, {"id": 6, "sku": "PL-W-06", "name": "Pulse F1 Replica", "brand": "PulseSim", "category": "wheel", "category_name": "Руль", "price": 45990, "specs": "Formula · LED rev · QR2", "description": "Реплика F1-штурвала.", "badge": null}, {"id": 43, "sku": "PL-P-06", "name": "Pulse P1000", "brand": "PulseSim", "category": "pedals", "category_name": "Педали", "price": 52990, "specs": "Hydraulic feel · LC", "description": "Гидравлическое ощущение.", "badge": null}, {"id": 73, "sku": "PL-A-01", "name": "Коврик PITLINE Standard", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 7990, "specs": "200×120 · anti-slip", "description": "Защита пола и акустика.", "badge": "HIT"}, {"id": 81, "sku": "PL-A-09", "name": "Сиденье Formula Low", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 42990, "specs": "Low seating · F1 feel", "description": "Низкая формульная посадка.", "badge": null}]}, {"id": 5, "slug": "immersion-manual", "name": "Immersion Manual Pro", "filter_tag": "Гонки", "description": "PRO-кокпит, VR и ручная КПП для полного погружения.", "badge": "Immersive", "price": 470380, "products": [{"id": 60, "sku": "PL-C-05", "name": "Ridge Pro Chassis", "brand": "RidgeRig", "category": "cockpit", "category_name": "Кокпит", "price": 129990, "specs": "PRO · triple ready", "description": "Рама под тройной монитор.", "badge": "PRO"}, {"id": 19, "sku": "PL-B-07", "name": "Apex Base D16", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 57990, "specs": "FFB 16 Н·м · DD", "description": "Мощная база без компромиссов.", "badge": null}, {"id": 5, "sku": "PL-W-05", "name": "Pulse GT-X Carbon", "brand": "PulseSim", "category": "wheel", "category_name": "Руль", "price": 41990, "specs": "Карбон · magnetic paddles", "description": "Лёгкий карбон для длинных стинтов.", "badge": "PRO"}, {"id": 44, "sku": "PL-P-07", "name": "Pulse P2000 Ultimate", "brand": "PulseSim", "category": "pedals", "category_name": "Педали", "price": 78990, "specs": "Ultimate LC · haptics", "description": "Хаптика и точная настройка.", "badge": "PRO"}, {"id": 52, "sku": "PL-S-03", "name": "Pulse DS-8X", "brand": "PulseSim", "category": "shifter", "category_name": "Шифтер", "price": 28990, "specs": "H + sequential dual", "description": "Два режима в одном корпусе.", "badge": null}, {"id": 67, "sku": "PL-M-04", "name": "ViewSpan VR Crystal", "brand": "ViewSpan", "category": "monitor", "category_name": "Монитор", "price": 89990, "specs": "VR headset · controllers", "description": "VR-шлем для иммерсива.", "badge": "NEW"}, {"id": 73, "sku": "PL-A-01", "name": "Коврик PITLINE Standard", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 7990, "specs": "200×120 · anti-slip", "description": "Защита пола и акустика.", "badge": "HIT"}]}, {"id": 6, "slug": "master-pro", "name": "Master Pro", "filter_tag": "Максимум", "description": "Ultimate-рама и Force Invicta 27 Н·м — максимум без компромиссов.", "badge": "Master", "price": 1181910, "products": [{"id": 61, "sku": "PL-C-06", "name": "Ridge Ultimate", "brand": "RidgeRig", "category": "cockpit", "category_name": "Кокпит", "price": 189990, "specs": "Ultimate · motion ready", "description": "Топовая рама под motion.", "badge": "PRO"}, {"id": 33, "sku": "PL-B-21", "name": "Force Invicta 27", "brand": "ForceCore", "category": "base", "category_name": "База", "price": 219990, "specs": "FFB 27 Н·м · Invicta", "description": "Максимальный момент ForceCore.", "badge": "PRO"}, {"id": 12, "sku": "PL-W-12", "name": "Force Invicta Wheel", "brand": "ForceCore", "category": "wheel", "category_name": "Руль", "price": 94990, "specs": "Invicta · APM · alcantara", "description": "Премиум-обод под мощные базы.", "badge": "PRO"}, {"id": 47, "sku": "PL-P-10", "name": "Force Invicta Pedals", "brand": "ForceCore", "category": "pedals", "category_name": "Педали", "price": 129990, "specs": "Invicta · telemetry", "description": "Топовые педали ForceCore.", "badge": "PRO"}, {"id": 53, "sku": "PL-S-04", "name": "Grid SQ Shifter", "brand": "GridForce", "category": "shifter", "category_name": "Шифтер", "price": 34990, "specs": "Clubsport sequential", "description": "Клубная секвенталка.", "badge": null}, {"id": 66, "sku": "PL-M-03", "name": "ViewSpan Triple 27 Kit", "brand": "ViewSpan", "category": "monitor", "category_name": "Монитор", "price": 129990, "specs": "3×27\" · stands", "description": "Тройной комплект с креплениями.", "badge": "PRO"}, {"id": 74, "sku": "PL-A-02", "name": "Коврик PITLINE XL", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 11990, "specs": "240×140 · XL", "description": "Под широкие кокпиты.", "badge": null}, {"id": 79, "sku": "PL-A-07", "name": "Подставка triple mount", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 24990, "specs": "Triple VESA · 27–32", "description": "Рама под три монитора.", "badge": "PRO"}]}, {"id": 7, "slug": "legend-pro", "name": "Legend Pro", "filter_tag": "Максимум", "description": "Ultimate + TorqueLab Drive 25 — лабораторный уровень телеметрии.", "badge": "Legend", "price": 1231910, "products": [{"id": 61, "sku": "PL-C-06", "name": "Ridge Ultimate", "brand": "RidgeRig", "category": "cockpit", "category_name": "Кокпит", "price": 189990, "specs": "Ultimate · motion ready", "description": "Топовая рама под motion.", "badge": "PRO"}, {"id": 32, "sku": "PL-B-20", "name": "TL Drive 25", "brand": "TorqueLab", "category": "base", "category_name": "База", "price": 189990, "specs": "FFB 25 Н·м · servo", "description": "Сервопривод лабораторного уровня.", "badge": "PRO"}, {"id": 8, "sku": "PL-W-08", "name": "Grid Podium Formula", "brand": "GridForce", "category": "wheel", "category_name": "Руль", "price": 78990, "specs": "Podium · APM · carbon", "description": "Топовый формульный штурвал.", "badge": "PRO"}, {"id": 49, "sku": "PL-P-12", "name": "TL Pedal Stack", "brand": "TorqueLab", "category": "pedals", "category_name": "Педали", "price": 99990, "specs": "Servo brake · telemetry", "description": "Сервотормоз TorqueLab.", "badge": "PRO"}, {"id": 65, "sku": "PL-M-02", "name": "ViewSpan 49 SuperUW", "brand": "ViewSpan", "category": "monitor", "category_name": "Монитор", "price": 109990, "specs": "49\" · 165 Гц · 32:9", "description": "Суперширокий иммерсив.", "badge": null}, {"id": 74, "sku": "PL-A-02", "name": "Коврик PITLINE XL", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 11990, "specs": "240×140 · XL", "description": "Под широкие кокпиты.", "badge": null}, {"id": 82, "sku": "PL-A-10", "name": "Настройка FFB + обучение", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 14990, "specs": "Онлайн / очно · 90 мин", "description": "Инженер PITLINE настраивает FFB.", "badge": "HIT"}]}, {"id": 8, "slug": "pilot-sokolov", "name": "Setup Пилот Соколов", "filter_tag": "Персональные", "description": "Персональная сборка энтузиаста: Ultimate, D12 и GT-обод.", "badge": "Personal", "price": 267950, "products": [{"id": 61, "sku": "PL-C-06", "name": "Ridge Ultimate", "brand": "RidgeRig", "category": "cockpit", "category_name": "Кокпит", "price": 189990, "specs": "Ultimate · motion ready", "description": "Топовая рама под motion.", "badge": "PRO"}, {"id": 17, "sku": "PL-B-05", "name": "Apex Base D12", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 37490, "specs": "FFB 12 Н·м · DD", "description": "Универсальный DD для лиг.", "badge": null}, {"id": 3, "sku": "PL-W-03", "name": "Nova GT Pro Leather", "brand": "NovaTorque", "category": "wheel", "category_name": "Руль", "price": 32990, "specs": "Ø300 мм · кожа · RGB", "description": "Кожаный GT-обод с подсветкой.", "badge": null}, {"id": 41, "sku": "PL-P-04", "name": "Apex Load Cell Pro", "brand": "ApexDrive", "category": "pedals", "category_name": "Педали", "price": 34990, "specs": "Load cell · 3 pedal · heel", "description": "Полный блок Load Cell.", "badge": null}, {"id": 73, "sku": "PL-A-01", "name": "Коврик PITLINE Standard", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 7990, "specs": "200×120 · anti-slip", "description": "Защита пола и акустика.", "badge": "HIT"}, {"id": 80, "sku": "PL-A-08", "name": "Сиденье Bucket Sport", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 34990, "specs": "Bucket · side mount", "description": "Спортивное сиденье.", "badge": null}]}, {"id": 9, "slug": "pilot-chekalov", "name": "Setup Пилот Чекалов", "filter_tag": "Персональные", "description": "TrueTorque 25, карбоновый обод и активные педали.", "badge": "Personal", "price": 252560, "products": [{"id": 23, "sku": "PL-B-11", "name": "Apex Base D25 TrueTorque", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 81990, "specs": "FFB 25 Н·м · TrueTorque", "description": "Флагман Apex с TrueTorque.", "badge": "NEW"}, {"id": 5, "sku": "PL-W-05", "name": "Pulse GT-X Carbon", "brand": "PulseSim", "category": "wheel", "category_name": "Руль", "price": 41990, "specs": "Карбон · magnetic paddles", "description": "Лёгкий карбон для длинных стинтов.", "badge": "PRO"}, {"id": 42, "sku": "PL-P-05", "name": "Apex Active Booster", "brand": "ApexDrive", "category": "pedals", "category_name": "Педали", "price": 45990, "specs": "Active throttle/brake", "description": "Активный блок газ/тормоз.", "badge": "NEW"}, {"id": 60, "sku": "PL-C-05", "name": "Ridge Pro Chassis", "brand": "RidgeRig", "category": "cockpit", "category_name": "Кокпит", "price": 129990, "specs": "PRO · triple ready", "description": "Рама под тройной монитор.", "badge": "PRO"}, {"id": 73, "sku": "PL-A-01", "name": "Коврик PITLINE Standard", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 7990, "specs": "200×120 · anti-slip", "description": "Защита пола и акустика.", "badge": "HIT"}]}, {"id": 10, "slug": "pilot-dobro", "name": "Setup Пилот Добро", "filter_tag": "Персональные", "description": "D16, большой диск и раллийный ручник.", "badge": "Personal", "price": 259880, "products": [{"id": 19, "sku": "PL-B-07", "name": "Apex Base D16", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 57990, "specs": "FFB 16 Н·м · DD", "description": "Мощная база без компромиссов.", "badge": null}, {"id": 9, "sku": "PL-W-09", "name": "TL Steering Disc 18", "brand": "TorqueLab", "category": "wheel", "category_name": "Руль", "price": 38990, "specs": "Ø457 мм · truck/classic", "description": "Большой диск под классику и траки.", "badge": null}, {"id": 41, "sku": "PL-P-04", "name": "Apex Load Cell Pro", "brand": "ApexDrive", "category": "pedals", "category_name": "Педали", "price": 34990, "specs": "Load cell · 3 pedal · heel", "description": "Полный блок Load Cell.", "badge": null}, {"id": 72, "sku": "PL-H-04", "name": "Nova Rally HB", "brand": "NovaTorque", "category": "handbrake", "category_name": "Ручник", "price": 16990, "specs": "Rally angle · adjustable", "description": "Под раллийный хват.", "badge": "NEW"}, {"id": 58, "sku": "PL-C-03", "name": "Ridge RSS-1", "brand": "RidgeRig", "category": "cockpit", "category_name": "Кокпит", "price": 79990, "specs": "RSS-1 · adjustable", "description": "Универсальная рама энтузиаста.", "badge": null}, {"id": 73, "sku": "PL-A-01", "name": "Коврик PITLINE Standard", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 7990, "specs": "200×120 · anti-slip", "description": "Защита пола и акустика.", "badge": "HIT"}]}, {"id": 11, "slug": "sim-club-start", "name": "Sim Club Start", "filter_tag": "Бизнес", "description": "Клубная точка: кокпит Start, T5 kit и коврик — готово к сдаче в аренду.", "badge": "Business", "price": 319230, "products": [{"id": 57, "sku": "PL-C-02", "name": "Ridge Start Frame", "brand": "RidgeRig", "category": "cockpit", "category_name": "Кокпит", "price": 54990, "specs": "Профиль 4080 · seat ready", "description": "Стартовый кокпит PITLINE.", "badge": "HIT"}, {"id": 15, "sku": "PL-B-03", "name": "Apex Base T5 Kit 26", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 37990, "specs": "5.5 Н·м · rim+base kit", "description": "База с комплектным рулём.", "badge": "HIT"}, {"id": 39, "sku": "PL-P-02", "name": "Apex Pedal Lite Clutch", "brand": "ApexDrive", "category": "pedals", "category_name": "Педали", "price": 18990, "specs": "3 педали · clutch add-on", "description": "Lite со сцеплением.", "badge": null}, {"id": 73, "sku": "PL-A-01", "name": "Коврик PITLINE Standard", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 7990, "specs": "200×120 · anti-slip", "description": "Защита пола и акустика.", "badge": "HIT"}, {"id": 83, "sku": "PL-A-11", "name": "Доставка и сборка по городу", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 9990, "specs": "Выезд инженера", "description": "Очная установка.", "badge": null}, {"id": 64, "sku": "PL-M-01", "name": "ViewSpan 34 Ultrawide", "brand": "ViewSpan", "category": "monitor", "category_name": "Монитор", "price": 54990, "specs": "34\" · 144 Гц · UW", "description": "Один широкий экран.", "badge": "HIT"}]}, {"id": 12, "slug": "sim-club-dual", "name": "Sim Club Dual Bay", "filter_tag": "Бизнес", "description": "Двухместная бизнес-рама для сим-клуба.", "badge": "Business", "price": 489900, "products": [{"id": 63, "sku": "PL-C-08", "name": "Ridge Business Dual", "brand": "RidgeRig", "category": "cockpit", "category_name": "Кокпит", "price": 219990, "specs": "Dual seat · club layout", "description": "Для сим-клубов.", "badge": null}, {"id": 17, "sku": "PL-B-05", "name": "Apex Base D12", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 37490, "specs": "FFB 12 Н·м · DD", "description": "Универсальный DD для лиг.", "badge": null}, {"id": 17, "sku": "PL-B-05", "name": "Apex Base D12", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 37490, "specs": "FFB 12 Н·м · DD", "description": "Универсальный DD для лиг.", "badge": null}, {"id": 1, "sku": "PL-W-01", "name": "Apex Rim 28 GT", "brand": "ApexDrive", "category": "wheel", "category_name": "Руль", "price": 18990, "specs": "Ø280 мм · 22 кнопки · Alcantara", "description": "Круглый руль для GT и дрифта.", "badge": null}, {"id": 1, "sku": "PL-W-01", "name": "Apex Rim 28 GT", "brand": "ApexDrive", "category": "wheel", "category_name": "Руль", "price": 18990, "specs": "Ø280 мм · 22 кнопки · Alcantara", "description": "Круглый руль для GT и дрифта.", "badge": null}, {"id": 40, "sku": "PL-P-03", "name": "Apex Load Cell Sport", "brand": "ApexDrive", "category": "pedals", "category_name": "Педали", "price": 27990, "specs": "Load cell brake · 2 pedal", "description": "Тормоз с тензодатчиком.", "badge": "HIT"}, {"id": 40, "sku": "PL-P-03", "name": "Apex Load Cell Sport", "brand": "ApexDrive", "category": "pedals", "category_name": "Педали", "price": 27990, "specs": "Load cell brake · 2 pedal", "description": "Тормоз с тензодатчиком.", "badge": "HIT"}, {"id": 74, "sku": "PL-A-02", "name": "Коврик PITLINE XL", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 11990, "specs": "240×140 · XL", "description": "Под широкие кокпиты.", "badge": null}]}, {"id": 13, "slug": "kit-apex-t3", "name": "Набор Apex T3", "filter_tag": "Наборы", "description": "Стартовые наборы на базе Apex T3 — доступный вход.", "badge": "Apex T3", "price": 26990, "products": [{"id": 13, "sku": "PL-B-01", "name": "Apex Base T3", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 22990, "specs": "FFB 3.9 Н·м · belt", "description": "Вход в FFB после геймпада.", "badge": null}, {"id": 11, "sku": "PL-W-11", "name": "Apex Bundle Rim Lite", "brand": "ApexDrive", "category": "wheel", "category_name": "Руль", "price": 12990, "specs": "Ø280 мм · комплектный", "description": "Лёгкий обод из стартовых бандлов.", "badge": null}, {"id": 38, "sku": "PL-P-01", "name": "Apex Pedal Lite", "brand": "ApexDrive", "category": "pedals", "category_name": "Педали", "price": 14990, "specs": "2 педали · potentiometer", "description": "Стартовый блок без сцепления.", "badge": null}]}, {"id": 14, "slug": "kit-apex-t5", "name": "Набор Apex T5", "filter_tag": "Наборы", "description": "Наборы на базе T5 — от базовых до продвинутых.", "badge": "Apex T5", "price": 37990, "products": [{"id": 15, "sku": "PL-B-03", "name": "Apex Base T5 Kit 26", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 37990, "specs": "5.5 Н·м · rim+base kit", "description": "База с комплектным рулём.", "badge": "HIT"}, {"id": 39, "sku": "PL-P-02", "name": "Apex Pedal Lite Clutch", "brand": "ApexDrive", "category": "pedals", "category_name": "Педали", "price": 18990, "specs": "3 педали · clutch add-on", "description": "Lite со сцеплением.", "badge": null}, {"id": 75, "sku": "PL-A-03", "name": "Держатель кулисы / ручника", "brand": "PitKit", "category": "accessories", "category_name": "Аксессуары", "price": 4990, "specs": "Clamp · 4080 ready", "description": "Крепление периферии.", "badge": null}]}, {"id": 15, "slug": "kit-apex-d9", "name": "Набор Apex D9", "filter_tag": "Наборы", "description": "Средний уровень: первый DD и LC-тормоз.", "badge": "Apex D9", "price": 56990, "products": [{"id": 16, "sku": "PL-B-04", "name": "Apex Base D9", "brand": "ApexDrive", "category": "base", "category_name": "База", "price": 27290, "specs": "FFB 9 Н·м · DD", "description": "Первый direct drive.", "badge": null}, {"id": 1, "sku": "PL-W-01", "name": "Apex Rim 28 GT", "brand": "ApexDrive", "category": "wheel", "category_name": "Руль", "price": 18990, "specs": "Ø280 мм · 22 кнопки · Alcantara", "description": "Круглый руль для GT и дрифта.", "badge": null}, {"id": 40, "sku": "PL-P-03", "name": "Apex Load Cell Sport", "brand": "ApexDrive", "category": "pedals", "category_name": "Педали", "price": 27990, "specs": "Load cell brake · 2 pedal", "description": "Тормоз с тензодатчиком.", "badge": "HIT"}]}, {"id": 16, "slug": "kit-grid-csl", "name": "Набор Grid CSL", "filter_tag": "Наборы", "description": "Экосистема Grid для консолей и ПК.", "badge": "Grid", "price": 95990, "products": [{"id": 30, "sku": "PL-B-18", "name": "Grid CSL DD 8", "brand": "GridForce", "category": "base", "category_name": "База", "price": 62990, "specs": "FFB 8 Н·м · CSL", "description": "Вход в экосистему Grid.", "badge": null}, {"id": 7, "sku": "PL-W-07", "name": "Grid Clubsport Round", "brand": "GridForce", "category": "wheel", "category_name": "Руль", "price": 55990, "specs": "Ø330 мм · Clubsport QR", "description": "Универсальный клубный круг.", "badge": null}, {"id": 45, "sku": "PL-P-08", "name": "Grid CSL Pedals LC", "brand": "GridForce", "category": "pedals", "category_name": "Педали", "price": 39990, "specs": "Load cell · CSL", "description": "Клубный LC-блок.", "badge": null}]}, {"id": 17, "slug": "kit-throttle-hybrid", "name": "Набор ThrottleX Hybrid", "filter_tag": "Наборы", "description": "Проверенная классика для консолей.", "badge": "ThrottleX", "price": 59990, "products": [{"id": 34, "sku": "PL-B-22", "name": "TX T248 Hybrid", "brand": "ThrottleX", "category": "base", "category_name": "База", "price": 29990, "specs": "Hybrid FFB · console", "description": "Гибрид для консолей.", "badge": null}, {"id": 10, "sku": "PL-W-10", "name": "TX Leather Round 28", "brand": "ThrottleX", "category": "wheel", "category_name": "Руль", "price": 15990, "specs": "Ø280 мм · кожа · 12 кнопок", "description": "Доступный кожаный круг.", "badge": null}, {"id": 48, "sku": "PL-P-11", "name": "TX T3PM Pedals", "brand": "ThrottleX", "category": "pedals", "category_name": "Педали", "price": 12990, "specs": "3 pedal · console", "description": "Консольный комплект.", "badge": null}]}, {"id": 18, "slug": "kit-pulse-evo", "name": "Набор Pulse Evo", "filter_tag": "Наборы", "description": "Pulse Evo 12 + P1000 — серьёзный средний сегмент.", "badge": "Pulse", "price": 119990, "products": [{"id": 26, "sku": "PL-B-14", "name": "Pulse Alpha Evo 12", "brand": "PulseSim", "category": "base", "category_name": "База", "price": 56990, "specs": "FFB 12 Н·м · Evo", "description": "Баланс мощности и цены.", "badge": null}, {"id": 5, "sku": "PL-W-05", "name": "Pulse GT-X Carbon", "brand": "PulseSim", "category": "wheel", "category_name": "Руль", "price": 41990, "specs": "Карбон · magnetic paddles", "description": "Лёгкий карбон для длинных стинтов.", "badge": "PRO"}, {"id": 43, "sku": "PL-P-06", "name": "Pulse P1000", "brand": "PulseSim", "category": "pedals", "category_name": "Педали", "price": 52990, "specs": "Hydraulic feel · LC", "description": "Гидравлическое ощущение.", "badge": null}]}], "tags": ["Все", "Drift / Rally", "Бизнес", "Гонки", "Максимум", "Наборы", "Персональные"]};</script>
 <script>
+const CATALOG = {"categories": [{"slug": "wheel", "name": "Руль"}, {"slug": "base", "name": "База"}, {"slug": "pedals", "name": "Педали"}, {"slug": "shifter", "name": "Шифтер"}, {"slug": "cockpit", "name": "Кокпит"}, {"slug": "monitor", "name": "Монитор"}, {"slug": "handbrake", "name": "Ручник"}, {"slug": "accessories", "name": "Аксессуары"}], "products": [{"id": 1, "sku": "PL-W-01", "category": "wheel", "brand": "ApexDrive", "name": "Apex Rim 28 GT", "price": 18990, "specs": "Ø280 мм · 22 кнопки · Alcantara", "badge": null, "description": "Круглый руль для GT и дрифта.", "image": null}, {"id": 2, "sku": "PL-W-02", "category": "wheel", "brand": "ApexDrive", "name": "Apex Rim 32 Formula", "price": 24990, "specs": "Ø320 мм · Formula grip · QR", "badge": "HIT", "description": "Формульный обод с быстрым QR.", "image": null}, {"id": 3, "sku": "PL-W-03", "category": "wheel", "brand": "NovaTorque", "name": "Nova GT Pro Leather", "price": 32990, "specs": "Ø300 мм · кожа · RGB", "badge": null, "description": "Кожаный GT-обод с подсветкой.", "image": null}, {"id": 4, "sku": "PL-W-04", "category": "wheel", "brand": "NovaTorque", "name": "Nova Rally Open", "price": 27990, "specs": "Ø330 мм · open rim · paddles", "badge": "NEW", "description": "Открытый обод под ралли.", "image": null}, {"id": 5, "sku": "PL-W-05", "category": "wheel", "brand": "PulseSim", "name": "Pulse GT-X Carbon", "price": 41990, "specs": "Карбон · magnetic paddles", "badge": "PRO", "description": "Лёгкий карбон для длинных стинтов.", "image": null}, {"id": 6, "sku": "PL-W-06", "category": "wheel", "brand": "PulseSim", "name": "Pulse F1 Replica", "price": 45990, "specs": "Formula · LED rev · QR2", "badge": null, "description": "Реплика F1-штурвала.", "image": null}, {"id": 7, "sku": "PL-W-07", "category": "wheel", "brand": "GridForce", "name": "Grid Clubsport Round", "price": 55990, "specs": "Ø330 мм · Clubsport QR", "badge": null, "description": "Универсальный клубный круг.", "image": null}, {"id": 8, "sku": "PL-W-08", "category": "wheel", "brand": "GridForce", "name": "Grid Podium Formula", "price": 78990, "specs": "Podium · APM · carbon", "badge": "PRO", "description": "Топовый формульный штурвал.", "image": null}, {"id": 9, "sku": "PL-W-09", "category": "wheel", "brand": "TorqueLab", "name": "TL Steering Disc 18", "price": 38990, "specs": "Ø457 мм · truck/classic", "badge": null, "description": "Большой диск под классику и траки.", "image": null}, {"id": 10, "sku": "PL-W-10", "category": "wheel", "brand": "ThrottleX", "name": "TX Leather Round 28", "price": 15990, "specs": "Ø280 мм · кожа · 12 кнопок", "badge": null, "description": "Доступный кожаный круг.", "image": null}, {"id": 11, "sku": "PL-W-11", "category": "wheel", "brand": "ApexDrive", "name": "Apex Bundle Rim Lite", "price": 12990, "specs": "Ø280 мм · комплектный", "badge": null, "description": "Лёгкий обод из стартовых бандлов.", "image": null}, {"id": 12, "sku": "PL-W-12", "category": "wheel", "brand": "ForceCore", "name": "Force Invicta Wheel", "price": 94990, "specs": "Invicta · APM · alcantara", "badge": "PRO", "description": "Премиум-обод под мощные базы.", "image": null}, {"id": 13, "sku": "PL-B-01", "category": "base", "brand": "ApexDrive", "name": "Apex Base T3", "price": 22990, "specs": "FFB 3.9 Н·м · belt", "badge": null, "description": "Вход в FFB после геймпада.", "image": null}, {"id": 14, "sku": "PL-B-02", "category": "base", "brand": "ApexDrive", "name": "Apex Base T5", "price": 25990, "specs": "FFB 5.5 Н·м · belt", "badge": "HIT", "description": "Популярная база среднего входа.", "image": null}, {"id": 15, "sku": "PL-B-03", "category": "base", "brand": "ApexDrive", "name": "Apex Base T5 Kit 26", "price": 37990, "specs": "5.5 Н·м · rim+base kit", "badge": "HIT", "description": "База с комплектным рулём.", "image": null}, {"id": 16, "sku": "PL-B-04", "category": "base", "brand": "ApexDrive", "name": "Apex Base D9", "price": 27290, "specs": "FFB 9 Н·м · DD", "badge": null, "description": "Первый direct drive.", "image": null}, {"id": 17, "sku": "PL-B-05", "category": "base", "brand": "ApexDrive", "name": "Apex Base D12", "price": 37490, "specs": "FFB 12 Н·м · DD", "badge": null, "description": "Универсальный DD для лиг.", "image": null}, {"id": 18, "sku": "PL-B-06", "category": "base", "brand": "ApexDrive", "name": "Apex Base D12 Console Kit", "price": 64990, "specs": "12 Н·м · PC/console", "badge": "NEW", "description": "DD-кит с консольной совместимостью.", "image": null}, {"id": 19, "sku": "PL-B-07", "category": "base", "brand": "ApexDrive", "name": "Apex Base D16", "price": 57990, "specs": "FFB 16 Н·м · DD", "badge": null, "description": "Мощная база без компромиссов.", "image": null}, {"id": 20, "sku": "PL-B-08", "category": "base", "brand": "ApexDrive", "name": "Apex Base D16 Ultra", "price": 48990, "specs": "FFB 16 Н·м · Ultra firmware", "badge": "NEW", "description": "Обновлённая прошивка Ultra.", "image": null}, {"id": 21, "sku": "PL-B-09", "category": "base", "brand": "ApexDrive", "name": "Apex Base D21", "price": 59990, "specs": "FFB 21 Н·м · DD", "badge": null, "description": "Для тяжёлых ободов и GT.", "image": null}, {"id": 22, "sku": "PL-B-10", "category": "base", "brand": "ApexDrive", "name": "Apex Base D21 Ultra", "price": 65990, "specs": "FFB 21 Н·м · Ultra", "badge": "NEW", "description": "Максимум линейки Apex.", "image": null}, {"id": 23, "sku": "PL-B-11", "category": "base", "brand": "ApexDrive", "name": "Apex Base D25 TrueTorque", "price": 81990, "specs": "FFB 25 Н·м · TrueTorque", "badge": "NEW", "description": "Флагман Apex с TrueTorque.", "image": null}, {"id": 24, "sku": "PL-B-12", "category": "base", "brand": "PulseSim", "name": "Pulse Alpha Mini", "price": 47990, "specs": "FFB 10 Н·м · DD", "badge": null, "description": "Компактный DD Pulse.", "image": null}, {"id": 25, "sku": "PL-B-13", "category": "base", "brand": "PulseSim", "name": "Pulse Alpha Evo Sport", "price": 48990, "specs": "FFB 9 Н·м · Evo", "badge": null, "description": "Спортивная Evo-серия.", "image": null}, {"id": 26, "sku": "PL-B-14", "category": "base", "brand": "PulseSim", "name": "Pulse Alpha Evo 12", "price": 56990, "specs": "FFB 12 Н·м · Evo", "badge": null, "description": "Баланс мощности и цены.", "image": null}, {"id": 27, "sku": "PL-B-15", "category": "base", "brand": "PulseSim", "name": "Pulse Alpha Classic", "price": 59990, "specs": "FFB 15 Н·м · DD", "badge": null, "description": "Классика Pulse Alpha.", "image": null}, {"id": 28, "sku": "PL-B-16", "category": "base", "brand": "PulseSim", "name": "Pulse Alpha Evo Pro", "price": 75990, "specs": "FFB 18 Н·м · Evo Pro", "badge": "PRO", "description": "Для соревновательных пилотов.", "image": null}, {"id": 29, "sku": "PL-B-17", "category": "base", "brand": "PulseSim", "name": "Pulse Alpha Ultimate", "price": 84990, "specs": "FFB 23 Н·м · Ultimate", "badge": "PRO", "description": "Топовая база Pulse.", "image": null}, {"id": 30, "sku": "PL-B-18", "category": "base", "brand": "GridForce", "name": "Grid CSL DD 8", "price": 62990, "specs": "FFB 8 Н·м · CSL", "badge": null, "description": "Вход в экосистему Grid.", "image": null}, {"id": 31, "sku": "PL-B-19", "category": "base", "brand": "GridForce", "name": "Grid DD Pro 12", "price": 89990, "specs": "FFB 12 Н·м · console ready", "badge": "HIT", "description": "Консольный DD Pro.", "image": null}, {"id": 32, "sku": "PL-B-20", "category": "base", "brand": "TorqueLab", "name": "TL Drive 25", "price": 189990, "specs": "FFB 25 Н·м · servo", "badge": "PRO", "description": "Сервопривод лабораторного уровня.", "image": null}, {"id": 33, "sku": "PL-B-21", "category": "base", "brand": "ForceCore", "name": "Force Invicta 27", "price": 219990, "specs": "FFB 27 Н·м · Invicta", "badge": "PRO", "description": "Максимальный момент ForceCore.", "image": null}, {"id": 34, "sku": "PL-B-22", "category": "base", "brand": "ThrottleX", "name": "TX T248 Hybrid", "price": 29990, "specs": "Hybrid FFB · console", "badge": null, "description": "Гибрид для консолей.", "image": null}, {"id": 35, "sku": "PL-B-23", "category": "base", "brand": "ApexDrive", "name": "Apex Aero Stick Bundle", "price": 34990, "specs": "Flight stick kit", "badge": "NEW", "description": "Авиа-бандл для симпилотов.", "image": null}, {"id": 36, "sku": "PL-B-24", "category": "base", "brand": "ApexDrive", "name": "Apex Aero Stick Pro", "price": 38990, "specs": "Flight · active knobs", "badge": "NEW", "description": "Авиа-база с активными рукоятями.", "image": null}, {"id": 37, "sku": "PL-B-25", "category": "base", "brand": "ApexDrive", "name": "Apex Aero Base 12", "price": 54990, "specs": "Flight FFB 12 Н·м", "badge": null, "description": "Отдельная авиа-база.", "image": null}, {"id": 38, "sku": "PL-P-01", "category": "pedals", "brand": "ApexDrive", "name": "Apex Pedal Lite", "price": 14990, "specs": "2 педали · potentiometer", "badge": null, "description": "Стартовый блок без сцепления.", "image": null}, {"id": 39, "sku": "PL-P-02", "category": "pedals", "brand": "ApexDrive", "name": "Apex Pedal Lite Clutch", "price": 18990, "specs": "3 педали · clutch add-on", "badge": null, "description": "Lite со сцеплением.", "image": null}, {"id": 40, "sku": "PL-P-03", "category": "pedals", "brand": "ApexDrive", "name": "Apex Load Cell Sport", "price": 27990, "specs": "Load cell brake · 2 pedal", "badge": "HIT", "description": "Тормоз с тензодатчиком.", "image": null}, {"id": 41, "sku": "PL-P-04", "category": "pedals", "brand": "ApexDrive", "name": "Apex Load Cell Pro", "price": 34990, "specs": "Load cell · 3 pedal · heel", "badge": null, "description": "Полный блок Load Cell.", "image": null}, {"id": 42, "sku": "PL-P-05", "category": "pedals", "brand": "ApexDrive", "name": "Apex Active Booster", "price": 45990, "specs": "Active throttle/brake", "badge": "NEW", "description": "Активный блок газ/тормоз.", "image": null}, {"id": 43, "sku": "PL-P-06", "category": "pedals", "brand": "PulseSim", "name": "Pulse P1000", "price": 52990, "specs": "Hydraulic feel · LC", "badge": null, "description": "Гидравлическое ощущение.", "image": null}, {"id": 44, "sku": "PL-P-07", "category": "pedals", "brand": "PulseSim", "name": "Pulse P2000 Ultimate", "price": 78990, "specs": "Ultimate LC · haptics", "badge": "PRO", "description": "Хаптика и точная настройка.", "image": null}, {"id": 45, "sku": "PL-P-08", "category": "pedals", "brand": "GridForce", "name": "Grid CSL Pedals LC", "price": 39990, "specs": "Load cell · CSL", "badge": null, "description": "Клубный LC-блок.", "image": null}, {"id": 46, "sku": "PL-P-09", "category": "pedals", "brand": "GridForce", "name": "Grid Clubsport V3", "price": 69990, "specs": "V3 · damper kit ready", "badge": "HIT", "description": "Эталон клубных педалей.", "image": null}, {"id": 47, "sku": "PL-P-10", "category": "pedals", "brand": "ForceCore", "name": "Force Invicta Pedals", "price": 129990, "specs": "Invicta · telemetry", "badge": "PRO", "description": "Топовые педали ForceCore.", "image": null}, {"id": 48, "sku": "PL-P-11", "category": "pedals", "brand": "ThrottleX", "name": "TX T3PM Pedals", "price": 12990, "specs": "3 pedal · console", "badge": null, "description": "Консольный комплект.", "image": null}, {"id": 49, "sku": "PL-P-12", "category": "pedals", "brand": "TorqueLab", "name": "TL Pedal Stack", "price": 99990, "specs": "Servo brake · telemetry", "badge": "PRO", "description": "Сервотормоз TorqueLab.", "image": null}, {"id": 50, "sku": "PL-S-01", "category": "shifter", "brand": "ApexDrive", "name": "Apex H-Pattern", "price": 16990, "specs": "H-pattern · 6+R", "badge": null, "description": "Классическая кулиса.", "image": null}, {"id": 51, "sku": "PL-S-02", "category": "shifter", "brand": "ApexDrive", "name": "Apex Sequential", "price": 18990, "specs": "Sequential · short throw", "badge": "HIT", "description": "Секвенталка для ралли.", "image": null}, {"id": 52, "sku": "PL-S-03", "category": "shifter", "brand": "PulseSim", "name": "Pulse DS-8X", "price": 28990, "specs": "H + sequential dual", "badge": null, "description": "Два режима в одном корпусе.", "image": null}, {"id": 53, "sku": "PL-S-04", "category": "shifter", "brand": "GridForce", "name": "Grid SQ Shifter", "price": 34990, "specs": "Clubsport sequential", "badge": null, "description": "Клубная секвенталка.", "image": null}, {"id": 54, "sku": "PL-S-05", "category": "shifter", "brand": "ThrottleX", "name": "TX TH8S", "price": 14990, "specs": "H-pattern · console", "badge": null, "description": "Доступная кулиса.", "image": null}, {"id": 55, "sku": "PL-S-06", "category": "shifter", "brand": "NovaTorque", "name": "Nova Gate Pro", "price": 24990, "specs": "CNC · magnetic gates", "badge": "NEW", "description": "Магнитные ворота.", "image": null}, {"id": 56, "sku": "PL-C-01", "category": "cockpit", "brand": "RidgeRig", "name": "Ridge Fold Stand", "price": 24990, "specs": "Складная стойка · wheel desk", "badge": null, "description": "Компактный вход без рамы.", "image": null}, {"id": 57, "sku": "PL-C-02", "category": "cockpit", "brand": "RidgeRig", "name": "Ridge Start Frame", "price": 54990, "specs": "Профиль 4080 · seat ready", "badge": "HIT", "description": "Стартовый кокпит PITLINE.", "image": null}, {"id": 58, "sku": "PL-C-03", "category": "cockpit", "brand": "RidgeRig", "name": "Ridge RSS-1", "price": 79990, "specs": "RSS-1 · adjustable", "badge": null, "description": "Универсальная рама энтузиаста.", "image": null}, {"id": 59, "sku": "PL-C-04", "category": "cockpit", "brand": "RidgeRig", "name": "Ridge Formula Tub", "price": 99990, "specs": "F1 seating · low CG", "badge": null, "description": "Формульная посадка.", "image": null}, {"id": 60, "sku": "PL-C-05", "category": "cockpit", "brand": "RidgeRig", "name": "Ridge Pro Chassis", "price": 129990, "specs": "PRO · triple ready", "badge": "PRO", "description": "Рама под тройной монитор.", "image": null}, {"id": 61, "sku": "PL-C-06", "category": "cockpit", "brand": "RidgeRig", "name": "Ridge Ultimate", "price": 189990, "specs": "Ultimate · motion ready", "badge": "PRO", "description": "Топовая рама под motion.", "image": null}, {"id": 62, "sku": "PL-C-07", "category": "cockpit", "brand": "PitKit", "name": "PitLine Turnkey Cockpit", "price": 114990, "specs": "Сборка под ключ · seat", "badge": "HIT", "description": "Готовый кокпит с установкой.", "image": null}, {"id": 63, "sku": "PL-C-08", "category": "cockpit", "brand": "RidgeRig", "name": "Ridge Business Dual", "price": 219990, "specs": "Dual seat · club layout", "badge": null, "description": "Для сим-клубов.", "image": null}, {"id": 64, "sku": "PL-M-01", "category": "monitor", "brand": "ViewSpan", "name": "ViewSpan 34 Ultrawide", "price": 54990, "specs": "34\" · 144 Гц · UW", "badge": "HIT", "description": "Один широкий экран.", "image": null}, {"id": 65, "sku": "PL-M-02", "category": "monitor", "brand": "ViewSpan", "name": "ViewSpan 49 SuperUW", "price": 109990, "specs": "49\" · 165 Гц · 32:9", "badge": null, "description": "Суперширокий иммерсив.", "image": null}, {"id": 66, "sku": "PL-M-03", "category": "monitor", "brand": "ViewSpan", "name": "ViewSpan Triple 27 Kit", "price": 129990, "specs": "3×27\" · stands", "badge": "PRO", "description": "Тройной комплект с креплениями.", "image": null}, {"id": 67, "sku": "PL-M-04", "category": "monitor", "brand": "ViewSpan", "name": "ViewSpan VR Crystal", "price": 89990, "specs": "VR headset · controllers", "badge": "NEW", "description": "VR-шлем для иммерсива.", "image": null}, {"id": 68, "sku": "PL-M-05", "category": "monitor", "brand": "ViewSpan", "name": "ViewSpan 32 OLED", "price": 79990, "specs": "32\" OLED · 240 Гц", "badge": null, "description": "OLED для чёткой картинки.", "image": null}, {"id": 69, "sku": "PL-H-01", "category": "handbrake", "brand": "ApexDrive", "name": "Apex HB Progressive", "price": 14990, "specs": "Progressive sensor", "badge": "HIT", "description": "Прогрессивный ручник.", "image": null}, {"id": 70, "sku": "PL-H-02", "category": "handbrake", "brand": "PulseSim", "name": "Pulse HB-X", "price": 19990, "specs": "Load cell · CNC", "badge": null, "description": "Точный LC-ручник.", "image": null}, {"id": 71, "sku": "PL-H-03", "category": "handbrake", "brand": "GridForce", "name": "Grid Clubsport HB", "price": 27990, "specs": "Clubsport · QR mount", "badge": null, "description": "Клубный ручник.", "image": null}, {"id": 72, "sku": "PL-H-04", "category": "handbrake", "brand": "NovaTorque", "name": "Nova Rally HB", "price": 16990, "specs": "Rally angle · adjustable", "badge": "NEW", "description": "Под раллийный хват.", "image": null}, {"id": 73, "sku": "PL-A-01", "category": "accessories", "brand": "PitKit", "name": "Коврик PITLINE Standard", "price": 7990, "specs": "200×120 · anti-slip", "badge": "HIT", "description": "Защита пола и акустика.", "image": null}, {"id": 74, "sku": "PL-A-02", "category": "accessories", "brand": "PitKit", "name": "Коврик PITLINE XL", "price": 11990, "specs": "240×140 · XL", "badge": null, "description": "Под широкие кокпиты.", "image": null}, {"id": 75, "sku": "PL-A-03", "category": "accessories", "brand": "PitKit", "name": "Держатель кулисы / ручника", "price": 4990, "specs": "Clamp · 4080 ready", "badge": null, "description": "Крепление периферии.", "image": null}, {"id": 76, "sku": "PL-A-04", "category": "accessories", "brand": "PitKit", "name": "Кабель-менеджмент KIT", "price": 2990, "specs": "Braided sleeves · clips", "badge": null, "description": "Чистая проводка.", "image": null}, {"id": 77, "sku": "PL-A-05", "category": "accessories", "brand": "PitKit", "name": "QR Adapter Apex↔Pulse", "price": 6990, "specs": "Cross-brand QR", "badge": null, "description": "Переходник экосистем.", "image": null}, {"id": 78, "sku": "PL-A-06", "category": "accessories", "brand": "PitKit", "name": "Подставка под монитор single", "price": 8990, "specs": "VESA · height adjust", "badge": null, "description": "Кронштейн одного экрана.", "image": null}, {"id": 79, "sku": "PL-A-07", "category": "accessories", "brand": "PitKit", "name": "Подставка triple mount", "price": 24990, "specs": "Triple VESA · 27–32", "badge": "PRO", "description": "Рама под три монитора.", "image": null}, {"id": 80, "sku": "PL-A-08", "category": "accessories", "brand": "PitKit", "name": "Сиденье Bucket Sport", "price": 34990, "specs": "Bucket · side mount", "badge": null, "description": "Спортивное сиденье.", "image": null}, {"id": 81, "sku": "PL-A-09", "category": "accessories", "brand": "PitKit", "name": "Сиденье Formula Low", "price": 42990, "specs": "Low seating · F1 feel", "badge": null, "description": "Низкая формульная посадка.", "image": null}, {"id": 82, "sku": "PL-A-10", "category": "accessories", "brand": "PitKit", "name": "Настройка FFB + обучение", "price": 14990, "specs": "Онлайн / очно · 90 мин", "badge": "HIT", "description": "Инженер PITLINE настраивает FFB.", "image": null}, {"id": 83, "sku": "PL-A-11", "category": "accessories", "brand": "PitKit", "name": "Доставка и сборка по городу", "price": 9990, "specs": "Выезд инженера", "badge": null, "description": "Очная установка.", "image": null}, {"id": 84, "sku": "PL-A-12", "category": "accessories", "brand": "PitKit", "name": "Удалённая сборка по видео", "price": 4990, "specs": "Видеосвязь · чек-лист", "badge": null, "description": "Пошаговая удалённая сборка.", "image": null}], "bundles": [{"id": 1, "slug": "drift-start", "name": "Drift / Rally Start", "filter_tag": "Drift / Rally", "description": "Стойка, стартовый DD-кит и педаль сцепления — вход в дрифт/ралли.", "badge": "Start", "price": 75250, "products": [{"id": 56, "sku": "PL-C-01", "category": "cockpit", "brand": "RidgeRig", "name": "Ridge Fold Stand", "price": 24990, "specs": "Складная стойка · wheel desk", "badge": null, "description": "Компактный вход без рамы.", "image": null}, {"id": 15, "sku": "PL-B-03", "category": "base", "brand": "ApexDrive", "name": "Apex Base T5 Kit 26", "price": 37990, "specs": "5.5 Н·м · rim+base kit", "badge": "HIT", "description": "База с комплектным рулём.", "image": null}, {"id": 39, "sku": "PL-P-02", "category": "pedals", "brand": "ApexDrive", "name": "Apex Pedal Lite Clutch", "price": 18990, "specs": "3 педали · clutch add-on", "badge": null, "description": "Lite со сцеплением.", "image": null}, {"id": 69, "sku": "PL-H-01", "category": "handbrake", "brand": "ApexDrive", "name": "Apex HB Progressive", "price": 14990, "specs": "Progressive sensor", "badge": "HIT", "description": "Прогрессивный ручник.", "image": null}, {"id": 75, "sku": "PL-A-03", "category": "accessories", "brand": "PitKit", "name": "Держатель кулисы / ручника", "price": 4990, "specs": "Clamp · 4080 ready", "badge": null, "description": "Крепление периферии.", "image": null}]}, {"id": 2, "slug": "drift-medium", "name": "Drift / Rally Medium", "filter_tag": "Drift / Rally", "description": "Рама RSS-1, база 9 Н·м, открытый раллийный обод и секвенталка.", "badge": "Medium", "price": 116710, "products": [{"id": 58, "sku": "PL-C-03", "category": "cockpit", "brand": "RidgeRig", "name": "Ridge RSS-1", "price": 79990, "specs": "RSS-1 · adjustable", "badge": null, "description": "Универсальная рама энтузиаста.", "image": null}, {"id": 16, "sku": "PL-B-04", "category": "base", "brand": "ApexDrive", "name": "Apex Base D9", "price": 27290, "specs": "FFB 9 Н·м · DD", "badge": null, "description": "Первый direct drive.", "image": null}, {"id": 4, "sku": "PL-W-04", "category": "wheel", "brand": "NovaTorque", "name": "Nova Rally Open", "price": 27990, "specs": "Ø330 мм · open rim · paddles", "badge": "NEW", "description": "Открытый обод под ралли.", "image": null}, {"id": 40, "sku": "PL-P-03", "category": "pedals", "brand": "ApexDrive", "name": "Apex Load Cell Sport", "price": 27990, "specs": "Load cell brake · 2 pedal", "badge": "HIT", "description": "Тормоз с тензодатчиком.", "image": null}, {"id": 51, "sku": "PL-S-02", "category": "shifter", "brand": "ApexDrive", "name": "Apex Sequential", "price": 18990, "specs": "Sequential · short throw", "badge": "HIT", "description": "Секвенталка для ралли.", "image": null}, {"id": 69, "sku": "PL-H-01", "category": "handbrake", "brand": "ApexDrive", "name": "Apex HB Progressive", "price": 14990, "specs": "Progressive sensor", "badge": "HIT", "description": "Прогрессивный ручник.", "image": null}, {"id": 73, "sku": "PL-A-01", "category": "accessories", "brand": "PitKit", "name": "Коврик PITLINE Standard", "price": 7990, "specs": "200×120 · anti-slip", "badge": "HIT", "description": "Защита пола и акустика.", "image": null}]}, {"id": 3, "slug": "drift-pro", "name": "Drift / Rally Pro", "filter_tag": "Drift / Rally", "description": "Кокпит Start, база 12 Н·м и полный LC-блок — серьёзный раллийный сетап.", "badge": "Pro", "price": 249420, "products": [{"id": 57, "sku": "PL-C-02", "category": "cockpit", "brand": "RidgeRig", "name": "Ridge Start Frame", "price": 54990, "specs": "Профиль 4080 · seat ready", "badge": "HIT", "description": "Стартовый кокпит PITLINE.", "image": null}, {"id": 17, "sku": "PL-B-05", "category": "base", "brand": "ApexDrive", "name": "Apex Base D12", "price": 37490, "specs": "FFB 12 Н·м · DD", "badge": null, "description": "Универсальный DD для лиг.", "image": null}, {"id": 4, "sku": "PL-W-04", "category": "wheel", "brand": "NovaTorque", "name": "Nova Rally Open", "price": 27990, "specs": "Ø330 мм · open rim · paddles", "badge": "NEW", "description": "Открытый обод под ралли.", "image": null}, {"id": 41, "sku": "PL-P-04", "category": "pedals", "brand": "ApexDrive", "name": "Apex Load Cell Pro", "price": 34990, "specs": "Load cell · 3 pedal · heel", "badge": null, "description": "Полный блок Load Cell.", "image": null}, {"id": 51, "sku": "PL-S-02", "category": "shifter", "brand": "ApexDrive", "name": "Apex Sequential", "price": 18990, "specs": "Sequential · short throw", "badge": "HIT", "description": "Секвенталка для ралли.", "image": null}, {"id": 70, "sku": "PL-H-02", "category": "handbrake", "brand": "PulseSim", "name": "Pulse HB-X", "price": 19990, "specs": "Load cell · CNC", "badge": null, "description": "Точный LC-ручник.", "image": null}, {"id": 73, "sku": "PL-A-01", "category": "accessories", "brand": "PitKit", "name": "Коврик PITLINE Standard", "price": 7990, "specs": "200×120 · anti-slip", "badge": "HIT", "description": "Защита пола и акустика.", "image": null}]}, {"id": 4, "slug": "gt-formula", "name": "GT / Formula", "filter_tag": "Гонки", "description": "Формульная рама и мощная база 21 Н·м Ultra под GT/F1.", "badge": null, "price": 292950, "products": [{"id": 59, "sku": "PL-C-04", "category": "cockpit", "brand": "RidgeRig", "name": "Ridge Formula Tub", "price": 99990, "specs": "F1 seating · low CG", "badge": null, "description": "Формульная посадка.", "image": null}, {"id": 22, "sku": "PL-B-10", "category": "base", "brand": "ApexDrive", "name": "Apex Base D21 Ultra", "price": 65990, "specs": "FFB 21 Н·м · Ultra", "badge": "NEW", "description": "Максимум линейки Apex.", "image": null}, {"id": 6, "sku": "PL-W-06", "category": "wheel", "brand": "PulseSim", "name": "Pulse F1 Replica", "price": 45990, "specs": "Formula · LED rev · QR2", "badge": null, "description": "Реплика F1-штурвала.", "image": null}, {"id": 43, "sku": "PL-P-06", "category": "pedals", "brand": "PulseSim", "name": "Pulse P1000", "price": 52990, "specs": "Hydraulic feel · LC", "badge": null, "description": "Гидравлическое ощущение.", "image": null}, {"id": 73, "sku": "PL-A-01", "category": "accessories", "brand": "PitKit", "name": "Коврик PITLINE Standard", "price": 7990, "specs": "200×120 · anti-slip", "badge": "HIT", "description": "Защита пола и акустика.", "image": null}, {"id": 81, "sku": "PL-A-09", "category": "accessories", "brand": "PitKit", "name": "Сиденье Formula Low", "price": 42990, "specs": "Low seating · F1 feel", "badge": null, "description": "Низкая формульная посадка.", "image": null}]}, {"id": 5, "slug": "immersion-manual", "name": "Immersion Manual Pro", "filter_tag": "Гонки", "description": "PRO-кокпит, VR и ручная КПП для полного погружения.", "badge": "Immersive", "price": 470380, "products": [{"id": 60, "sku": "PL-C-05", "category": "cockpit", "brand": "RidgeRig", "name": "Ridge Pro Chassis", "price": 129990, "specs": "PRO · triple ready", "badge": "PRO", "description": "Рама под тройной монитор.", "image": null}, {"id": 19, "sku": "PL-B-07", "category": "base", "brand": "ApexDrive", "name": "Apex Base D16", "price": 57990, "specs": "FFB 16 Н·м · DD", "badge": null, "description": "Мощная база без компромиссов.", "image": null}, {"id": 5, "sku": "PL-W-05", "category": "wheel", "brand": "PulseSim", "name": "Pulse GT-X Carbon", "price": 41990, "specs": "Карбон · magnetic paddles", "badge": "PRO", "description": "Лёгкий карбон для длинных стинтов.", "image": null}, {"id": 44, "sku": "PL-P-07", "category": "pedals", "brand": "PulseSim", "name": "Pulse P2000 Ultimate", "price": 78990, "specs": "Ultimate LC · haptics", "badge": "PRO", "description": "Хаптика и точная настройка.", "image": null}, {"id": 52, "sku": "PL-S-03", "category": "shifter", "brand": "PulseSim", "name": "Pulse DS-8X", "price": 28990, "specs": "H + sequential dual", "badge": null, "description": "Два режима в одном корпусе.", "image": null}, {"id": 67, "sku": "PL-M-04", "category": "monitor", "brand": "ViewSpan", "name": "ViewSpan VR Crystal", "price": 89990, "specs": "VR headset · controllers", "badge": "NEW", "description": "VR-шлем для иммерсива.", "image": null}, {"id": 73, "sku": "PL-A-01", "category": "accessories", "brand": "PitKit", "name": "Коврик PITLINE Standard", "price": 7990, "specs": "200×120 · anti-slip", "badge": "HIT", "description": "Защита пола и акустика.", "image": null}]}, {"id": 6, "slug": "master-pro", "name": "Master Pro", "filter_tag": "Максимум", "description": "Ultimate-рама и Force Invicta 27 Н·м — максимум без компромиссов.", "badge": "Master", "price": 1181910, "products": [{"id": 61, "sku": "PL-C-06", "category": "cockpit", "brand": "RidgeRig", "name": "Ridge Ultimate", "price": 189990, "specs": "Ultimate · motion ready", "badge": "PRO", "description": "Топовая рама под motion.", "image": null}, {"id": 33, "sku": "PL-B-21", "category": "base", "brand": "ForceCore", "name": "Force Invicta 27", "price": 219990, "specs": "FFB 27 Н·м · Invicta", "badge": "PRO", "description": "Максимальный момент ForceCore.", "image": null}, {"id": 12, "sku": "PL-W-12", "category": "wheel", "brand": "ForceCore", "name": "Force Invicta Wheel", "price": 94990, "specs": "Invicta · APM · alcantara", "badge": "PRO", "description": "Премиум-обод под мощные базы.", "image": null}, {"id": 47, "sku": "PL-P-10", "category": "pedals", "brand": "ForceCore", "name": "Force Invicta Pedals", "price": 129990, "specs": "Invicta · telemetry", "badge": "PRO", "description": "Топовые педали ForceCore.", "image": null}, {"id": 53, "sku": "PL-S-04", "category": "shifter", "brand": "GridForce", "name": "Grid SQ Shifter", "price": 34990, "specs": "Clubsport sequential", "badge": null, "description": "Клубная секвенталка.", "image": null}, {"id": 66, "sku": "PL-M-03", "category": "monitor", "brand": "ViewSpan", "name": "ViewSpan Triple 27 Kit", "price": 129990, "specs": "3×27\" · stands", "badge": "PRO", "description": "Тройной комплект с креплениями.", "image": null}, {"id": 74, "sku": "PL-A-02", "category": "accessories", "brand": "PitKit", "name": "Коврик PITLINE XL", "price": 11990, "specs": "240×140 · XL", "badge": null, "description": "Под широкие кокпиты.", "image": null}, {"id": 79, "sku": "PL-A-07", "category": "accessories", "brand": "PitKit", "name": "Подставка triple mount", "price": 24990, "specs": "Triple VESA · 27–32", "badge": "PRO", "description": "Рама под три монитора.", "image": null}]}, {"id": 7, "slug": "legend-pro", "name": "Legend Pro", "filter_tag": "Максимум", "description": "Ultimate + TorqueLab Drive 25 — лабораторный уровень телеметрии.", "badge": "Legend", "price": 1231910, "products": [{"id": 61, "sku": "PL-C-06", "category": "cockpit", "brand": "RidgeRig", "name": "Ridge Ultimate", "price": 189990, "specs": "Ultimate · motion ready", "badge": "PRO", "description": "Топовая рама под motion.", "image": null}, {"id": 32, "sku": "PL-B-20", "category": "base", "brand": "TorqueLab", "name": "TL Drive 25", "price": 189990, "specs": "FFB 25 Н·м · servo", "badge": "PRO", "description": "Сервопривод лабораторного уровня.", "image": null}, {"id": 8, "sku": "PL-W-08", "category": "wheel", "brand": "GridForce", "name": "Grid Podium Formula", "price": 78990, "specs": "Podium · APM · carbon", "badge": "PRO", "description": "Топовый формульный штурвал.", "image": null}, {"id": 49, "sku": "PL-P-12", "category": "pedals", "brand": "TorqueLab", "name": "TL Pedal Stack", "price": 99990, "specs": "Servo brake · telemetry", "badge": "PRO", "description": "Сервотормоз TorqueLab.", "image": null}, {"id": 65, "sku": "PL-M-02", "category": "monitor", "brand": "ViewSpan", "name": "ViewSpan 49 SuperUW", "price": 109990, "specs": "49\" · 165 Гц · 32:9", "badge": null, "description": "Суперширокий иммерсив.", "image": null}, {"id": 74, "sku": "PL-A-02", "category": "accessories", "brand": "PitKit", "name": "Коврик PITLINE XL", "price": 11990, "specs": "240×140 · XL", "badge": null, "description": "Под широкие кокпиты.", "image": null}, {"id": 82, "sku": "PL-A-10", "category": "accessories", "brand": "PitKit", "name": "Настройка FFB + обучение", "price": 14990, "specs": "Онлайн / очно · 90 мин", "badge": "HIT", "description": "Инженер PITLINE настраивает FFB.", "image": null}]}, {"id": 8, "slug": "pilot-sokolov", "name": "Setup Пилот Соколов", "filter_tag": "Персональные", "description": "Персональная сборка энтузиаста: Ultimate, D12 и GT-обод.", "badge": "Personal", "price": 267950, "products": [{"id": 61, "sku": "PL-C-06", "category": "cockpit", "brand": "RidgeRig", "name": "Ridge Ultimate", "price": 189990, "specs": "Ultimate · motion ready", "badge": "PRO", "description": "Топовая рама под motion.", "image": null}, {"id": 17, "sku": "PL-B-05", "category": "base", "brand": "ApexDrive", "name": "Apex Base D12", "price": 37490, "specs": "FFB 12 Н·м · DD", "badge": null, "description": "Универсальный DD для лиг.", "image": null}, {"id": 3, "sku": "PL-W-03", "category": "wheel", "brand": "NovaTorque", "name": "Nova GT Pro Leather", "price": 32990, "specs": "Ø300 мм · кожа · RGB", "badge": null, "description": "Кожаный GT-обод с подсветкой.", "image": null}, {"id": 41, "sku": "PL-P-04", "category": "pedals", "brand": "ApexDrive", "name": "Apex Load Cell Pro", "price": 34990, "specs": "Load cell · 3 pedal · heel", "badge": null, "description": "Полный блок Load Cell.", "image": null}, {"id": 73, "sku": "PL-A-01", "category": "accessories", "brand": "PitKit", "name": "Коврик PITLINE Standard", "price": 7990, "specs": "200×120 · anti-slip", "badge": "HIT", "description": "Защита пола и акустика.", "image": null}, {"id": 80, "sku": "PL-A-08", "category": "accessories", "brand": "PitKit", "name": "Сиденье Bucket Sport", "price": 34990, "specs": "Bucket · side mount", "badge": null, "description": "Спортивное сиденье.", "image": null}]}, {"id": 9, "slug": "pilot-chekalov", "name": "Setup Пилот Чекалов", "filter_tag": "Персональные", "description": "TrueTorque 25, карбоновый обод и активные педали.", "badge": "Personal", "price": 252560, "products": [{"id": 23, "sku": "PL-B-11", "category": "base", "brand": "ApexDrive", "name": "Apex Base D25 TrueTorque", "price": 81990, "specs": "FFB 25 Н·м · TrueTorque", "badge": "NEW", "description": "Флагман Apex с TrueTorque.", "image": null}, {"id": 5, "sku": "PL-W-05", "category": "wheel", "brand": "PulseSim", "name": "Pulse GT-X Carbon", "price": 41990, "specs": "Карбон · magnetic paddles", "badge": "PRO", "description": "Лёгкий карбон для длинных стинтов.", "image": null}, {"id": 42, "sku": "PL-P-05", "category": "pedals", "brand": "ApexDrive", "name": "Apex Active Booster", "price": 45990, "specs": "Active throttle/brake", "badge": "NEW", "description": "Активный блок газ/тормоз.", "image": null}, {"id": 60, "sku": "PL-C-05", "category": "cockpit", "brand": "RidgeRig", "name": "Ridge Pro Chassis", "price": 129990, "specs": "PRO · triple ready", "badge": "PRO", "description": "Рама под тройной монитор.", "image": null}, {"id": 73, "sku": "PL-A-01", "category": "accessories", "brand": "PitKit", "name": "Коврик PITLINE Standard", "price": 7990, "specs": "200×120 · anti-slip", "badge": "HIT", "description": "Защита пола и акустика.", "image": null}]}, {"id": 10, "slug": "pilot-dobro", "name": "Setup Пилот Добро", "filter_tag": "Персональные", "description": "D16, большой диск и раллийный ручник.", "badge": "Personal", "price": 259880, "products": [{"id": 19, "sku": "PL-B-07", "category": "base", "brand": "ApexDrive", "name": "Apex Base D16", "price": 57990, "specs": "FFB 16 Н·м · DD", "badge": null, "description": "Мощная база без компромиссов.", "image": null}, {"id": 9, "sku": "PL-W-09", "category": "wheel", "brand": "TorqueLab", "name": "TL Steering Disc 18", "price": 38990, "specs": "Ø457 мм · truck/classic", "badge": null, "description": "Большой диск под классику и траки.", "image": null}, {"id": 41, "sku": "PL-P-04", "category": "pedals", "brand": "ApexDrive", "name": "Apex Load Cell Pro", "price": 34990, "specs": "Load cell · 3 pedal · heel", "badge": null, "description": "Полный блок Load Cell.", "image": null}, {"id": 72, "sku": "PL-H-04", "category": "handbrake", "brand": "NovaTorque", "name": "Nova Rally HB", "price": 16990, "specs": "Rally angle · adjustable", "badge": "NEW", "description": "Под раллийный хват.", "image": null}, {"id": 58, "sku": "PL-C-03", "category": "cockpit", "brand": "RidgeRig", "name": "Ridge RSS-1", "price": 79990, "specs": "RSS-1 · adjustable", "badge": null, "description": "Универсальная рама энтузиаста.", "image": null}, {"id": 73, "sku": "PL-A-01", "category": "accessories", "brand": "PitKit", "name": "Коврик PITLINE Standard", "price": 7990, "specs": "200×120 · anti-slip", "badge": "HIT", "description": "Защита пола и акустика.", "image": null}]}, {"id": 11, "slug": "sim-club-start", "name": "Sim Club Start", "filter_tag": "Бизнес", "description": "Клубная точка: кокпит Start, T5 kit и коврик — готово к сдаче в аренду.", "badge": "Business", "price": 319230, "products": [{"id": 57, "sku": "PL-C-02", "category": "cockpit", "brand": "RidgeRig", "name": "Ridge Start Frame", "price": 54990, "specs": "Профиль 4080 · seat ready", "badge": "HIT", "description": "Стартовый кокпит PITLINE.", "image": null}, {"id": 15, "sku": "PL-B-03", "category": "base", "brand": "ApexDrive", "name": "Apex Base T5 Kit 26", "price": 37990, "specs": "5.5 Н·м · rim+base kit", "badge": "HIT", "description": "База с комплектным рулём.", "image": null}, {"id": 39, "sku": "PL-P-02", "category": "pedals", "brand": "ApexDrive", "name": "Apex Pedal Lite Clutch", "price": 18990, "specs": "3 педали · clutch add-on", "badge": null, "description": "Lite со сцеплением.", "image": null}, {"id": 73, "sku": "PL-A-01", "category": "accessories", "brand": "PitKit", "name": "Коврик PITLINE Standard", "price": 7990, "specs": "200×120 · anti-slip", "badge": "HIT", "description": "Защита пола и акустика.", "image": null}, {"id": 83, "sku": "PL-A-11", "category": "accessories", "brand": "PitKit", "name": "Доставка и сборка по городу", "price": 9990, "specs": "Выезд инженера", "badge": null, "description": "Очная установка.", "image": null}, {"id": 64, "sku": "PL-M-01", "category": "monitor", "brand": "ViewSpan", "name": "ViewSpan 34 Ultrawide", "price": 54990, "specs": "34\" · 144 Гц · UW", "badge": "HIT", "description": "Один широкий экран.", "image": null}]}, {"id": 12, "slug": "sim-club-dual", "name": "Sim Club Dual Bay", "filter_tag": "Бизнес", "description": "Двухместная бизнес-рама для сим-клуба.", "badge": "Business", "price": 489900, "products": [{"id": 63, "sku": "PL-C-08", "category": "cockpit", "brand": "RidgeRig", "name": "Ridge Business Dual", "price": 219990, "specs": "Dual seat · club layout", "badge": null, "description": "Для сим-клубов.", "image": null}, {"id": 17, "sku": "PL-B-05", "category": "base", "brand": "ApexDrive", "name": "Apex Base D12", "price": 37490, "specs": "FFB 12 Н·м · DD", "badge": null, "description": "Универсальный DD для лиг.", "image": null}, {"id": 17, "sku": "PL-B-05", "category": "base", "brand": "ApexDrive", "name": "Apex Base D12", "price": 37490, "specs": "FFB 12 Н·м · DD", "badge": null, "description": "Универсальный DD для лиг.", "image": null}, {"id": 1, "sku": "PL-W-01", "category": "wheel", "brand": "ApexDrive", "name": "Apex Rim 28 GT", "price": 18990, "specs": "Ø280 мм · 22 кнопки · Alcantara", "badge": null, "description": "Круглый руль для GT и дрифта.", "image": null}, {"id": 1, "sku": "PL-W-01", "category": "wheel", "brand": "ApexDrive", "name": "Apex Rim 28 GT", "price": 18990, "specs": "Ø280 мм · 22 кнопки · Alcantara", "badge": null, "description": "Круглый руль для GT и дрифта.", "image": null}, {"id": 40, "sku": "PL-P-03", "category": "pedals", "brand": "ApexDrive", "name": "Apex Load Cell Sport", "price": 27990, "specs": "Load cell brake · 2 pedal", "badge": "HIT", "description": "Тормоз с тензодатчиком.", "image": null}, {"id": 40, "sku": "PL-P-03", "category": "pedals", "brand": "ApexDrive", "name": "Apex Load Cell Sport", "price": 27990, "specs": "Load cell brake · 2 pedal", "badge": "HIT", "description": "Тормоз с тензодатчиком.", "image": null}, {"id": 74, "sku": "PL-A-02", "category": "accessories", "brand": "PitKit", "name": "Коврик PITLINE XL", "price": 11990, "specs": "240×140 · XL", "badge": null, "description": "Под широкие кокпиты.", "image": null}]}, {"id": 13, "slug": "kit-apex-t3", "name": "Набор Apex T3", "filter_tag": "Наборы", "description": "Стартовые наборы на базе Apex T3 — доступный вход.", "badge": "Apex T3", "price": 26990, "products": [{"id": 13, "sku": "PL-B-01", "category": "base", "brand": "ApexDrive", "name": "Apex Base T3", "price": 22990, "specs": "FFB 3.9 Н·м · belt", "badge": null, "description": "Вход в FFB после геймпада.", "image": null}, {"id": 11, "sku": "PL-W-11", "category": "wheel", "brand": "ApexDrive", "name": "Apex Bundle Rim Lite", "price": 12990, "specs": "Ø280 мм · комплектный", "badge": null, "description": "Лёгкий обод из стартовых бандлов.", "image": null}, {"id": 38, "sku": "PL-P-01", "category": "pedals", "brand": "ApexDrive", "name": "Apex Pedal Lite", "price": 14990, "specs": "2 педали · potentiometer", "badge": null, "description": "Стартовый блок без сцепления.", "image": null}]}, {"id": 14, "slug": "kit-apex-t5", "name": "Набор Apex T5", "filter_tag": "Наборы", "description": "Наборы на базе T5 — от базовых до продвинутых.", "badge": "Apex T5", "price": 37990, "products": [{"id": 15, "sku": "PL-B-03", "category": "base", "brand": "ApexDrive", "name": "Apex Base T5 Kit 26", "price": 37990, "specs": "5.5 Н·м · rim+base kit", "badge": "HIT", "description": "База с комплектным рулём.", "image": null}, {"id": 39, "sku": "PL-P-02", "category": "pedals", "brand": "ApexDrive", "name": "Apex Pedal Lite Clutch", "price": 18990, "specs": "3 педали · clutch add-on", "badge": null, "description": "Lite со сцеплением.", "image": null}, {"id": 75, "sku": "PL-A-03", "category": "accessories", "brand": "PitKit", "name": "Держатель кулисы / ручника", "price": 4990, "specs": "Clamp · 4080 ready", "badge": null, "description": "Крепление периферии.", "image": null}]}, {"id": 15, "slug": "kit-apex-d9", "name": "Набор Apex D9", "filter_tag": "Наборы", "description": "Средний уровень: первый DD и LC-тормоз.", "badge": "Apex D9", "price": 56990, "products": [{"id": 16, "sku": "PL-B-04", "category": "base", "brand": "ApexDrive", "name": "Apex Base D9", "price": 27290, "specs": "FFB 9 Н·м · DD", "badge": null, "description": "Первый direct drive.", "image": null}, {"id": 1, "sku": "PL-W-01", "category": "wheel", "brand": "ApexDrive", "name": "Apex Rim 28 GT", "price": 18990, "specs": "Ø280 мм · 22 кнопки · Alcantara", "badge": null, "description": "Круглый руль для GT и дрифта.", "image": null}, {"id": 40, "sku": "PL-P-03", "category": "pedals", "brand": "ApexDrive", "name": "Apex Load Cell Sport", "price": 27990, "specs": "Load cell brake · 2 pedal", "badge": "HIT", "description": "Тормоз с тензодатчиком.", "image": null}]}, {"id": 16, "slug": "kit-grid-csl", "name": "Набор Grid CSL", "filter_tag": "Наборы", "description": "Экосистема Grid для консолей и ПК.", "badge": "Grid", "price": 95990, "products": [{"id": 30, "sku": "PL-B-18", "category": "base", "brand": "GridForce", "name": "Grid CSL DD 8", "price": 62990, "specs": "FFB 8 Н·м · CSL", "badge": null, "description": "Вход в экосистему Grid.", "image": null}, {"id": 7, "sku": "PL-W-07", "category": "wheel", "brand": "GridForce", "name": "Grid Clubsport Round", "price": 55990, "specs": "Ø330 мм · Clubsport QR", "badge": null, "description": "Универсальный клубный круг.", "image": null}, {"id": 45, "sku": "PL-P-08", "category": "pedals", "brand": "GridForce", "name": "Grid CSL Pedals LC", "price": 39990, "specs": "Load cell · CSL", "badge": null, "description": "Клубный LC-блок.", "image": null}]}, {"id": 17, "slug": "kit-throttle-hybrid", "name": "Набор ThrottleX Hybrid", "filter_tag": "Наборы", "description": "Проверенная классика для консолей.", "badge": "ThrottleX", "price": 59990, "products": [{"id": 34, "sku": "PL-B-22", "category": "base", "brand": "ThrottleX", "name": "TX T248 Hybrid", "price": 29990, "specs": "Hybrid FFB · console", "badge": null, "description": "Гибрид для консолей.", "image": null}, {"id": 10, "sku": "PL-W-10", "category": "wheel", "brand": "ThrottleX", "name": "TX Leather Round 28", "price": 15990, "specs": "Ø280 мм · кожа · 12 кнопок", "badge": null, "description": "Доступный кожаный круг.", "image": null}, {"id": 48, "sku": "PL-P-11", "category": "pedals", "brand": "ThrottleX", "name": "TX T3PM Pedals", "price": 12990, "specs": "3 pedal · console", "badge": null, "description": "Консольный комплект.", "image": null}]}, {"id": 18, "slug": "kit-pulse-evo", "name": "Набор Pulse Evo", "filter_tag": "Наборы", "description": "Pulse Evo 12 + P1000 — серьёзный средний сегмент.", "badge": "Pulse", "price": 119990, "products": [{"id": 26, "sku": "PL-B-14", "category": "base", "brand": "PulseSim", "name": "Pulse Alpha Evo 12", "price": 56990, "specs": "FFB 12 Н·м · Evo", "badge": null, "description": "Баланс мощности и цены.", "image": null}, {"id": 5, "sku": "PL-W-05", "category": "wheel", "brand": "PulseSim", "name": "Pulse GT-X Carbon", "price": 41990, "specs": "Карбон · magnetic paddles", "badge": "PRO", "description": "Лёгкий карбон для длинных стинтов.", "image": null}, {"id": 43, "sku": "PL-P-06", "category": "pedals", "brand": "PulseSim", "name": "Pulse P1000", "price": 52990, "specs": "Hydraulic feel · LC", "badge": null, "description": "Гидравлическое ощущение.", "image": null}]}], "tags": ["Все", "Drift / Rally", "Бизнес", "Гонки", "Максимум", "Наборы", "Персональные"]};
 
 const money = (n) => new Intl.NumberFormat("ru-RU").format(n) + " ₽";
 const FEATURED_SLUGS = ["legend-pro", "master-pro", "immersion-manual"];
-const DATA = window.PITLINE_DATA;
-
-const api = {
-  categories: () => DATA.categories.slice().sort((a,b)=>a.sort_order-b.sort_order),
-  products: (category) => DATA.products.filter(p => !category || p.category === category),
-  bundles: (tag) => DATA.bundles.filter(b => !tag || tag === "Все" || b.filter_tag === tag),
-  tags: () => DATA.tags.slice(),
-};
 
 const state = {
   screen: "start",
   mode: null,
   categories: [],
   activeCategory: null,
+  openCategory: null,
   products: [],
   bundles: [],
   allBundles: [],
@@ -1135,49 +1646,144 @@ const state = {
   build: {},
   selectedBundle: null,
   history: [],
+  leadSent: false,
 };
 
 const els = {
-  total: document.getElementById("cfgTotal"),
+  topbar: document.getElementById("cfgTopbar"),
   back: document.getElementById("cfgBack"),
   bundleTags: document.getElementById("bundleTags"),
   bundleGrid: document.getElementById("bundleGrid"),
   catBar: document.getElementById("catBar"),
   productList: document.getElementById("productList"),
-  buildItems: document.getElementById("buildItems"),
-  buildSum: document.getElementById("buildSum"),
-  buildContinue: document.getElementById("buildContinue"),
-  checkoutLabel: document.getElementById("checkoutLabel"),
   checkoutPrice: document.getElementById("checkoutPrice"),
   checkoutList: document.getElementById("checkoutList"),
   formTier: document.getElementById("formTier"),
   featuredGrid: document.getElementById("featuredGrid"),
   contactDialog: document.getElementById("contactDialog"),
+  leadDialog: document.getElementById("leadDialog"),
+  leadDialogTier: document.getElementById("leadDialogTier"),
+  diyCartBtn: document.getElementById("diyCartBtn"),
+  diyCartCount: document.getElementById("diyCartCount"),
+  diyOverlay: document.getElementById("diyOverlay"),
+  diyOverlayTitle: document.getElementById("diyOverlayTitle"),
+  diyOverlayClose: document.getElementById("diyOverlayClose"),
+  cockpitStage: document.getElementById("cockpitStage"),
 };
 
-function buildList() { return Object.values(state.build); }
-function buildTotal() {
-  if (state.selectedBundle && state.mode === "presets") return state.selectedBundle.price;
-  return buildList().reduce((sum, p) => sum + p.price, 0);
+const PART_LABELS = {
+  wheel: "Руль",
+  base: "База",
+  pedals: "Педали",
+  shifter: "Шифтер",
+  cockpit: "Кокпит",
+  monitor: "Монитор",
+  handbrake: "Ручник",
+  accessories: "Аксессуары",
+};
+
+function buildList() {
+  return Object.values(state.build).filter((p) => p && p.id != null);
 }
+
+const CAT_ICONS = {
+  wheel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 5v3M12 16v3M5 12h3M16 12h3"/></svg>',
+  base: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="8" width="14" height="10" rx="2"/><path d="M9 8V6h6v2"/><circle cx="12" cy="13" r="2"/></svg>',
+  pedals: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="8" width="4" height="11" rx="1"/><rect x="10" y="5" width="4" height="14" rx="1"/><rect x="16" y="8" width="4" height="11" rx="1"/></svg>',
+  shifter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="15" width="8" height="5" rx="1"/><path d="M12 15V8l4-3"/><circle cx="16" cy="5" r="1.8" fill="currentColor"/></svg>',
+  cockpit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19l3-11h10l3 11"/><path d="M8 8V5h8v3"/><rect x="9" y="11" width="6" height="4" rx="0.5"/></svg>',
+  monitor: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/></svg>',
+  handbrake: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="16" width="10" height="4" rx="1"/><path d="M12 16L8 7"/><circle cx="7.5" cy="6.5" r="1.8" fill="currentColor"/></svg>',
+  accessories: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 6.3a4 4 0 0 1 0 5.7l-5.7 5.7a2 2 0 0 1-2.8-2.8l5.7-5.7"/><path d="M12 8l4-4 3 3-4 4"/></svg>',
+};
+
 function syncTotals() {
-  els.total.textContent = money(buildTotal());
-  els.buildSum.textContent = money(buildList().reduce((s, p) => s + p.price, 0));
-  els.buildContinue.disabled = buildList().length === 0;
+  const n = buildList().length;
+  if (els.diyCartCount) {
+    els.diyCartCount.textContent = String(n);
+    els.diyCartCount.classList.toggle("is-on", n > 0);
+    els.diyCartCount.hidden = n === 0;
+  }
+  if (els.diyCartBtn) {
+    els.diyCartBtn.classList.toggle("has-items", n > 0);
+  }
 }
+
+function syncCockpit() {
+  if (!els.cockpitStage) return;
+  const focusSlug = state.openCategory || state.activeCategory;
+  els.cockpitStage.querySelectorAll(".ck-part").forEach((el) => {
+    const slug = el.dataset.part;
+    const on = Boolean(state.build[slug]);
+    el.classList.toggle("is-on", on);
+    el.classList.toggle("is-focus", Boolean(focusSlug) && slug === focusSlug && !on);
+  });
+}
+
+function animateCockpitPart(slug) {
+  if (!els.cockpitStage) {
+    syncCockpit();
+    return;
+  }
+  const el = els.cockpitStage.querySelector(`.ck-part[data-part="${slug}"]`);
+  syncCockpit();
+  if (!el) return;
+  el.classList.remove("is-flash");
+  void el.offsetWidth;
+  el.classList.add("is-flash");
+  window.setTimeout(() => el.classList.remove("is-flash"), 280);
+}
+
+function bindCockpitClicks() {
+  if (!els.cockpitStage || els.cockpitStage.dataset.bound) return;
+  els.cockpitStage.dataset.bound = "1";
+  els.cockpitStage.querySelectorAll(".ck-part").forEach((el) => {
+    el.addEventListener("click", () => {
+      const slug = el.dataset.part;
+      if (!slug) return;
+      toggleCategory(slug, true);
+    });
+  });
+}
+
+function syncOverlay() {
+  if (!els.diyOverlay) return;
+  const open = Boolean(state.openCategory);
+  els.diyOverlay.hidden = !open;
+  if (open && els.diyOverlayTitle) {
+    els.diyOverlayTitle.textContent = PART_LABELS[state.openCategory] || state.openCategory;
+  }
+}
+
 function showScreen(name, pushHistory = true) {
   if (pushHistory && state.screen !== name) state.history.push(state.screen);
   state.screen = name;
+  const shell = document.getElementById("cfgApp");
+  if (shell) {
+    shell.classList.add("is-switching");
+    window.setTimeout(() => shell.classList.remove("is-switching"), 450);
+  }
   document.querySelectorAll(".cfg-screen").forEach((el) => {
-    el.classList.toggle("active", el.dataset.screen === name);
+    const on = el.dataset.screen === name;
+    if (on) {
+      el.classList.remove("active");
+      void el.offsetWidth;
+      el.classList.add("active");
+    } else {
+      el.classList.remove("active");
+    }
   });
-  els.back.hidden = name === "start";
+  const onStart = name === "start";
+  if (els.topbar) els.topbar.hidden = onStart;
+  els.back.hidden = onStart;
 }
+
 function goBack() {
   const prev = state.history.pop() || "start";
   showScreen(prev, false);
   syncTotals();
 }
+
 els.back.addEventListener("click", goBack);
 
 function switchTab(name) {
@@ -1189,18 +1795,22 @@ function switchTab(name) {
   });
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
+
 document.querySelectorAll("#mainTabs .tab").forEach((btn) => {
   btn.addEventListener("click", () => switchTab(btn.dataset.tab));
 });
+
 document.querySelectorAll("[data-goto]").forEach((btn) => {
   btn.addEventListener("click", () => switchTab(btn.dataset.goto));
 });
+
 document.querySelectorAll("[data-scroll]").forEach((btn) => {
   btn.addEventListener("click", () => {
     const el = document.querySelector(btn.dataset.scroll);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 });
+
 document.getElementById("openContactModal").addEventListener("click", () => {
   els.contactDialog.showModal();
 });
@@ -1209,131 +1819,176 @@ document.querySelectorAll(".cfg-branch").forEach((btn) => {
   btn.addEventListener("click", async () => {
     state.mode = btn.dataset.mode;
     if (state.mode === "presets") {
-      loadBundles();
+      await loadBundles();
       showScreen("presets");
     } else {
-      if (!state.categories.length) loadCategories();
+      if (!state.categories.length) await loadCategories();
       else {
         renderCats();
-        loadProducts(state.activeCategory);
-        renderBuild();
+        syncOverlay();
       }
+      bindCockpitClicks();
+      syncCockpit();
       showScreen("diy");
     }
     syncTotals();
   });
 });
 
-function loadCategories() {
-  state.categories = api.categories();
+async function loadCategories() {
+  state.categories = CATALOG.categories;
   if (!state.activeCategory) state.activeCategory = state.categories[0]?.slug || null;
   renderCats();
-  if (state.activeCategory) loadProducts(state.activeCategory);
-  renderBuild();
+  bindCockpitClicks();
+  syncCockpit();
+  syncOverlay();
+  syncTotals();
 }
+
+async function toggleCategory(slug, forceOpen = false) {
+  if (!forceOpen && state.openCategory === slug) {
+    state.openCategory = null;
+    renderCats();
+    syncOverlay();
+    syncCockpit();
+    return;
+  }
+  state.openCategory = slug;
+  state.activeCategory = slug;
+  renderCats();
+  syncOverlay();
+  await loadProducts(slug);
+  syncCockpit();
+}
+
+function closeOverlay() {
+  state.openCategory = null;
+  renderCats();
+  syncOverlay();
+  syncCockpit();
+}
+
 function renderCats() {
-  els.catBar.innerHTML = state.categories.map((c) => {
-    const picked = Boolean(state.build[c.slug]);
-    const active = c.slug === state.activeCategory;
-    return `<button type="button" class="cfg-cat ${active ? "active" : ""} ${picked ? "has-pick" : ""}" data-slug="${c.slug}">${c.name}${picked ? " · ✓" : ""}</button>`;
-  }).join("");
-  els.catBar.querySelectorAll(".cfg-cat").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      state.activeCategory = btn.dataset.slug;
-      renderCats();
-      loadProducts(state.activeCategory);
-    });
+  if (!els.catBar) return;
+  els.catBar.innerHTML = state.categories
+    .map((c) => {
+      const picked = Boolean(state.build[c.slug]);
+      const open = state.openCategory === c.slug;
+      const icon = CAT_ICONS[c.slug] || CAT_ICONS.accessories;
+      return `<button type="button" class="diy-cat-btn ${open ? "is-open" : ""} ${picked ? "has-pick" : ""}" data-slug="${c.slug}" aria-label="${c.name}">
+        ${icon}
+        <span class="diy-dot" aria-hidden="true"></span>
+        <span class="diy-tip">${c.name}</span>
+      </button>`;
+    })
+    .join("");
+
+  els.catBar.querySelectorAll(".diy-cat-btn").forEach((btn) => {
+    btn.addEventListener("click", () => toggleCategory(btn.dataset.slug));
   });
 }
-function loadProducts(category) {
-  state.products = api.products(category);
+
+async function loadProducts(category) {
+  state.products = CATALOG.products.filter((p) => p.category === category);
   renderProducts();
 }
+
 function renderProducts() {
-  const selected = state.build[state.activeCategory];
-  els.productList.innerHTML = state.products.map((p) => {
-    const isSelected = selected && Number(selected.id) === Number(p.id);
-    return `<article class="cfg-product ${isSelected ? "is-selected" : ""}">
-      <div>
-        <div class="specs">${p.brand || ""}</div>
-        <h4>${p.name}</h4>
-        <div class="specs">${p.specs || ""}</div>
-      </div>
-      <div class="meta">
-        ${p.badge ? `<span class="cfg-badge">${p.badge}</span>` : ""}
-        <span class="price">${money(p.price)}</span>
-        <button type="button" class="cfg-add ${isSelected ? "replace" : ""}" data-id="${p.id}">
-          ${isSelected ? "Выбрано ✓" : "Добавить"}
-        </button>
-      </div>
-    </article>`;
-  }).join("");
+  if (!els.productList || !state.openCategory) return;
+  const selected = state.build[state.openCategory];
+  els.productList.innerHTML = state.products
+    .map((p) => {
+      const isSelected = selected && Number(selected.id) === Number(p.id);
+      return `<article class="cfg-product ${isSelected ? "is-selected" : ""}">
+        <div class="cfg-product-photo mono" style="display:grid;place-items:center;background:#1a1c20;color:var(--amber);font-size:10px;font-weight:700;">${(p.sku||"").slice(-2)}</div>
+        <div>
+          <div class="specs">${p.brand || ""}</div>
+          <h4>${p.name}</h4>
+          <div class="specs">${p.specs || ""}</div>
+        </div>
+        <div class="meta">
+          ${p.badge ? `<span class="cfg-badge">${p.badge}</span>` : ""}
+          <span class="price">${money(p.price)}</span>
+          <button type="button" class="cfg-add ${isSelected ? "replace" : ""}" data-id="${p.id}">
+            ${isSelected ? "Выбрано ✓" : "Добавить"}
+          </button>
+        </div>
+      </article>`;
+    })
+    .join("");
+
   els.productList.querySelectorAll(".cfg-add").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       const product = state.products.find((p) => String(p.id) === String(btn.dataset.id));
       if (!product) return;
-      state.build[product.category || state.activeCategory] = product;
+      const cat = product.category || state.openCategory || state.activeCategory;
+      const current = state.build[cat];
+      if (current && Number(current.id) === Number(product.id)) {
+        delete state.build[cat];
+      } else {
+        state.build[cat] = product;
+      }
       state.selectedBundle = null;
-      renderProducts();
-      renderCats();
-      renderBuild();
-      syncTotals();
-    });
-  });
-}
-function renderBuild() {
-  const items = buildList();
-  if (!items.length) {
-    els.buildItems.innerHTML = `<div class="cfg-build-empty">Выбери позиции по категориям</div>`;
-    return;
-  }
-  els.buildItems.innerHTML = items.map((p) => `<div class="cfg-build-row">
-      <div>
-        <div>${p.category_name || p.category}: ${p.name}</div>
-        <div class="specs" style="color:var(--dim-2)">${money(p.price)}</div>
-      </div>
-      <button type="button" data-cat="${p.category}" aria-label="Удалить">✕</button>
-    </div>`).join("");
-  els.buildItems.querySelectorAll("button[data-cat]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      delete state.build[btn.dataset.cat];
-      renderBuild();
+      animateCockpitPart(cat);
       renderCats();
       renderProducts();
       syncTotals();
     });
   });
 }
-els.buildContinue.addEventListener("click", () => {
-  openCheckout({
-    mode: "diy",
-    tier: "Кастомная сборка",
-    items: buildList(),
-    total: buildList().reduce((s, p) => s + p.price, 0),
-  });
-});
 
-function loadBundles() {
-  state.tags = api.tags();
-  state.bundles = api.bundles(state.activeTag);
+if (els.diyOverlayClose) {
+  els.diyOverlayClose.addEventListener("click", closeOverlay);
+}
+
+if (els.diyOverlay) {
+  els.diyOverlay.addEventListener("click", (e) => {
+    if (e.target === els.diyOverlay) closeOverlay();
+  });
+}
+
+if (els.diyCartBtn) {
+  els.diyCartBtn.addEventListener("click", () => {
+    const items = buildList();
+    openLeadDialog({
+      mode: "diy",
+      tier: "Кастомная сборка",
+      items,
+      total: items.reduce((s, p) => s + p.price, 0),
+    });
+  });
+}
+
+async function loadBundles() {
+  state.tags = CATALOG.tags;
+  state.bundles = state.activeTag === "Все"
+    ? CATALOG.bundles
+    : CATALOG.bundles.filter((b) => b.filter_tag === state.activeTag);
   renderTags();
   renderBundles();
 }
-function loadAllBundles() {
-  state.allBundles = api.bundles("Все");
+
+async function loadAllBundles() {
+  state.allBundles = CATALOG.bundles;
   renderFeatured();
 }
+
 function renderFeatured() {
   if (!els.featuredGrid) return;
   const featured = FEATURED_SLUGS.map((slug) => state.allBundles.find((b) => b.slug === slug)).filter(Boolean);
   const list = featured.length === 3 ? featured : [...state.allBundles].sort((a, b) => b.price - a.price).slice(0, 3);
-  els.featuredGrid.innerHTML = list.map((b) => `<button type="button" class="featured-card" data-id="${b.id}">
-      <div class="tag">${b.filter_tag}${b.badge ? " · " + b.badge : ""}</div>
-      <h3>${b.name}</h3>
-      <p>${b.description}</p>
-      <div class="price">${money(b.price)}</div>
-    </button>`).join("");
+  els.featuredGrid.innerHTML = list
+    .map(
+      (b) => `<button type="button" class="featured-card" data-id="${b.id}">
+        <div class="tag">${b.filter_tag}${b.badge ? " · " + b.badge : ""}</div>
+        <h3>${b.name}</h3>
+        <p>${b.description}</p>
+        <div class="price">${money(b.price)}</div>
+      </button>`
+    )
+    .join("");
+
   els.featuredGrid.querySelectorAll(".featured-card").forEach((btn) => {
     btn.addEventListener("click", () => {
       const bundle = state.allBundles.find((b) => String(b.id) === String(btn.dataset.id));
@@ -1341,85 +1996,160 @@ function renderFeatured() {
       switchTab("config");
       state.mode = "presets";
       state.selectedBundle = bundle;
-      openCheckout({ mode: "preset", tier: bundle.name, items: bundle.products, total: bundle.price });
+      openLeadDialog({
+        mode: "preset",
+        tier: bundle.name,
+        items: bundle.products,
+        total: bundle.price,
+      });
       syncTotals();
     });
   });
 }
+
 function renderTags() {
-  els.bundleTags.innerHTML = state.tags.map((t) =>
-    `<button type="button" class="cfg-tag ${t === state.activeTag ? "active" : ""}" data-tag="${t}">${t}</button>`
-  ).join("");
+  els.bundleTags.innerHTML = state.tags
+    .map(
+      (t) =>
+        `<button type="button" class="cfg-tag ${t === state.activeTag ? "active" : ""}" data-tag="${t}">${t}</button>`
+    )
+    .join("");
   els.bundleTags.querySelectorAll(".cfg-tag").forEach((btn) => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
       state.activeTag = btn.dataset.tag;
-      state.bundles = api.bundles(state.activeTag);
+      state.bundles = state.activeTag === "Все"
+        ? CATALOG.bundles
+        : CATALOG.bundles.filter((b) => b.filter_tag === state.activeTag);
       renderTags();
       renderBundles();
     });
   });
 }
+
 function renderBundles() {
-  els.bundleGrid.innerHTML = state.bundles.map((b) => {
-    const active = state.selectedBundle && Number(state.selectedBundle.id) === Number(b.id);
-    return `<button type="button" class="cfg-bundle ${active ? "is-selected" : ""}" data-id="${b.id}">
-      <div class="tag">${b.filter_tag}${b.badge ? " · " + b.badge : ""}${active ? " · выбрано" : ""}</div>
-      <h4>${b.name}</h4>
-      <p>${b.description}</p>
-      <div class="price">${money(b.price)}</div>
-    </button>`;
-  }).join("");
+  els.bundleGrid.innerHTML = state.bundles
+    .map((b) => {
+      const active = state.selectedBundle && Number(state.selectedBundle.id) === Number(b.id);
+      return `<button type="button" class="cfg-bundle ${active ? "is-selected" : ""}" data-id="${b.id}">
+        <div class="tag">${b.filter_tag}${b.badge ? " · " + b.badge : ""}${active ? " · выбрано" : ""}</div>
+        <h4>${b.name}</h4>
+        <p>${b.description}</p>
+        <div class="price">${money(b.price)}</div>
+      </button>`;
+    })
+    .join("");
+
   els.bundleGrid.querySelectorAll(".cfg-bundle").forEach((btn) => {
     btn.addEventListener("click", () => {
       const bundle = state.bundles.find((b) => String(b.id) === String(btn.dataset.id));
       if (!bundle) return;
+      if (state.selectedBundle && Number(state.selectedBundle.id) === Number(bundle.id)) {
+        state.selectedBundle = null;
+        renderBundles();
+        syncTotals();
+        return;
+      }
       state.selectedBundle = bundle;
-      openCheckout({ mode: "preset", tier: bundle.name, items: bundle.products, total: bundle.price });
+      openLeadDialog({
+        mode: "preset",
+        tier: bundle.name,
+        items: bundle.products,
+        total: bundle.price,
+      });
       syncTotals();
     });
   });
 }
-function openCheckout({ mode, tier, items, total }) {
-  state.mode = mode === "preset" ? "presets" : "diy";
-  els.checkoutLabel.textContent = tier;
-  els.checkoutPrice.textContent = money(total);
-  els.formTier.value = tier;
-  els.checkoutList.innerHTML = items.map((p) => `<li><span>${p.name}</span><span class="mono">${money(p.price)}</span></li>`).join("");
-  state._checkout = { mode, tier, items, total };
-  showScreen("checkout");
+
+function resetLeadForm() {
+  const form = document.getElementById("leadForm");
+  const errorEl = document.getElementById("formError");
+  const successEl = document.getElementById("formSuccess");
+  if (!form) return;
+  form.reset();
+  form.style.display = "";
+  if (errorEl) {
+    errorEl.classList.remove("show");
+    errorEl.textContent = "";
+  }
+  if (successEl) successEl.classList.remove("show");
+  state.leadSent = false;
 }
+
+function openLeadDialog({ mode, tier, items, total }) {
+  state.mode = mode === "preset" ? "presets" : "diy";
+  resetLeadForm();
+  const list = items || [];
+  const sum = total ?? list.reduce((s, p) => s + p.price, 0);
+  if (els.leadDialogTier) els.leadDialogTier.textContent = tier;
+  if (els.formTier) els.formTier.value = tier;
+  if (els.checkoutPrice) els.checkoutPrice.textContent = money(sum);
+  if (els.checkoutList) {
+    els.checkoutList.innerHTML = list.length
+      ? list.map((p) => `<li><span>${p.name}</span><span class="mono">${money(p.price)}</span></li>`).join("")
+      : `<li><span>Пока пусто — выбери позиции в кокпите</span><span></span></li>`;
+  }
+  state._checkout = { mode, tier, items: list, total: sum };
+  if (els.leadDialog) els.leadDialog.showModal();
+}
+
 async function submitLead(payload, formEl, errorEl, successEl) {
   errorEl.classList.remove("show");
   errorEl.textContent = "";
-  // demo mode: no backend
-  console.log("LEAD", payload);
+  console.log("DEMO lead:", payload);
   formEl.style.display = "none";
   successEl.classList.add("show");
+  return true;
 }
+
 document.getElementById("leadForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const checkout = state._checkout || { mode: "diy", tier: els.formTier.value, items: buildList(), total: buildList().reduce((s, p) => s + p.price, 0) };
-  await submitLead({
-    name: document.getElementById("leadName").value.trim(),
-    contact: document.getElementById("leadContact").value.trim(),
-    tier: checkout.tier,
-    mode: checkout.mode,
-    total_price: checkout.total,
-    build: checkout.items.map((p) => ({ id: p.id, sku: p.sku, name: p.name, price: p.price, category: p.category })),
-  }, e.target, document.getElementById("formError"), document.getElementById("formSuccess"));
-});
-document.getElementById("simpleLeadForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  await submitLead({
-    name: document.getElementById("simpleName").value.trim(),
-    contact: document.getElementById("simpleContact").value.trim(),
-    tier: "Консультация",
-    mode: "consult",
-    total_price: 0,
-    build: [],
-  }, e.target, document.getElementById("simpleFormError"), document.getElementById("simpleFormSuccess"));
+  const checkout = state._checkout || {
+    mode: "diy",
+    tier: els.formTier?.value || "Кастом",
+    items: buildList(),
+    total: buildList().reduce((s, p) => s + p.price, 0),
+  };
+  const ok = await submitLead(
+    {
+      name: document.getElementById("leadName").value.trim(),
+      contact: document.getElementById("leadContact").value.trim(),
+      tier: checkout.tier,
+      mode: checkout.mode,
+      total_price: checkout.total,
+      build: (checkout.items || []).map((p) => ({
+        id: p.id,
+        sku: p.sku,
+        name: p.name,
+        price: p.price,
+        category: p.category,
+      })),
+    },
+    e.target,
+    document.getElementById("formError"),
+    document.getElementById("formSuccess")
+  );
+  if (ok) state.leadSent = true;
 });
 
+document.getElementById("simpleLeadForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  await submitLead(
+    {
+      name: document.getElementById("simpleName").value.trim(),
+      contact: document.getElementById("simpleContact").value.trim(),
+      tier: "Консультация",
+      mode: "consult",
+      total_price: 0,
+      build: [],
+    },
+    e.target,
+    document.getElementById("simpleFormError"),
+    document.getElementById("simpleFormSuccess")
+  );
+});
+
+// Telemetry
 function genTrace(seedOffset) {
   let d = "M 0 60 ";
   for (let x = 0; x <= 1000; x += 20) {
@@ -1428,6 +2158,7 @@ function genTrace(seedOffset) {
   }
   return d;
 }
+
 let offset = 0;
 const p1 = document.getElementById("tracePath");
 const p2 = document.getElementById("tracePath2");
@@ -1445,14 +2176,20 @@ function animateTrace() {
 animateTrace();
 
 const revealEls = document.querySelectorAll(".reveal");
-const io = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => { if (entry.isIntersecting) entry.target.classList.add("in"); });
-}, { threshold: 0.12 });
+const io = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) entry.target.classList.add("in");
+    });
+  },
+  { threshold: 0.12 }
+);
 revealEls.forEach((el) => io.observe(el));
 
-loadAllBundles();
-showScreen("start", false);
-syncTotals();
+loadAllBundles().then(() => {
+  showScreen("start", false);
+  syncTotals();
+});
 
 </script>
 </body>

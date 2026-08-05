@@ -51,6 +51,7 @@ class Product(db.Model):
             "specs": self.specs,
             "description": self.description,
             "badge": self.badge,
+            "image": f"/static/img/products/{self.sku}.jpg",
         }
 
 

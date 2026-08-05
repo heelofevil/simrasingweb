@@ -6,6 +6,7 @@ const state = {
   mode: null,
   categories: [],
   activeCategory: null,
+  openCategory: null,
   products: [],
   bundles: [],
   allBundles: [],
@@ -14,48 +15,136 @@ const state = {
   build: {},
   selectedBundle: null,
   history: [],
+  leadSent: false,
 };
 
 const els = {
-  total: document.getElementById("cfgTotal"),
+  topbar: document.getElementById("cfgTopbar"),
   back: document.getElementById("cfgBack"),
   bundleTags: document.getElementById("bundleTags"),
   bundleGrid: document.getElementById("bundleGrid"),
   catBar: document.getElementById("catBar"),
   productList: document.getElementById("productList"),
-  buildItems: document.getElementById("buildItems"),
-  buildSum: document.getElementById("buildSum"),
-  buildContinue: document.getElementById("buildContinue"),
-  checkoutLabel: document.getElementById("checkoutLabel"),
   checkoutPrice: document.getElementById("checkoutPrice"),
   checkoutList: document.getElementById("checkoutList"),
   formTier: document.getElementById("formTier"),
   featuredGrid: document.getElementById("featuredGrid"),
   contactDialog: document.getElementById("contactDialog"),
+  leadDialog: document.getElementById("leadDialog"),
+  leadDialogTier: document.getElementById("leadDialogTier"),
+  diyCartBtn: document.getElementById("diyCartBtn"),
+  diyCartCount: document.getElementById("diyCartCount"),
+  diyOverlay: document.getElementById("diyOverlay"),
+  diyOverlayTitle: document.getElementById("diyOverlayTitle"),
+  diyOverlayClose: document.getElementById("diyOverlayClose"),
+  cockpitStage: document.getElementById("cockpitStage"),
+};
+
+const PART_LABELS = {
+  wheel: "Руль",
+  base: "База",
+  pedals: "Педали",
+  shifter: "Шифтер",
+  cockpit: "Кокпит",
+  monitor: "Монитор",
+  handbrake: "Ручник",
+  accessories: "Аксессуары",
 };
 
 function buildList() {
-  return Object.values(state.build);
+  return Object.values(state.build).filter((p) => p && p.id != null);
 }
 
-function buildTotal() {
-  if (state.selectedBundle && state.mode === "presets") return state.selectedBundle.price;
-  return buildList().reduce((sum, p) => sum + p.price, 0);
-}
+const CAT_ICONS = {
+  wheel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 5v3M12 16v3M5 12h3M16 12h3"/></svg>',
+  base: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="8" width="14" height="10" rx="2"/><path d="M9 8V6h6v2"/><circle cx="12" cy="13" r="2"/></svg>',
+  pedals: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="8" width="4" height="11" rx="1"/><rect x="10" y="5" width="4" height="14" rx="1"/><rect x="16" y="8" width="4" height="11" rx="1"/></svg>',
+  shifter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="15" width="8" height="5" rx="1"/><path d="M12 15V8l4-3"/><circle cx="16" cy="5" r="1.8" fill="currentColor"/></svg>',
+  cockpit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19l3-11h10l3 11"/><path d="M8 8V5h8v3"/><rect x="9" y="11" width="6" height="4" rx="0.5"/></svg>',
+  monitor: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/></svg>',
+  handbrake: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="16" width="10" height="4" rx="1"/><path d="M12 16L8 7"/><circle cx="7.5" cy="6.5" r="1.8" fill="currentColor"/></svg>',
+  accessories: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 6.3a4 4 0 0 1 0 5.7l-5.7 5.7a2 2 0 0 1-2.8-2.8l5.7-5.7"/><path d="M12 8l4-4 3 3-4 4"/></svg>',
+};
 
 function syncTotals() {
-  els.total.textContent = money(buildTotal());
-  els.buildSum.textContent = money(buildList().reduce((s, p) => s + p.price, 0));
-  els.buildContinue.disabled = buildList().length === 0;
+  const n = buildList().length;
+  if (els.diyCartCount) {
+    els.diyCartCount.textContent = String(n);
+    els.diyCartCount.classList.toggle("is-on", n > 0);
+    els.diyCartCount.hidden = n === 0;
+  }
+  if (els.diyCartBtn) {
+    els.diyCartBtn.classList.toggle("has-items", n > 0);
+  }
+}
+
+function syncCockpit() {
+  if (!els.cockpitStage) return;
+  const focusSlug = state.openCategory || state.activeCategory;
+  els.cockpitStage.querySelectorAll(".ck-part").forEach((el) => {
+    const slug = el.dataset.part;
+    const on = Boolean(state.build[slug]);
+    el.classList.toggle("is-on", on);
+    el.classList.toggle("is-focus", Boolean(focusSlug) && slug === focusSlug && !on);
+  });
+}
+
+function animateCockpitPart(slug) {
+  if (!els.cockpitStage) {
+    syncCockpit();
+    return;
+  }
+  const el = els.cockpitStage.querySelector(`.ck-part[data-part="${slug}"]`);
+  syncCockpit();
+  if (!el) return;
+  el.classList.remove("is-flash");
+  void el.offsetWidth;
+  el.classList.add("is-flash");
+  window.setTimeout(() => el.classList.remove("is-flash"), 280);
+}
+
+function bindCockpitClicks() {
+  if (!els.cockpitStage || els.cockpitStage.dataset.bound) return;
+  els.cockpitStage.dataset.bound = "1";
+  els.cockpitStage.querySelectorAll(".ck-part").forEach((el) => {
+    el.addEventListener("click", () => {
+      const slug = el.dataset.part;
+      if (!slug) return;
+      toggleCategory(slug, true);
+    });
+  });
+}
+
+function syncOverlay() {
+  if (!els.diyOverlay) return;
+  const open = Boolean(state.openCategory);
+  els.diyOverlay.hidden = !open;
+  if (open && els.diyOverlayTitle) {
+    els.diyOverlayTitle.textContent = PART_LABELS[state.openCategory] || state.openCategory;
+  }
 }
 
 function showScreen(name, pushHistory = true) {
   if (pushHistory && state.screen !== name) state.history.push(state.screen);
   state.screen = name;
+  const shell = document.getElementById("cfgApp");
+  if (shell) {
+    shell.classList.add("is-switching");
+    window.setTimeout(() => shell.classList.remove("is-switching"), 450);
+  }
   document.querySelectorAll(".cfg-screen").forEach((el) => {
-    el.classList.toggle("active", el.dataset.screen === name);
+    const on = el.dataset.screen === name;
+    if (on) {
+      el.classList.remove("active");
+      void el.offsetWidth;
+      el.classList.add("active");
+    } else {
+      el.classList.remove("active");
+    }
   });
-  els.back.hidden = name === "start";
+  const onStart = name === "start";
+  if (els.topbar) els.topbar.hidden = onStart;
+  els.back.hidden = onStart;
 }
 
 function goBack() {
@@ -105,9 +194,10 @@ document.querySelectorAll(".cfg-branch").forEach((btn) => {
       if (!state.categories.length) await loadCategories();
       else {
         renderCats();
-        await loadProducts(state.activeCategory);
-        renderBuild();
+        syncOverlay();
       }
+      bindCockpitClicks();
+      syncCockpit();
       showScreen("diy");
     }
     syncTotals();
@@ -119,24 +209,52 @@ async function loadCategories() {
   state.categories = await res.json();
   if (!state.activeCategory) state.activeCategory = state.categories[0]?.slug || null;
   renderCats();
-  if (state.activeCategory) await loadProducts(state.activeCategory);
-  renderBuild();
+  bindCockpitClicks();
+  syncCockpit();
+  syncOverlay();
+  syncTotals();
+}
+
+async function toggleCategory(slug, forceOpen = false) {
+  if (!forceOpen && state.openCategory === slug) {
+    state.openCategory = null;
+    renderCats();
+    syncOverlay();
+    syncCockpit();
+    return;
+  }
+  state.openCategory = slug;
+  state.activeCategory = slug;
+  renderCats();
+  syncOverlay();
+  await loadProducts(slug);
+  syncCockpit();
+}
+
+function closeOverlay() {
+  state.openCategory = null;
+  renderCats();
+  syncOverlay();
+  syncCockpit();
 }
 
 function renderCats() {
+  if (!els.catBar) return;
   els.catBar.innerHTML = state.categories
     .map((c) => {
       const picked = Boolean(state.build[c.slug]);
-      const active = c.slug === state.activeCategory;
-      return `<button type="button" class="cfg-cat ${active ? "active" : ""} ${picked ? "has-pick" : ""}" data-slug="${c.slug}">${c.name}${picked ? " · ✓" : ""}</button>`;
+      const open = state.openCategory === c.slug;
+      const icon = CAT_ICONS[c.slug] || CAT_ICONS.accessories;
+      return `<button type="button" class="diy-cat-btn ${open ? "is-open" : ""} ${picked ? "has-pick" : ""}" data-slug="${c.slug}" aria-label="${c.name}">
+        ${icon}
+        <span class="diy-dot" aria-hidden="true"></span>
+        <span class="diy-tip">${c.name}</span>
+      </button>`;
     })
     .join("");
-  els.catBar.querySelectorAll(".cfg-cat").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      state.activeCategory = btn.dataset.slug;
-      renderCats();
-      await loadProducts(state.activeCategory);
-    });
+
+  els.catBar.querySelectorAll(".diy-cat-btn").forEach((btn) => {
+    btn.addEventListener("click", () => toggleCategory(btn.dataset.slug));
   });
 }
 
@@ -147,11 +265,14 @@ async function loadProducts(category) {
 }
 
 function renderProducts() {
-  const selected = state.build[state.activeCategory];
+  if (!els.productList || !state.openCategory) return;
+  const selected = state.build[state.openCategory];
   els.productList.innerHTML = state.products
     .map((p) => {
       const isSelected = selected && Number(selected.id) === Number(p.id);
+      const img = p.image || `/static/img/products/${p.sku}.jpg`;
       return `<article class="cfg-product ${isSelected ? "is-selected" : ""}">
+        <img class="cfg-product-photo" src="${img}" alt="" loading="lazy" width="56" height="42">
         <div>
           <div class="specs">${p.brand || ""}</div>
           <h4>${p.name}</h4>
@@ -173,38 +294,15 @@ function renderProducts() {
       e.stopPropagation();
       const product = state.products.find((p) => String(p.id) === String(btn.dataset.id));
       if (!product) return;
-      state.build[product.category || state.activeCategory] = product;
+      const cat = product.category || state.openCategory || state.activeCategory;
+      const current = state.build[cat];
+      if (current && Number(current.id) === Number(product.id)) {
+        delete state.build[cat];
+      } else {
+        state.build[cat] = product;
+      }
       state.selectedBundle = null;
-      renderProducts();
-      renderCats();
-      renderBuild();
-      syncTotals();
-    });
-  });
-}
-
-function renderBuild() {
-  const items = buildList();
-  if (!items.length) {
-    els.buildItems.innerHTML = `<div class="cfg-build-empty">Выбери позиции по категориям</div>`;
-    return;
-  }
-  els.buildItems.innerHTML = items
-    .map(
-      (p) => `<div class="cfg-build-row">
-        <div>
-          <div>${p.category_name || p.category}: ${p.name}</div>
-          <div class="specs" style="color:var(--dim-2)">${money(p.price)}</div>
-        </div>
-        <button type="button" data-cat="${p.category}" aria-label="Удалить">✕</button>
-      </div>`
-    )
-    .join("");
-
-  els.buildItems.querySelectorAll("button[data-cat]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      delete state.build[btn.dataset.cat];
-      renderBuild();
+      animateCockpitPart(cat);
       renderCats();
       renderProducts();
       syncTotals();
@@ -212,14 +310,27 @@ function renderBuild() {
   });
 }
 
-els.buildContinue.addEventListener("click", () => {
-  openCheckout({
-    mode: "diy",
-    tier: "Кастомная сборка",
-    items: buildList(),
-    total: buildList().reduce((s, p) => s + p.price, 0),
+if (els.diyOverlayClose) {
+  els.diyOverlayClose.addEventListener("click", closeOverlay);
+}
+
+if (els.diyOverlay) {
+  els.diyOverlay.addEventListener("click", (e) => {
+    if (e.target === els.diyOverlay) closeOverlay();
   });
-});
+}
+
+if (els.diyCartBtn) {
+  els.diyCartBtn.addEventListener("click", () => {
+    const items = buildList();
+    openLeadDialog({
+      mode: "diy",
+      tier: "Кастомная сборка",
+      items,
+      total: items.reduce((s, p) => s + p.price, 0),
+    });
+  });
+}
 
 async function loadBundles() {
   const [tagsRes, bundlesRes] = await Promise.all([
@@ -260,7 +371,7 @@ function renderFeatured() {
       switchTab("config");
       state.mode = "presets";
       state.selectedBundle = bundle;
-      openCheckout({
+      openLeadDialog({
         mode: "preset",
         tier: bundle.name,
         items: bundle.products,
@@ -306,8 +417,14 @@ function renderBundles() {
     btn.addEventListener("click", () => {
       const bundle = state.bundles.find((b) => String(b.id) === String(btn.dataset.id));
       if (!bundle) return;
+      if (state.selectedBundle && Number(state.selectedBundle.id) === Number(bundle.id)) {
+        state.selectedBundle = null;
+        renderBundles();
+        syncTotals();
+        return;
+      }
       state.selectedBundle = bundle;
-      openCheckout({
+      openLeadDialog({
         mode: "preset",
         tier: bundle.name,
         items: bundle.products,
@@ -318,16 +435,36 @@ function renderBundles() {
   });
 }
 
-function openCheckout({ mode, tier, items, total }) {
+function resetLeadForm() {
+  const form = document.getElementById("leadForm");
+  const errorEl = document.getElementById("formError");
+  const successEl = document.getElementById("formSuccess");
+  if (!form) return;
+  form.reset();
+  form.style.display = "";
+  if (errorEl) {
+    errorEl.classList.remove("show");
+    errorEl.textContent = "";
+  }
+  if (successEl) successEl.classList.remove("show");
+  state.leadSent = false;
+}
+
+function openLeadDialog({ mode, tier, items, total }) {
   state.mode = mode === "preset" ? "presets" : "diy";
-  els.checkoutLabel.textContent = tier;
-  els.checkoutPrice.textContent = money(total);
-  els.formTier.value = tier;
-  els.checkoutList.innerHTML = items
-    .map((p) => `<li><span>${p.name}</span><span class="mono">${money(p.price)}</span></li>`)
-    .join("");
-  state._checkout = { mode, tier, items, total };
-  showScreen("checkout");
+  resetLeadForm();
+  const list = items || [];
+  const sum = total ?? list.reduce((s, p) => s + p.price, 0);
+  if (els.leadDialogTier) els.leadDialogTier.textContent = tier;
+  if (els.formTier) els.formTier.value = tier;
+  if (els.checkoutPrice) els.checkoutPrice.textContent = money(sum);
+  if (els.checkoutList) {
+    els.checkoutList.innerHTML = list.length
+      ? list.map((p) => `<li><span>${p.name}</span><span class="mono">${money(p.price)}</span></li>`).join("")
+      : `<li><span>Пока пусто — выбери позиции в кокпите</span><span></span></li>`;
+  }
+  state._checkout = { mode, tier, items: list, total: sum };
+  if (els.leadDialog) els.leadDialog.showModal();
 }
 
 async function submitLead(payload, formEl, errorEl, successEl) {
@@ -343,9 +480,11 @@ async function submitLead(payload, formEl, errorEl, successEl) {
     if (!res.ok || !data.ok) throw new Error(data.error || "Не удалось отправить");
     formEl.style.display = "none";
     successEl.classList.add("show");
+    return true;
   } catch (err) {
     errorEl.textContent = err.message || "Ошибка отправки";
     errorEl.classList.add("show");
+    return false;
   }
 }
 
@@ -353,18 +492,18 @@ document.getElementById("leadForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const checkout = state._checkout || {
     mode: "diy",
-    tier: els.formTier.value,
+    tier: els.formTier?.value || "Кастом",
     items: buildList(),
     total: buildList().reduce((s, p) => s + p.price, 0),
   };
-  await submitLead(
+  const ok = await submitLead(
     {
       name: document.getElementById("leadName").value.trim(),
       contact: document.getElementById("leadContact").value.trim(),
       tier: checkout.tier,
       mode: checkout.mode,
       total_price: checkout.total,
-      build: checkout.items.map((p) => ({
+      build: (checkout.items || []).map((p) => ({
         id: p.id,
         sku: p.sku,
         name: p.name,
@@ -376,6 +515,7 @@ document.getElementById("leadForm").addEventListener("submit", async (e) => {
     document.getElementById("formError"),
     document.getElementById("formSuccess")
   );
+  if (ok) state.leadSent = true;
 });
 
 document.getElementById("simpleLeadForm").addEventListener("submit", async (e) => {
