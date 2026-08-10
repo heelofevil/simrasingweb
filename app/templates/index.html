@@ -27,16 +27,20 @@
   <!-- START -->
   <section class="panel active" id="tab-home" data-panel>
     <section class="hero">
-      <div class="wrap">
-        <div class="eyebrow">Сборка сим-рейсинг сетапов под ключ</div>
-        <h1>Не собирай железо<br>по обзорам. <span class="hl">Садись</span><br>и езжай быстро.</h1>
-        <p class="lede">Говоришь бюджет и цель — получаешь готовый сетап: кокпит, база, педали, руль. Доставим, соберём, настроим FFB под твой стиль и научим выжимать из него всё — очно или по видеосвязи.</p>
-        <div class="hero-actions">
-          <button type="button" class="btn btn-primary" data-goto="config">Подобрать сетап →</button>
-          <button type="button" class="btn btn-ghost" data-scroll="#home-featured">Смотреть топ сборки</button>
-        </div>
+      <div class="hero-content">
 
-        <div class="telemetry reveal">
+          <div class="hero-content-inner">
+            <div class="eyebrow">Сборка сим-рейсинг сетапов под ключ</div>
+            <h1>Не собирай железо<br>по обзорам. <span class="hl">Садись</span><br>и езжай быстро.</h1>
+            <p class="lede">Говоришь бюджет и цель — получаешь готовый сетап: кокпит, база, педали, руль. Доставим, соберём, настроим FFB под твой стиль и научим выжимать из него всё — очно или по видеосвязи.</p>
+            <div class="hero-actions">
+              <button type="button" class="btn btn-primary" data-goto="config">Подобрать сетап →</button>
+              <button type="button" class="btn btn-ghost" data-scroll="#home-featured">Смотреть топ сборки</button>
+            </div>
+          </div>
+          </div>
+
+        <!-- <div class="telemetry reveal">
           <div class="telemetry-head">
             <span class="lbl">FFB · Force Feedback Trace</span>
             <span class="val" id="telemetryVal">18.0 Н·м</span>
@@ -45,8 +49,8 @@
             <path class="trace-path" id="tracePath" d=""></path>
             <path class="trace-path amber" id="tracePath2" d=""></path>
           </svg>
-        </div>
-      </div>
+        </div> -->
+
     </section>
 
     <section class="wrap section-pad" id="home-featured">
@@ -67,7 +71,7 @@
         <div class="track-line"></div>
         <div class="checkpoints">
           <div class="checkpoint"><div class="num">01</div><h4>Путь</h4><p>Готовая сборка или набор по категориям.</p></div>
-          <div class="checkpoint"><div class="num">02</div><h4>Железо</h4><p>Руль, база, педали, кокпит и остальное.</p></div>
+          <div class="checkpoint"><div class="num">02</div><h4>Железо</h4><p>Руль, база, педали, кокпит и&nbsp;остальное.</p></div>
           <div class="checkpoint"><div class="num">03</div><h4>Цена</h4><p>Сразу видишь сумму выбранной конфигурации.</p></div>
           <div class="checkpoint"><div class="num">04</div><h4>Город</h4><p>Очная установка или удалённая по видео.</p></div>
           <div class="checkpoint"><div class="num">05</div><h4>Инженер</h4><p>Подтверждает расчёт и сроки сборки.</p></div>
@@ -78,21 +82,17 @@
 
     <section class="wrap section-pad">
       <div class="install reveal">
-        <div>
-          <div class="eyebrow">Доставка и установка</div>
-          <h2 style="font-size:32px;">Очно в своём городе.<br>Удалённо — по всей стране.</h2>
-          <p style="color:var(--dim); margin-top:16px; max-width:440px;">В своём городе инженер приезжает, собирает кокпит и настраивает FFB на месте. В остальных регионах — доставка + разборная сборка с инженером на видеосвязи.</p>
+        <div class="install-content">
+          <div class="install-copy">
+            <div class="eyebrow">Доставка и установка</div>
+            <h2 style="font-size:32px;">Очно в своём городе.<br>Удалённо — по всей стране.</h2>
+            <p style="color:var(--dim); margin-top:16px; max-width:440px;">В своём городе инженер приезжает, собирает кокпит и настраивает FFB на месте. В остальных регионах — доставка + разборная сборка с инженером на видеосвязи.</p>
+          </div>
           <div class="badge-row">
             <div class="badge"><span class="d"></span>Очная установка + обучение</div>
             <div class="badge"><span class="d" style="background:var(--amber);"></span>Удалённая настройка по видео</div>
             <div class="badge"><span class="d"></span>Доставка по России</div>
           </div>
-        </div>
-        <div class="install-visual">
-          <div class="radar-ring" style="width:60%; height:60%;"></div>
-          <div class="radar-ring" style="width:90%; height:90%;"></div>
-          <div class="radar-ring" style="width:120%; height:120%;"></div>
-          <div class="pulse-dot" style="top:48%; left:52%;"></div>
         </div>
       </div>
     </section>
@@ -119,7 +119,9 @@
             <p class="cfg-hub-sub">Соберите свой идеальный сетап</p>
             <div class="cfg-branches">
               <button type="button" class="cfg-branch" data-mode="presets">
-                <span class="cfg-branch-icon" aria-hidden="true">▣</span>
+                <span class="cfg-branch-icon" aria-hidden="true">
+                  <img src="{{ url_for('static', filename='img/steering-wheel.svg') }}" alt="" width="32" height="32">
+                </span>
                 <span class="cfg-branch-label">Готовые<br>сборки</span>
               </button>
               <button type="button" class="cfg-branch" data-mode="diy">
