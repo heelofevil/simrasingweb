@@ -253,16 +253,54 @@ header {
 }
 
 .featured-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
   background: var(--panel);
   border: none;
   text-align: left;
   color: inherit;
   padding: 32px 28px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .featured-card:hover { background: var(--panel-2); }
+
+.featured-card .card-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  transform: scale(1.08);
+  transition: opacity 0.4s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.featured-card .card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.featured-card .card-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(13, 14, 16, 0.35) 0%, rgba(13, 14, 16, 0.88) 55%, rgba(13, 14, 16, 0.96) 100%);
+}
+
+.featured-card:hover .card-media,
+.featured-card:focus-visible .card-media {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.featured-card > *:not(.card-media) {
+  position: relative;
+  z-index: 1;
+}
 
 .featured-card .tag {
   font-family: "JetBrains Mono", monospace;
@@ -596,6 +634,9 @@ header {
 }
 
 .cfg-bundle {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
   text-align: left;
   background: var(--bg);
   border: 1px solid var(--line);
@@ -603,12 +644,55 @@ header {
   padding: 20px;
   cursor: pointer;
   color: inherit;
+  min-height: 168px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.cfg-bundle .card-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  transform: scale(1.08);
+  transition: opacity 0.4s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.cfg-bundle .card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cfg-bundle .card-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(13, 14, 16, 0.28) 0%, rgba(13, 14, 16, 0.82) 48%, rgba(13, 14, 16, 0.96) 100%);
+}
+
+.cfg-bundle:hover .card-media,
+.cfg-bundle:focus-visible .card-media,
+.cfg-bundle.is-selected .card-media {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.cfg-bundle > *:not(.card-media) {
+  position: relative;
+  z-index: 1;
 }
 
 .cfg-bundle:hover,
 .cfg-bundle.is-selected {
   border-color: var(--amber);
   background: var(--amber-dim);
+}
+
+.cfg-bundle.has-media:hover,
+.cfg-bundle.has-media.is-selected {
+  background: transparent;
 }
 
 .cfg-bundle .tag {
@@ -635,6 +719,38 @@ header {
   color: var(--amber);
   font-family: "JetBrains Mono", monospace;
   font-size: 14px;
+}
+
+.lead-hero {
+  margin: 0 0 16px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #12141a;
+  aspect-ratio: 16 / 9;
+}
+
+.lead-hero[hidden] {
+  display: none !important;
+}
+
+.lead-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  animation: lead-hero-in 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes lead-hero-in {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* DIY FULL COCKPIT */
@@ -1230,10 +1346,14 @@ header {
 .form-success { display: none; text-align: center; padding: 20px 0; }
 .form-success.show { display: block; }
 .form-success .num {
-  font-family: "JetBrains Mono", monospace;
+  font-family: "Oswald", sans-serif;
+  font-size: 22px;
+  letter-spacing: 0.06em;
   color: var(--amber);
-  font-size: 13px;
-  letter-spacing: 0.08em;
+}
+.form-success .lead-again {
+  margin-top: 18px;
+  width: 100%;
 }
 
 .contact-dialog {

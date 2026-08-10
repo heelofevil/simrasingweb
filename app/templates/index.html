@@ -275,11 +275,12 @@
     <input id="simpleName" type="text" required maxlength="120" placeholder="Как к тебе обращаться">
     <label for="simpleContact">Telegram или телефон</label>
     <input id="simpleContact" type="text" required maxlength="200" placeholder="@username или +7 ...">
-    <button type="submit" class="btn btn-primary" style="width:100%;">Связаться с инженером</button>
+    <button type="submit" class="btn btn-primary" style="width:100%;" id="simpleSubmitBtn">Связаться с инженером</button>
   </form>
   <div class="form-success" id="simpleFormSuccess">
     <div class="num">ЗАЯВКА ПРИНЯТА</div>
     <p style="margin-top:10px; color:var(--dim); font-size:14px;">Свяжемся в течение дня.</p>
+    <button type="button" class="btn btn-ghost lead-again" data-again="simple">Отправить ещё раз</button>
   </div>
 </dialog>
 
@@ -290,6 +291,9 @@
   <div class="eyebrow">Расчёт</div>
   <h2 style="font-size:28px;">Запросить расчёт</h2>
   <p style="color:var(--dim); margin:10px 0 12px;" id="leadDialogTier">Сборка</p>
+  <div class="lead-hero" id="leadDialogHero" hidden>
+    <img id="leadDialogImage" src="" alt="">
+  </div>
   <div class="lead-summary">
     <div class="cfg-checkout-price mono" id="checkoutPrice">0 ₽</div>
     <ul class="cfg-checkout-list" id="checkoutList"></ul>
@@ -301,11 +305,12 @@
     <input id="leadName" name="name" type="text" placeholder="Как к тебе обращаться" required maxlength="120">
     <label for="leadContact">Telegram или телефон</label>
     <input id="leadContact" name="contact" type="text" placeholder="@username или +7 ..." required maxlength="200">
-    <button type="submit" class="btn btn-primary" style="width:100%;">Отправить заявку</button>
+    <button type="submit" class="btn btn-primary" style="width:100%;" id="leadSubmitBtn">Отправить заявку</button>
   </form>
   <div class="form-success" id="formSuccess">
     <div class="num">ЗАЯВКА ПРИНЯТА</div>
     <p style="margin-top:10px; color:var(--dim); font-size:14px;">Инженер сборки свяжется в течение дня.</p>
+    <button type="button" class="btn btn-ghost lead-again" data-again="lead">Отправить ещё раз</button>
   </div>
 </dialog>
 

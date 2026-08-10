@@ -1,0 +1,86 @@
+{% extends "admin/base.html" %}
+{% block title %}{% if product %}{{ product.sku }}{% else %}Новый товар{% endif %} · Admin{% endblock %}
+{% block content %}
+{% set f = request.form if request.method == 'POST' else none %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Товар</div>
+    <h1>{% if product and product.id %}Редактирование{% else %}Новый товар{% endif %}</h1>
+  </div>
+  <a class="btn-ghost" href="{{ url_for('admin.products') }}">← К списку</a>
+</div>
+
+<form class="product-form js-draft-form" method="post" enctype="multipart/form-data"
+      data-draft-key="product:{{ product.id if product and product.id else 'new' }}"
+      action="{% if product and product.id %}{{ url_for('admin.product_update', product_id=product.id) }}{% else %}{{ url_for('admin.product_create') }}{% endif %}">
+  <div class="draft-bar" hidden>
+    <span>Есть локальный черновик этой формы.</span>
+    <button type="button" class="linkish js-draft-restore">Восстановить</button>
+    <button type="button" class="linkish js-draft-discard">Сбросить</button>
+  </div>
+  <div class="form-grid">
+    <label>SKU *
+      <input class="mono" type="text" name="sku" required maxlength="40"
+             value="{{ f.get('sku', product.sku if product else '') if f is not none else (product.sku if product else '') }}"
+             placeholder="PL-W-99 или РУЛЬ-01">
+    </label>
+    <label>Категория *
+      <select name="category_id" required>
+        {% for c in categories %}
+          {% set selected_cat = f.get('category_id') if f is not none else (product.category_id if product else none) %}
+          <option value="{{ c.id }}"
+            {% if selected_cat is not none and selected_cat|string == c.id|string %}selected{% endif %}>{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="span-2">Название *
+      <input type="text" name="name" required maxlength="200"
+             value="{{ f.get('name', product.name if product else '') if f is not none else (product.name if product else '') }}">
+    </label>
+    <label>Бренд
+      <input type="text" name="brand" maxlength="80"
+             value="{{ f.get('brand', product.brand if product else 'PITLINE') if f is not none else (product.brand if product else 'PITLINE') }}">
+    </label>
+    <label>Цена, ₽ *
+      <input class="mono" type="number" name="price" min="0" step="1" required
+             value="{{ f.get('price', product.price if product else 0) if f is not none else (product.price if product else 0) }}">
+    </label>
+    <label>Бейдж
+      <input type="text" name="badge" maxlength="20" placeholder="HIT / NEW / PRO"
+             value="{{ f.get('badge', product.badge if product and product.badge else '') if f is not none else (product.badge if product and product.badge else '') }}">
+    </label>
+    <label>Порядок
+      <input class="mono" type="number" name="sort_order" step="1"
+             value="{{ f.get('sort_order', product.sort_order if product else 0) if f is not none else (product.sort_order if product else 0) }}">
+    </label>
+    <label class="span-2">Спеки
+      <input type="text" name="specs" maxlength="400"
+             value="{{ f.get('specs', product.specs if product else '') if f is not none else (product.specs if product else '') }}"
+             placeholder="FFB 12 Н·м · DD">
+    </label>
+    <label class="span-2">Описание
+      <textarea name="description" rows="4">{{ f.get('description', product.description if product else '') if f is not none else (product.description if product else '') }}</textarea>
+    </label>
+    <label class="span-2">Фото
+      <input type="file" name="image" accept="image/jpeg,image/png,image/webp,image/gif">
+      <span class="hint">Сохранится как static/img/products/&lt;SKU&gt;.ext</span>
+    </label>
+    {% if product and product.id %}
+    <div class="span-2 preview">
+      <img src="{{ product.image_url() }}" alt="" width="160" height="120" loading="lazy"
+           onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'muted',textContent:'Нет фото'}))">
+    </div>
+    {% endif %}
+    <label class="check span-2">
+      <input type="checkbox" name="visible"
+             {% if f is not none %}{% if f.get('visible') == 'on' %}checked{% endif %}{% elif not product or product.visible %}checked{% endif %}>
+      Показывать на сайте
+    </label>
+  </div>
+  <div class="form-actions">
+    <button type="submit" class="btn-primary">Сохранить</button>
+    <button type="button" class="btn-ghost js-draft-clear">Сбросить черновик</button>
+    <span class="draft-hint muted small js-draft-hint" hidden>Черновик сохранён</span>
+  </div>
+</form>
+{% endblock %}

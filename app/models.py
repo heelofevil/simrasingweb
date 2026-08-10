@@ -34,10 +34,15 @@ class Product(db.Model):
     specs = db.Column(db.String(400), nullable=False, default="")
     description = db.Column(db.Text, nullable=False, default="")
     badge = db.Column(db.String(20), nullable=True)
+    image_file = db.Column(db.String(120), nullable=True)
     visible = db.Column(db.Boolean, nullable=False, default=True)
     sort_order = db.Column(db.Integer, nullable=False, default=0)
 
     category = db.relationship("Category", back_populates="products")
+
+    def image_url(self) -> str:
+        fname = self.image_file or f"{self.sku}.jpg"
+        return f"/static/img/products/{fname}"
 
     def to_dict(self):
         return {
@@ -51,7 +56,8 @@ class Product(db.Model):
             "specs": self.specs,
             "description": self.description,
             "badge": self.badge,
-            "image": f"/static/img/products/{self.sku}.jpg",
+            "image": self.image_url(),
+            "visible": self.visible,
         }
 
 
@@ -65,6 +71,10 @@ class Bundle(db.Model):
     description = db.Column(db.Text, nullable=False, default="")
     price_override = db.Column(db.Integer, nullable=True)
     badge = db.Column(db.String(40), nullable=True)
+    image_file = db.Column(db.String(120), nullable=True)
+    featured = db.Column(db.Boolean, nullable=False, default=False)
+    featured_order = db.Column(db.Integer, nullable=False, default=0)
+    visible = db.Column(db.Boolean, nullable=False, default=True)
     sort_order = db.Column(db.Integer, nullable=False, default=0)
 
     items = db.relationship(
@@ -78,6 +88,44 @@ class Bundle(db.Model):
         if self.price_override is not None:
             return self.price_override
         return sum(item.product.price for item in self.items if item.product)
+
+    def image_url(self) -> str | None:
+        if not self.image_file:
+            return None
+        return f"/static/img/bundles/{self.image_file}"
+
+    def blocked_products(self) -> list[str]:
+        """Names/labels of missing or hidden products in the composition."""
+        labels: list[str] = []
+        seen: set[str] = set()
+        for item in self.items:
+            if not item.product:
+                label = f"удалённый #{item.product_id}"
+            elif not item.product.visible:
+                label = item.product.name
+            else:
+                continue
+            if label not in seen:
+                seen.add(label)
+                labels.append(label)
+        return labels
+
+    def is_blocked(self) -> bool:
+        """True if composition is empty or contains hidden/missing products."""
+        if not self.items:
+            return True
+        return bool(self.blocked_products())
+
+    def block_reason(self) -> str | None:
+        if not self.items:
+            return "пустой состав"
+        blocked = self.blocked_products()
+        if not blocked:
+            return None
+        return "скрыт/удалён: " + ", ".join(blocked)
+
+    def is_publicly_available(self) -> bool:
+        return bool(self.visible) and not self.is_blocked()
 
     def to_dict(self):
         products = [
@@ -96,6 +144,10 @@ class Bundle(db.Model):
             "description": self.description,
             "badge": self.badge,
             "price": self.computed_price(),
+            "image": self.image_url(),
+            "featured": bool(self.featured),
+            "featured_order": self.featured_order,
+            "visible": bool(self.visible),
             "products": products,
         }
 
