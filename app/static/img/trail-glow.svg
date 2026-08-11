@@ -13,11 +13,14 @@
     </filter>
     <style>
       .motion path {
-        stroke-dasharray: 120 580;
-        animation: trail-flow 2.6s linear infinite;
+        stroke-dasharray: 1 1;
+        stroke-dashoffset: 1;
+        animation: trail-cycle 4s ease-in-out infinite;
       }
-      @keyframes trail-flow {
-        to { stroke-dashoffset: -700; }
+      @keyframes trail-cycle {
+        0% { stroke-dashoffset: 1; }
+        40%, 65% { stroke-dashoffset: 0; }
+        100% { stroke-dashoffset: -1; }
       }
       @media (prefers-reduced-motion: reduce) {
         .motion path { animation: none; stroke-dasharray: none; }
@@ -27,27 +30,27 @@
 
   <g class="motion" fill="none" stroke-linecap="round">
     <g stroke="url(#trail)" filter="url(#wide-glow)" opacity=".8">
-      <path d="M-40 365 C180 367 394 340 497 289 C541 267 548 229 576 219" stroke-width="12"/>
-      <path d="M-40 386 C178 382 398 350 507 295 C547 274 554 232 576 220" stroke-width="16"/>
-      <path d="M-40 408 C180 397 405 362 517 303 C552 284 558 236 577 221" stroke-width="18"/>
-      <path d="M-40 431 C185 414 411 375 527 312 C557 295 562 240 578 222" stroke-width="15"/>
-      <path d="M-40 455 C190 431 420 389 536 321 C562 304 566 244 579 223" stroke-width="11"/>
+      <path pathLength="1" d="M-40 365 C180 367 394 340 497 289 C541 267 548 229 576 219" stroke-width="12"/>
+      <path pathLength="1" d="M-40 386 C178 382 398 350 507 295 C547 274 554 232 576 220" stroke-width="16"/>
+      <path pathLength="1" d="M-40 408 C180 397 405 362 517 303 C552 284 558 236 577 221" stroke-width="18"/>
+      <path pathLength="1" d="M-40 431 C185 414 411 375 527 312 C557 295 562 240 578 222" stroke-width="15"/>
+      <path pathLength="1" d="M-40 455 C190 431 420 389 536 321 C562 304 566 244 579 223" stroke-width="11"/>
     </g>
 
     <g stroke="url(#trail)" filter="url(#core-glow)" opacity=".95">
-      <path d="M-40 365 C180 367 394 340 497 289 C541 267 548 229 576 219" stroke-width="3"/>
-      <path d="M-40 386 C178 382 398 350 507 295 C547 274 554 232 576 220" stroke-width="4"/>
-      <path d="M-40 408 C180 397 405 362 517 303 C552 284 558 236 577 221" stroke-width="5"/>
-      <path d="M-40 431 C185 414 411 375 527 312 C557 295 562 240 578 222" stroke-width="4"/>
-      <path d="M-40 455 C190 431 420 389 536 321 C562 304 566 244 579 223" stroke-width="3"/>
+      <path pathLength="1" d="M-40 365 C180 367 394 340 497 289 C541 267 548 229 576 219" stroke-width="3"/>
+      <path pathLength="1" d="M-40 386 C178 382 398 350 507 295 C547 274 554 232 576 220" stroke-width="4"/>
+      <path pathLength="1" d="M-40 408 C180 397 405 362 517 303 C552 284 558 236 577 221" stroke-width="5"/>
+      <path pathLength="1" d="M-40 431 C185 414 411 375 527 312 C557 295 562 240 578 222" stroke-width="4"/>
+      <path pathLength="1" d="M-40 455 C190 431 420 389 536 321 C562 304 566 244 579 223" stroke-width="3"/>
     </g>
 
     <g stroke="#ff5062" opacity=".9">
-      <path d="M-40 365 C180 367 394 340 497 289 C541 267 548 229 576 219" stroke-width="1"/>
-      <path d="M-40 386 C178 382 398 350 507 295 C547 274 554 232 576 220" stroke-width="1.25"/>
-      <path d="M-40 408 C180 397 405 362 517 303 C552 284 558 236 577 221" stroke-width="1.5"/>
-      <path d="M-40 431 C185 414 411 375 527 312 C557 295 562 240 578 222" stroke-width="1.25"/>
-      <path d="M-40 455 C190 431 420 389 536 321 C562 304 566 244 579 223" stroke-width="1"/>
+      <path pathLength="1" d="M-40 365 C180 367 394 340 497 289 C541 267 548 229 576 219" stroke-width="1"/>
+      <path pathLength="1" d="M-40 386 C178 382 398 350 507 295 C547 274 554 232 576 220" stroke-width="1.25"/>
+      <path pathLength="1" d="M-40 408 C180 397 405 362 517 303 C552 284 558 236 577 221" stroke-width="1.5"/>
+      <path pathLength="1" d="M-40 431 C185 414 411 375 527 312 C557 295 562 240 578 222" stroke-width="1.25"/>
+      <path pathLength="1" d="M-40 455 C190 431 420 389 536 321 C562 304 566 244 579 223" stroke-width="1"/>
     </g>
   </g>
 </svg>
