@@ -323,6 +323,11 @@ def seed_catalog(force: bool = False) -> dict:
     db.session.flush()
 
     for i, (slug, name, tag, desc, badge, skus, price_override) in enumerate(BUNDLES):
+        featured_map = {
+            "legend-pro": 1,
+            "master-pro": 2,
+            "immersion-manual": 3,
+        }
         bundle = Bundle(
             slug=slug,
             name=name,
@@ -331,6 +336,8 @@ def seed_catalog(force: bool = False) -> dict:
             badge=badge,
             price_override=price_override,
             sort_order=i,
+            featured=slug in featured_map,
+            featured_order=featured_map.get(slug, 0),
         )
         db.session.add(bundle)
         db.session.flush()

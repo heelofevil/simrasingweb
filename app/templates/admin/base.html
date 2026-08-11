@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Admin · PITLINE{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="admin-body">
+  {% if session.get('admin_ok') %}
+  <header class="admin-bar">
+    <a class="admin-logo" href="{{ url_for('admin.products') }}"><span class="dot"></span>PITLINE Admin</a>
+    <nav class="admin-nav">
+      <a href="{{ url_for('admin.products') }}">Товары</a>
+      <a href="{{ url_for('admin.bundles') }}">Сборки</a>
+      <a href="{{ url_for('main.index') }}" target="_blank" rel="noopener">Сайт ↗</a>
+      <form method="post" action="{{ url_for('admin.logout') }}" class="inline">
+        <button type="submit" class="linkish">Выйти</button>
+      </form>
+    </nav>
+  </header>
+  {% endif %}
+
+  <main class="admin-main">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flash-list">
+          {% for cat, msg in messages %}
+            <li class="flash flash-{{ cat }}">{{ msg }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>

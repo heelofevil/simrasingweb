@@ -9,13 +9,27 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Сайт: [http://localhost:8000](http://localhost:8000)
+Сайт: [http://localhost:8000](http://localhost:8000)  
+Админка: [http://localhost:8000/admin](http://localhost:8000/admin)  
+Вход: `ADMIN_USERNAME` / `ADMIN_PASSWORD`.
 
 ## Флоу конфигуратора
 
 1. **Готовые сборки** — пресеты с фильтрами  
 2. **Собрать самому** — категории (руль, база, педали…)  
-3. **Запрос расчёта** — лид в Postgres
+3. **Запрос расчёта** — лид в Postgres + (опционально) Bitrix24
+
+## Админка
+
+Владелец может создавать/править/удалять товары и заливать фото (`/static/img/products/<SKU>.ext`).
+
+## Bitrix24
+
+1. В портале: **Разработчикам → Другое → Входящий вебхук** с правом `crm`.  
+2. В `.env` укажи `BITRIX24_WEBHOOK_URL=https://..../rest/1/xxxxx/`  
+3. Каждая заявка с сайта создаёт лид (`crm.lead.add`) с составом сборки и суммой.
+
+Без URL заявки по-прежнему пишутся только в БД.
 
 ## API
 
@@ -25,7 +39,7 @@ docker compose up --build
 | GET | `/api/products?category=base` | Товары |
 | GET | `/api/bundles?tag=Гонки` | Готовые сборки |
 | GET | `/api/bundle-tags` | Фильтры сборок |
-| POST | `/api/leads` | Заявка |
+| POST | `/api/leads` | Заявка (+ Bitrix) |
 
 ## Каталог
 

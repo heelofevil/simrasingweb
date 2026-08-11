@@ -1,0 +1,85 @@
+{% extends "admin/base.html" %}
+{% block title %}Сборки · PITLINE Admin{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Каталог</div>
+    <h1>Готовые сборки</h1>
+    <p class="muted">Пресеты конфигуратора. Галочка «Топ» — блок на главной.</p>
+  </div>
+  <a class="btn-primary" href="{{ url_for('admin.bundle_new') }}">+ Новая сборка</a>
+</div>
+
+<form class="filters" method="get">
+  <input type="search" name="q" value="{{ q }}" placeholder="Название или slug">
+  <select name="tag">
+    <option value="">Все теги</option>
+    {% for t in tags %}
+      <option value="{{ t }}" {% if tag == t %}selected{% endif %}>{{ t }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="btn-ghost">Фильтр</button>
+</form>
+
+<div class="table-wrap">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Slug</th>
+        <th>Название</th>
+        <th>Тег</th>
+        <th>Топ</th>
+        <th>Вид</th>
+        <th>Состав</th>
+        <th>Цена</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for b in bundles %}
+      <tr class="{% if not b.visible %}is-hidden{% endif %}{% if b.is_blocked() %} is-blocked{% endif %}">
+        <td class="mono">{{ b.slug }}</td>
+        <td>
+          <strong>{{ b.name }}</strong>
+          {% if b.is_blocked() %}
+            <div><span class="status-pill blocked" title="{{ b.block_reason() }}">заблокирована</span></div>
+            <div class="muted small">{{ b.block_reason() }}</div>
+          {% endif %}
+          {% if b.badge %}<div class="muted small">{{ b.badge }}</div>{% endif %}
+          {% if b.image_file %}<div class="muted small">есть фото</div>{% endif %}
+        </td>
+        <td>{{ b.filter_tag }}</td>
+        <td class="mono">
+          {% if b.featured %}#{{ b.featured_order }}{% else %}—{% endif %}
+        </td>
+        <td>
+          {% if b.is_blocked() %}
+            <span class="status-text blocked">блок</span>
+          {% elif b.visible %}
+            да
+          {% else %}
+            скрыт
+          {% endif %}
+        </td>
+        <td class="muted">{{ b.items|length }} поз.</td>
+        <td class="mono">
+          {{ "{:,}".format(b.computed_price()).replace(",", " ") }} ₽
+          {% if b.price_override is not none %}
+            <div class="muted small">override</div>
+          {% endif %}
+        </td>
+        <td class="row-actions">
+          <a href="{{ url_for('admin.bundle_edit', bundle_id=b.id) }}">Править</a>
+          <form method="post" action="{{ url_for('admin.bundle_delete', bundle_id=b.id) }}"
+                onsubmit="return confirm('Удалить «{{ b.name }}»?');">
+            <button type="submit" class="danger">Удалить</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="8" class="muted">Сборок нет</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

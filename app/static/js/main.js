@@ -1,5 +1,4 @@
 const money = (n) => new Intl.NumberFormat("ru-RU").format(n) + " ₽";
-const FEATURED_SLUGS = ["legend-pro", "master-pro", "immersion-manual"];
 
 const state = {
   screen: "start",
@@ -10,6 +9,7 @@ const state = {
   products: [],
   bundles: [],
   allBundles: [],
+  featuredBundles: [],
   tags: ["Все"],
   activeTag: "Все",
   build: {},
@@ -38,6 +38,8 @@ const els = {
   diyOverlayTitle: document.getElementById("diyOverlayTitle"),
   diyOverlayClose: document.getElementById("diyOverlayClose"),
   cockpitStage: document.getElementById("cockpitStage"),
+  leadDialogHero: document.getElementById("leadDialogHero"),
+  leadDialogImage: document.getElementById("leadDialogImage"),
 };
 
 const PART_LABELS = {
@@ -344,18 +346,31 @@ async function loadBundles() {
 }
 
 async function loadAllBundles() {
-  const res = await fetch("/api/bundles");
-  state.allBundles = await res.json();
+  const [allRes, featuredRes] = await Promise.all([
+    fetch("/api/bundles"),
+    fetch("/api/featured-bundles"),
+  ]);
+  state.allBundles = await allRes.json();
+  state.featuredBundles = await featuredRes.json();
   renderFeatured();
+}
+
+function bundleMediaHtml(bundle) {
+  if (!bundle?.image) return "";
+  return `<span class="card-media" aria-hidden="true"><img src="${bundle.image}" alt="" loading="lazy"></span>`;
 }
 
 function renderFeatured() {
   if (!els.featuredGrid) return;
-  const featured = FEATURED_SLUGS.map((slug) => state.allBundles.find((b) => b.slug === slug)).filter(Boolean);
-  const list = featured.length === 3 ? featured : [...state.allBundles].sort((a, b) => b.price - a.price).slice(0, 3);
+  const list = Array.isArray(state.featuredBundles) ? state.featuredBundles : [];
+  if (!list.length) {
+    els.featuredGrid.innerHTML = `<p class="muted" style="grid-column:1/-1;">Топ сборки пока не выбраны в админке.</p>`;
+    return;
+  }
   els.featuredGrid.innerHTML = list
     .map(
-      (b) => `<button type="button" class="featured-card" data-id="${b.id}">
+      (b) => `<button type="button" class="featured-card ${b.image ? "has-media" : ""}" data-id="${b.id}">
+        ${bundleMediaHtml(b)}
         <div class="tag">${b.filter_tag}${b.badge ? " · " + b.badge : ""}</div>
         <h3>${b.name}</h3>
         <p>${b.description}</p>
@@ -366,7 +381,9 @@ function renderFeatured() {
 
   els.featuredGrid.querySelectorAll(".featured-card").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const bundle = state.allBundles.find((b) => String(b.id) === String(btn.dataset.id));
+      const bundle =
+        state.featuredBundles.find((b) => String(b.id) === String(btn.dataset.id)) ||
+        state.allBundles.find((b) => String(b.id) === String(btn.dataset.id));
       if (!bundle) return;
       switchTab("config");
       state.mode = "presets";
@@ -376,6 +393,7 @@ function renderFeatured() {
         tier: bundle.name,
         items: bundle.products,
         total: bundle.price,
+        image: bundle.image,
       });
       syncTotals();
     });
@@ -404,7 +422,8 @@ function renderBundles() {
   els.bundleGrid.innerHTML = state.bundles
     .map((b) => {
       const active = state.selectedBundle && Number(state.selectedBundle.id) === Number(b.id);
-      return `<button type="button" class="cfg-bundle ${active ? "is-selected" : ""}" data-id="${b.id}">
+      return `<button type="button" class="cfg-bundle ${active ? "is-selected" : ""} ${b.image ? "has-media" : ""}" data-id="${b.id}">
+        ${bundleMediaHtml(b)}
         <div class="tag">${b.filter_tag}${b.badge ? " · " + b.badge : ""}${active ? " · выбрано" : ""}</div>
         <h4>${b.name}</h4>
         <p>${b.description}</p>
@@ -429,6 +448,7 @@ function renderBundles() {
         tier: bundle.name,
         items: bundle.products,
         total: bundle.price,
+        image: bundle.image,
       });
       syncTotals();
     });
@@ -442,6 +462,12 @@ function resetLeadForm() {
   if (!form) return;
   form.reset();
   form.style.display = "";
+  if (els.formTier && state._checkout?.tier) els.formTier.value = state._checkout.tier;
+  const submitBtn = document.getElementById("leadSubmitBtn");
+  if (submitBtn) {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Отправить заявку";
+  }
   if (errorEl) {
     errorEl.classList.remove("show");
     errorEl.textContent = "";
@@ -450,7 +476,26 @@ function resetLeadForm() {
   state.leadSent = false;
 }
 
-function openLeadDialog({ mode, tier, items, total }) {
+function resetSimpleLeadForm() {
+  const form = document.getElementById("simpleLeadForm");
+  const errorEl = document.getElementById("simpleFormError");
+  const successEl = document.getElementById("simpleFormSuccess");
+  if (!form) return;
+  form.reset();
+  form.style.display = "";
+  const submitBtn = document.getElementById("simpleSubmitBtn");
+  if (submitBtn) {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Связаться с инженером";
+  }
+  if (errorEl) {
+    errorEl.classList.remove("show");
+    errorEl.textContent = "";
+  }
+  if (successEl) successEl.classList.remove("show");
+}
+
+function openLeadDialog({ mode, tier, items, total, image }) {
   state.mode = mode === "preset" ? "presets" : "diy";
   resetLeadForm();
   const list = items || [];
@@ -463,20 +508,43 @@ function openLeadDialog({ mode, tier, items, total }) {
       ? list.map((p) => `<li><span>${p.name}</span><span class="mono">${money(p.price)}</span></li>`).join("")
       : `<li><span>Пока пусто — выбери позиции в кокпите</span><span></span></li>`;
   }
+  if (els.leadDialogHero && els.leadDialogImage) {
+    if (image) {
+      els.leadDialogImage.src = image;
+      els.leadDialogImage.alt = tier || "";
+      els.leadDialogHero.hidden = false;
+    } else {
+      els.leadDialogImage.removeAttribute("src");
+      els.leadDialogImage.alt = "";
+      els.leadDialogHero.hidden = true;
+    }
+  }
   state._checkout = { mode, tier, items: list, total: sum };
   if (els.leadDialog) els.leadDialog.showModal();
 }
 
-async function submitLead(payload, formEl, errorEl, successEl) {
+async function submitLead(payload, formEl, errorEl, successEl, submitBtn) {
   errorEl.classList.remove("show");
   errorEl.textContent = "";
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Отправка…";
+  }
   try {
     const res = await fetch("/api/leads", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-    const data = await res.json();
+    let data = {};
+    try {
+      data = await res.json();
+    } catch (_) {
+      data = {};
+    }
+    if (res.status === 429) {
+      throw new Error(data.error || "Слишком много заявок. Попробуй позже.");
+    }
     if (!res.ok || !data.ok) throw new Error(data.error || "Не удалось отправить");
     formEl.style.display = "none";
     successEl.classList.add("show");
@@ -484,6 +552,10 @@ async function submitLead(payload, formEl, errorEl, successEl) {
   } catch (err) {
     errorEl.textContent = err.message || "Ошибка отправки";
     errorEl.classList.add("show");
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = submitBtn.id === "simpleSubmitBtn" ? "Связаться с инженером" : "Отправить заявку";
+    }
     return false;
   }
 }
@@ -513,7 +585,8 @@ document.getElementById("leadForm").addEventListener("submit", async (e) => {
     },
     e.target,
     document.getElementById("formError"),
-    document.getElementById("formSuccess")
+    document.getElementById("formSuccess"),
+    document.getElementById("leadSubmitBtn")
   );
   if (ok) state.leadSent = true;
 });
@@ -531,8 +604,16 @@ document.getElementById("simpleLeadForm").addEventListener("submit", async (e) =
     },
     e.target,
     document.getElementById("simpleFormError"),
-    document.getElementById("simpleFormSuccess")
+    document.getElementById("simpleFormSuccess"),
+    document.getElementById("simpleSubmitBtn")
   );
+});
+
+document.querySelectorAll("[data-again]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    if (btn.dataset.again === "simple") resetSimpleLeadForm();
+    else resetLeadForm();
+  });
 });
 
 // Telemetry

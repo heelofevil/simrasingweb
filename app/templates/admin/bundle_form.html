@@ -1,0 +1,132 @@
+{% extends "admin/base.html" %}
+{% block title %}{% if bundle %}{{ bundle.name }}{% else %}Новая сборка{% endif %} · Admin{% endblock %}
+{% block content %}
+{% set f = request.form if request.method == 'POST' else none %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Сборка</div>
+    <h1>{% if bundle and bundle.id %}Редактирование{% else %}Новая сборка{% endif %}</h1>
+    {% if bundle and bundle.id and bundle.is_blocked() %}
+      <p class="status-banner blocked">
+        <strong>Заблокирована</strong> — {{ bundle.block_reason() }}.
+        На сайте не показывается, пока состав не станет полным из видимых товаров.
+      </p>
+    {% endif %}
+  </div>
+  <a class="btn-ghost" href="{{ url_for('admin.bundles') }}">← К списку</a>
+</div>
+
+<form class="product-form js-draft-form" method="post" enctype="multipart/form-data"
+      data-draft-key="bundle:{{ bundle.id if bundle and bundle.id else 'new' }}"
+      action="{% if bundle and bundle.id %}{{ url_for('admin.bundle_update', bundle_id=bundle.id) }}{% else %}{{ url_for('admin.bundle_create') }}{% endif %}">
+  <div class="draft-bar" hidden>
+    <span>Есть локальный черновик этой формы.</span>
+    <button type="button" class="linkish js-draft-restore">Восстановить</button>
+    <button type="button" class="linkish js-draft-discard">Сбросить</button>
+  </div>
+  <div class="form-grid">
+    <label>Slug *
+      <input class="mono" type="text" name="slug" required maxlength="80"
+             value="{{ f.get('slug', bundle.slug if bundle else '') if f is not none else (bundle.slug if bundle else '') }}"
+             placeholder="gt-formula или дрифт-старт">
+    </label>
+    <label>Тег фильтра *
+      <input type="text" name="filter_tag" maxlength="40" required
+             value="{{ f.get('filter_tag', bundle.filter_tag if bundle else 'Гонки') if f is not none else (bundle.filter_tag if bundle else 'Гонки') }}"
+             placeholder="Гонки / Наборы / …">
+    </label>
+    <label class="span-2">Название *
+      <input type="text" name="name" required maxlength="160"
+             value="{{ f.get('name', bundle.name if bundle else '') if f is not none else (bundle.name if bundle else '') }}">
+    </label>
+    <label>Бейдж
+      <input type="text" name="badge" maxlength="40"
+             value="{{ f.get('badge', bundle.badge if bundle and bundle.badge else '') if f is not none else (bundle.badge if bundle and bundle.badge else '') }}"
+             placeholder="Pro / HIT">
+    </label>
+    <label>Порядок
+      <input class="mono" type="number" name="sort_order" step="1"
+             value="{{ f.get('sort_order', bundle.sort_order if bundle else 0) if f is not none else (bundle.sort_order if bundle else 0) }}">
+    </label>
+    <label class="span-2 check">
+      <input type="checkbox" name="featured" id="bundleFeatured"
+             {% if f is not none %}{% if f.get('featured') == 'on' %}checked{% endif %}{% elif bundle and bundle.featured %}checked{% endif %}>
+      Показывать в блоке «Топ сборки» на главной
+      <span class="hint">Только если сборка видима на сайте.</span>
+    </label>
+    <label class="span-2 check">
+      <input type="checkbox" name="visible" id="bundleVisible"
+             {% if f is not none %}{% if f.get('visible') == 'on' %}checked{% endif %}{% elif not bundle or bundle.visible %}checked{% endif %}>
+      Показывать на сайте (конфигуратор)
+    </label>
+    <label>Порядок в топе
+      <input class="mono" type="number" name="featured_order" step="1"
+             value="{{ f.get('featured_order', bundle.featured_order if bundle else 0) if f is not none else (bundle.featured_order if bundle else 0) }}">
+      <span class="hint">Меньше число — выше в блоке.</span>
+    </label>
+    <label class="span-2">Описание
+      <textarea name="description" rows="3">{{ f.get('description', bundle.description if bundle else '') if f is not none else (bundle.description if bundle else '') }}</textarea>
+    </label>
+    <label class="span-2">Цена сборки, ₽
+      <input class="mono" type="number" name="price_override" min="0" step="1"
+             value="{{ f.get('price_override', bundle.price_override if bundle and bundle.price_override is not none else '') if f is not none else (bundle.price_override if bundle and bundle.price_override is not none else '') }}"
+             placeholder="Пусто = сумма товаров">
+      <span class="hint">Если пусто — на сайте считается сумма позиций состава.</span>
+    </label>
+    <label class="span-2">Картинка набора
+      <input type="file" name="image" accept="image/jpeg,image/png,image/webp,image/gif">
+      <span class="hint">На сайте: hover на карточке и сверху в диалоге заявки.</span>
+    </label>
+    {% if bundle and bundle.id and bundle.image_url() %}
+    <div class="span-2 preview">
+      <img src="{{ bundle.image_url() }}" alt="" width="240" height="140" loading="lazy">
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="compose-block">
+    <div class="compose-head">
+      <h2>Состав</h2>
+      <p class="muted">В каждой категории — только один товар.</p>
+    </div>
+    <div class="compose-list">
+      {% for cat_name, items in product_groups %}
+      {% set has_pick = namespace(on=false) %}
+      {% for p in items %}
+        {% if p.id in selected_ids %}{% set has_pick.on = true %}{% endif %}
+      {% endfor %}
+      <div class="compose-group {% if not has_pick.on %}is-collapsed{% endif %}" data-cat-group>
+        <button type="button" class="compose-cat" data-cat-toggle aria-expanded="{{ 'true' if has_pick.on else 'false' }}">
+          <span class="compose-cat-label">{{ cat_name }}</span>
+          <span class="compose-chevron" aria-hidden="true">▾</span>
+        </button>
+        <div class="compose-body">
+          {% for p in items %}
+          <label class="compose-row {% if not p.visible %}is-product-hidden{% endif %}">
+            <input type="checkbox" name="product_ids" value="{{ p.id }}" data-cat-pick
+                   {% if p.id in selected_ids %}checked{% endif %}>
+            <span class="compose-main">
+              <span class="mono">{{ p.sku }}</span>
+              <strong>{{ p.name }}</strong>
+              {% if not p.visible %}<span class="status-pill blocked">скрыт</span>{% endif %}
+              <span class="muted">{{ "{:,}".format(p.price).replace(",", " ") }} ₽</span>
+            </span>
+            <input class="qty mono" type="number" name="qty_{{ p.id }}" min="1" step="1"
+                   value="{{ selected_qty.get(p.id, 1) }}" title="Кол-во">
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+      {% else %}
+      <p class="muted" style="padding:16px 20px;">Сначала добавь товары в каталог.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn-primary">Сохранить</button>
+    <button type="button" class="btn-ghost js-draft-clear">Сбросить черновик</button>
+    <span class="draft-hint muted small js-draft-hint" hidden>Черновик сохранён</span>
+  </div>
+</form>
+{% endblock %}
