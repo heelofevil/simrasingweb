@@ -1,5 +1,12 @@
 const money = (n) => new Intl.NumberFormat("ru-RU").format(n) + " ₽";
 
+const pageHeader = document.querySelector("header");
+const syncHeaderBackground = () => {
+  if (pageHeader) pageHeader.classList.toggle("is-scrolled", window.scrollY > 0);
+};
+syncHeaderBackground();
+window.addEventListener("scroll", syncHeaderBackground, { passive: true });
+
 const state = {
   screen: "start",
   mode: null,
@@ -357,7 +364,7 @@ async function loadAllBundles() {
 
 function bundleMediaHtml(bundle) {
   if (!bundle?.image) return "";
-  return `<span class="card-media" aria-hidden="true"><img src="${bundle.image}" alt="" loading="lazy"></span>`;
+  return `<div class="card-media" aria-hidden="true"><img src="${bundle.image}" alt="" loading="lazy"></div>`;
 }
 
 function renderFeatured() {

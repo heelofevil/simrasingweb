@@ -89,10 +89,9 @@ class Bundle(db.Model):
             return self.price_override
         return sum(item.product.price for item in self.items if item.product)
 
-    def image_url(self) -> str | None:
-        if not self.image_file:
-            return None
-        return f"/static/img/bundles/{self.image_file}"
+    def image_url(self) -> str:
+        filename = self.image_file or f"{self.slug}.jpg"
+        return f"/static/img/bundles/{filename}"
 
     def blocked_products(self) -> list[str]:
         """Names/labels of missing or hidden products in the composition."""

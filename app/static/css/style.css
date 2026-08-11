@@ -1,5 +1,6 @@
 :root {
   --bg: #0d0e10;
+  --bg-body: #0a0c0f;
   --panel: #17181b;
   --panel-2: #1e2023;
   --line: rgba(237, 239, 242, 0.06);
@@ -18,11 +19,14 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background: var(--bg);
+  background: var(--bg-body);
   color: var(--text);
   font-family: "Manrope", sans-serif;
   line-height: 1.5;
   overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 h1, h2, h3 {
@@ -48,12 +52,20 @@ img { max-width: 100%; display: block; }
 }
 
 header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 50;
+  background: transparent;
+  backdrop-filter: blur(0);
+  border-bottom: 1px solid transparent;
+  transition: background-color 0.25s ease, backdrop-filter 0.25s ease, border-color 0.25s ease;
+}
+
+header.is-scrolled {
   background: rgba(10, 12, 15, 0.82);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--line);
 }
 
 .nav {
@@ -112,7 +124,7 @@ header {
   letter-spacing: 0.04em;
   padding: 10px 20px;
   border: none;
-  border-radius: 2px;
+  border-radius: 6px;
   cursor: pointer;
   transition: 0.3s;
 }
@@ -237,6 +249,10 @@ header {
   gap: 16px;
   margin-top: 36px;
   flex-wrap: wrap;
+
+  .btn-primary {
+    padding: 16px 16px 16px 20px;
+  }
 }
 
 .btn {
@@ -246,13 +262,28 @@ header {
   font-weight: 600;
   letter-spacing: 0.03em;
   padding: 16px 20px;
-  border-radius: 2px;
+  border-radius: 6px;
   cursor: pointer;
   border: none;
-  display: block;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   transition: 0.3s;
+}
+
+.arrow-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  background-color: currentColor;
+  -webkit-mask: url("../img/arrow.svg") center / contain no-repeat;
+  mask: url("../img/arrow.svg") center / contain no-repeat;
+}
+
+.arrow-icon--right {
+  transform: rotate(180deg);
 }
 
 .btn-primary { background: var(--amber); color: #0a0c0f; text-align: center; }
@@ -269,7 +300,7 @@ header {
   margin-top: 64px;
   border: 1px solid var(--line);
   background: var(--panel);
-  border-radius: 4px;
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -310,7 +341,7 @@ header {
   gap: 1px;
   background: var(--line);
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 12px;
   overflow: hidden;
 }
 
@@ -332,6 +363,12 @@ header {
 }
 
 .featured-card:hover { background: var(--panel-2); }
+
+.card-media {
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
 
 .featured-card .card-media {
   position: absolute;
@@ -450,7 +487,7 @@ header {
 .install {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 12px;
   padding: 56px;
 }
 
@@ -482,7 +519,7 @@ header {
 
 .badge {
   border: 1px solid var(--line-strong);
-  border-radius: 2px;
+  border-radius: 6px;
   padding: 10px 16px;
   font-family: "JetBrains Mono", monospace;
   font-size: 12.5px;
@@ -502,7 +539,7 @@ header {
 .install-visual {
   aspect-ratio: 1 / 1;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 12px;
   position: relative;
   background: radial-gradient(circle at 50% 50%, rgba(92, 124, 149, 0.1), transparent 60%);
   overflow: hidden;
@@ -534,15 +571,8 @@ header {
 
 /* CONFIGURATOR */
 .cfg-shell {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 6px;
   min-height: 560px;
-  overflow: hidden;
-  transition: min-height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-              background-color 0.35s ease,
-              border-color 0.35s ease,
-              box-shadow 0.35s ease;
+  transition: 0.3s,
 }
 
 .cfg-shell.is-switching {
@@ -563,13 +593,16 @@ header {
 }
 
 .cfg-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   background: transparent;
   border: 1px solid var(--line-strong);
   color: var(--text);
   padding: 8px 14px;
   cursor: pointer;
   font-size: 13px;
-  border-radius: 2px;
+  border-radius: 6px;
   transition: 0.3s;
 }
 
@@ -635,7 +668,7 @@ header {
 .cfg-branch {
   background: var(--bg);
   border: 1px solid var(--line-strong);
-  border-radius: 6px;
+  border-radius: 12px;
   padding: 28px 20px;
   cursor: pointer;
   color: var(--text);
@@ -644,7 +677,6 @@ header {
 
 .cfg-branch:hover {
   border-color: var(--amber);
-  box-shadow: 0 0 0 4px var(--amber-dim);
 }
 
 .cfg-branch-icon {
@@ -696,7 +728,7 @@ header {
   font-size: 12px;
   cursor: pointer;
   font-family: "JetBrains Mono", monospace;
-  border-radius: 2px;
+  border-radius: 6px;
   transition: 0.3s;
   &:hover {
     border-color: var(--dim);
@@ -721,8 +753,8 @@ header {
   isolation: isolate;
   text-align: left;
   background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 4px;
+  border: 1px solid var(--bg);
+  border-radius: 12px;
   padding: 20px;
   cursor: pointer;
   color: inherit;
@@ -768,7 +800,7 @@ header {
 
 .lead-hero {
   margin: 0 0 16px;
-  border-radius: 4px;
+  border-radius: 8px;
   overflow: hidden;
   border: 1px solid var(--line);
   background: #12141a;
@@ -802,7 +834,7 @@ header {
 .cfg-shell:has(.cfg-screen--diy.active) {
   min-height: min(78vh, 740px);
   border: 1px solid var(--line-strong);
-  border-radius: 6px;
+  border-radius: 12px;
   background: var(--panel);
   box-shadow: 0 0 0 1px rgba(201, 166, 104, 0.06);
 }
@@ -839,7 +871,7 @@ header {
   background: #0d0e10;
   overflow: hidden;
   border: 1px solid var(--line-strong);
-  border-radius: 4px;
+  border-radius: 8px;
 }
 
 .diy-stage .cockpit-stage {
@@ -1075,7 +1107,7 @@ header {
   max-height: 100%;
   background: rgba(23, 24, 27, 0.96);
   border: 1px solid var(--line-strong);
-  border-radius: 6px;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1224,7 +1256,7 @@ header {
   padding: 8px 12px;
   cursor: pointer;
   font-size: 12px;
-  border-radius: 2px;
+  border-radius: 6px;
 }
 
 .cfg-add.replace,
@@ -1237,7 +1269,7 @@ header {
 .cfg-build {
   background: var(--bg);
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: 8px;
   padding: 18px;
   position: sticky;
   top: 88px;
@@ -1334,14 +1366,14 @@ header {
 
 .cfg-checkout-cta .form-success {
   border: 1px solid var(--line-strong);
-  border-radius: 4px;
+  border-radius: 8px;
   padding: 16px;
 }
 
 .form-panel {
   background: var(--bg);
   border: 1px solid var(--line-strong);
-  border-radius: 4px;
+  border-radius: 8px;
   padding: 28px;
 }
 
@@ -1363,7 +1395,7 @@ header {
   border: 1px solid var(--line-strong);
   color: var(--text);
   padding: 12px 14px;
-  border-radius: 2px;
+  border-radius: 6px;
   margin-bottom: 18px;
 }
 
@@ -1408,7 +1440,7 @@ header {
   width: min(420px, calc(100% - 32px));
   max-height: calc(100vh - 48px);
   overflow: auto;
-  border-radius: 4px;
+  border-radius: 8px;
   /* * { margin:0 } kills UA centering for <dialog> */
   margin: auto;
   position: fixed;
@@ -1439,8 +1471,9 @@ header {
 }
 
 footer {
+  margin-top: auto;
   border-top: 1px solid var(--line);
-  padding: 40px 0;
+  padding: 20px 0;
   position: relative;
   z-index: 1;
 }
