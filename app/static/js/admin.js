@@ -1,5 +1,6 @@
 (function () {
   const DRAFT_PREFIX = "pitline-admin-draft:";
+  const LEAVE_MSG = "Есть несохранённые изменения. Уйти без сохранения?";
 
   function draftKey(form) {
     const key = form.getAttribute("data-draft-key");
@@ -31,7 +32,6 @@
         data.fields[name] = value;
       }
     }
-    // unchecked checkboxes are absent from FormData — store explicit false for known ones
     form.querySelectorAll('input[type="checkbox"][name]').forEach((el) => {
       if (!el.checked && !(el.name in data.fields)) data.fields[el.name] = "";
     });
@@ -66,13 +66,6 @@
           els.forEach((el) => {
             el.checked = selected.has(String(el.value));
           });
-          // enforce one per category after restore
-          form.querySelectorAll("[data-cat-group]").forEach((group) => {
-            const checked = group.querySelectorAll("[data-cat-pick]:checked");
-            checked.forEach((el, idx) => {
-              if (idx > 0) el.checked = false;
-            });
-          });
         } else {
           first.checked = value === "on" || value === true || value === "true";
         }
@@ -83,7 +76,6 @@
         first.value = Array.isArray(value) ? value[0] : value;
       }
     });
-    // qty fields
     Object.keys(fields).forEach((name) => {
       if (!name.startsWith("qty_")) return;
       const el = form.querySelector(`[name="${CSS.escape(name)}"]`);
@@ -91,17 +83,127 @@
     });
   }
 
-  function enforceOnePerCategory(group, keep) {
-    group.querySelectorAll("[data-cat-pick]").forEach((el) => {
-      if (el !== keep) el.checked = false;
+  function formatRub(value) {
+    return Math.round(value).toLocaleString("ru-RU").replace(/\u00a0/g, " ") + " ₽";
+  }
+
+  function rowPrice(row, cb) {
+    const raw = cb?.getAttribute("data-price") || row?.getAttribute("data-price") || "0";
+    return Number(raw) || 0;
+  }
+
+  function updateComposeTotal(form) {
+    const el = form.querySelector("#composeTotal");
+    if (!el) return;
+    let itemsSum = 0;
+    form.querySelectorAll("[data-cat-pick]").forEach((cb) => {
+      if (!cb.checked) return;
+      const row = cb.closest(".compose-row");
+      const qtyEl = row?.querySelector('input[name^="qty_"]');
+      const qty = Math.max(1, parseInt(qtyEl?.value || "1", 10) || 1);
+      itemsSum += rowPrice(row, cb) * qty;
     });
+    const fieldWorkEl = form.querySelector('[name="field_work_price"]');
+    const fieldWork = Math.max(0, parseInt(fieldWorkEl?.value || "0", 10) || 0);
+    const overrideEl = form.querySelector('[name="price_override"]');
+    const overrideRaw = (overrideEl?.value || "").trim();
+    let base = itemsSum;
+    if (overrideRaw) {
+      const override = parseInt(overrideRaw, 10);
+      if (!Number.isNaN(override) && override >= 0) base = override;
+    }
+    el.textContent = formatRub(base + fieldWork);
+  }
+
+  function bindComposeTotal(form) {
+    const compose = form.querySelector(".compose-block");
+    if (!compose) return;
+    const refresh = () => requestAnimationFrame(() => updateComposeTotal(form));
+    compose.addEventListener("input", refresh);
+    compose.addEventListener("change", refresh);
+    compose.querySelectorAll("[data-cat-pick]").forEach((cb) => {
+      cb.addEventListener("click", refresh);
+    });
+    form.querySelector('[name="field_work_price"]')?.addEventListener("input", refresh);
+    form.querySelector('[name="field_work_price"]')?.addEventListener("change", refresh);
+    form.querySelector('[name="price_override"]')?.addEventListener("input", refresh);
+    form.querySelector('[name="price_override"]')?.addEventListener("change", refresh);
+    refresh();
+  }
+
+  function initUnsavedGuard(form) {
+    let dirty = false;
+    let allowLeave = false;
+    let armed = false;
+
+    setTimeout(() => {
+      armed = true;
+    }, 150);
+
+    const markDirty = () => {
+      if (armed) dirty = true;
+    };
+
+    form.addEventListener("input", markDirty);
+    form.addEventListener("change", markDirty);
+
+    form.addEventListener("submit", () => {
+      allowLeave = true;
+      dirty = false;
+    });
+
+    const clearBtn = form.querySelector(".js-draft-clear");
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        allowLeave = true;
+      });
+    }
+
+    const discardBtn = form.querySelector(".js-draft-discard");
+    if (discardBtn) {
+      discardBtn.addEventListener("click", () => {
+        allowLeave = true;
+      });
+    }
+
+    window.addEventListener("beforeunload", (e) => {
+      if (dirty && !allowLeave) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    });
+
+    document.addEventListener(
+      "click",
+      (e) => {
+        if (!dirty || allowLeave) return;
+        const link = e.target.closest("a[href]");
+        if (!link || link.target === "_blank" || link.hasAttribute("download")) return;
+        const href = link.getAttribute("href");
+        if (!href || href.startsWith("#")) return;
+        try {
+          const url = new URL(link.href, window.location.href);
+          if (url.origin !== window.location.origin) return;
+        } catch (_) {
+          return;
+        }
+        if (!window.confirm(LEAVE_MSG)) {
+          e.preventDefault();
+          e.stopPropagation();
+        } else {
+          allowLeave = true;
+        }
+      },
+      true
+    );
   }
 
   document.querySelectorAll("[data-cat-group]").forEach((group) => {
     group.addEventListener("change", (e) => {
       const t = e.target;
       if (!(t instanceof HTMLInputElement) || !t.matches("[data-cat-pick]")) return;
-      if (t.checked) enforceOnePerCategory(group, t);
+      const form = group.closest("form");
+      if (form) requestAnimationFrame(() => updateComposeTotal(form));
     });
 
     const toggle = group.querySelector("[data-cat-toggle]");
@@ -114,6 +216,24 @@
   });
 
   document.querySelectorAll(".js-draft-form").forEach((form) => {
+    bindComposeTotal(form);
+    initUnsavedGuard(form);
+
+    const allowedExt = /\.(jpe?g|png|webp|gif)$/i;
+    const allowedMime = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", ""]);
+    form.querySelectorAll('input[type="file"][name="image"]').forEach((input) => {
+      input.addEventListener("change", () => {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        const okExt = allowedExt.test(file.name);
+        const okMime = allowedMime.has(file.type);
+        if (!okExt && !okMime) {
+          alert("Поддерживаются только JPG, PNG, WEBP или GIF. HEIC и другие форматы — сначала экспортируй в JPG.");
+          input.value = "";
+        }
+      });
+    });
+
     let timer = null;
     const schedule = () => {
       clearTimeout(timer);
@@ -137,6 +257,7 @@
           form.querySelectorAll("[data-cat-pick]").forEach((el) => {
             el.checked = false;
           });
+          updateComposeTotal(form);
           const hint = form.querySelector(".js-draft-hint");
           if (hint) {
             hint.hidden = false;
@@ -166,50 +287,22 @@
     const draft = readDraft(form);
     const bar = form.querySelector(".draft-bar");
     const isNew = (form.getAttribute("data-draft-key") || "").endsWith(":new");
-    if (draft && draft.fields && bar) {
-      if (isNew) {
-        applyDraft(form, draft);
-        const hint = form.querySelector(".js-draft-hint");
-        if (hint) {
-          hint.hidden = false;
-          hint.textContent = "Черновик восстановлен";
+    if (!isNew) {
+      clearDraft(form);
+    } else if (draft && draft.fields && bar) {
+      applyDraft(form, draft);
+      const hint = form.querySelector(".js-draft-hint");
+      if (hint) {
+        hint.hidden = false;
+        hint.textContent = "Черновик восстановлен";
+      }
+      if (visibleEl && featuredEl) {
+        if (!visibleEl.checked) {
+          featuredEl.checked = false;
+          featuredEl.disabled = true;
         }
-        if (visibleEl && featuredEl) {
-          if (!visibleEl.checked) {
-            featuredEl.checked = false;
-            featuredEl.disabled = true;
-          }
-        }
-      } else {
-        bar.hidden = false;
       }
-      const restoreBtn = form.querySelector(".js-draft-restore");
-      const discardBtn = form.querySelector(".js-draft-discard");
-      if (restoreBtn) {
-        restoreBtn.addEventListener("click", () => {
-          applyDraft(form, readDraft(form));
-          bar.hidden = true;
-          const hint = form.querySelector(".js-draft-hint");
-          if (hint) {
-            hint.hidden = false;
-            hint.textContent = "Черновик восстановлен";
-          }
-          if (visibleEl && featuredEl) {
-            if (!visibleEl.checked) {
-              featuredEl.checked = false;
-              featuredEl.disabled = true;
-            } else {
-              featuredEl.disabled = false;
-            }
-          }
-        });
-      }
-      if (discardBtn) {
-        discardBtn.addEventListener("click", () => {
-          clearDraft(form);
-          if (!isNew) window.location.reload();
-        });
-      }
+      updateComposeTotal(form);
     }
   });
 })();

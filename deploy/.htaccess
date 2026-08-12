@@ -1,0 +1,7 @@
+Options +ExecCGI
+AddHandler wsgi-script .wsgi
+RewriteEngine On
+RewriteRule ^$ run.wsgi/ [QSA,PT,L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ run.wsgi/$1 [QSA,PT,L]

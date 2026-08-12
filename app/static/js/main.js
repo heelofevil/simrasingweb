@@ -1,12 +1,5 @@
 const money = (n) => new Intl.NumberFormat("ru-RU").format(n) + " ₽";
 
-const pageHeader = document.querySelector("header");
-const syncHeaderBackground = () => {
-  if (pageHeader) pageHeader.classList.toggle("is-scrolled", window.scrollY > 0);
-};
-syncHeaderBackground();
-window.addEventListener("scroll", syncHeaderBackground, { passive: true });
-
 const state = {
   screen: "start",
   mode: null,
@@ -17,12 +10,16 @@ const state = {
   bundles: [],
   allBundles: [],
   featuredBundles: [],
+  faqItems: [],
   tags: ["Все"],
   activeTag: "Все",
   build: {},
   selectedBundle: null,
   history: [],
   leadSent: false,
+  leadFromHome: false,
+  carouselIndex: 0,
+  carouselImages: [],
 };
 
 const els = {
@@ -36,6 +33,7 @@ const els = {
   checkoutList: document.getElementById("checkoutList"),
   formTier: document.getElementById("formTier"),
   featuredGrid: document.getElementById("featuredGrid"),
+  faqList: document.getElementById("faqList"),
   contactDialog: document.getElementById("contactDialog"),
   leadDialog: document.getElementById("leadDialog"),
   leadDialogTier: document.getElementById("leadDialogTier"),
@@ -45,8 +43,11 @@ const els = {
   diyOverlayTitle: document.getElementById("diyOverlayTitle"),
   diyOverlayClose: document.getElementById("diyOverlayClose"),
   cockpitStage: document.getElementById("cockpitStage"),
-  leadDialogHero: document.getElementById("leadDialogHero"),
-  leadDialogImage: document.getElementById("leadDialogImage"),
+  leadDialogCarousel: document.getElementById("leadDialogCarousel"),
+  leadCarouselTrack: document.getElementById("leadCarouselTrack"),
+  leadCarouselPrev: document.getElementById("leadCarouselPrev"),
+  leadCarouselNext: document.getElementById("leadCarouselNext"),
+  leadCarouselDots: document.getElementById("leadCarouselDots"),
 };
 
 const PART_LABELS = {
@@ -62,6 +63,29 @@ const PART_LABELS = {
 
 function buildList() {
   return Object.values(state.build).filter((p) => p && p.id != null);
+}
+
+function bundleCheckoutItems(bundle) {
+  const items = (bundle?.products || []).map((p) => {
+    const qty = Math.max(1, Number(p.qty) || 1);
+    const unit = Number(p.price) || 0;
+    return {
+      ...p,
+      name: qty > 1 ? `${p.name} × ${qty}` : p.name,
+      price: unit * qty,
+    };
+  });
+  const fieldWork = Math.max(0, Number(bundle?.field_work_price) || 0);
+  if (fieldWork > 0) {
+    items.push({
+      id: null,
+      sku: "FIELD-WORK",
+      name: "Выездные работы",
+      price: fieldWork,
+      category: "service",
+    });
+  }
+  return items;
 }
 
 const CAT_ICONS = {
@@ -182,6 +206,11 @@ document.querySelectorAll("[data-goto]").forEach((btn) => {
   btn.addEventListener("click", () => switchTab(btn.dataset.goto));
 });
 
+document.getElementById("logoHome")?.addEventListener("click", (e) => {
+  e.preventDefault();
+  switchTab("home");
+});
+
 document.querySelectorAll("[data-scroll]").forEach((btn) => {
   btn.addEventListener("click", () => {
     const el = document.querySelector(btn.dataset.scroll);
@@ -284,11 +313,10 @@ function renderProducts() {
         <img class="cfg-product-photo" src="${img}" alt="" loading="lazy" width="56" height="42">
         <div>
           <div class="specs">${p.brand || ""}</div>
-          <h4>${p.name}</h4>
+          <h4>${p.name}${p.badge ? ` <span class="cfg-badge">${p.badge}</span>` : ""}</h4>
           <div class="specs">${p.specs || ""}</div>
         </div>
         <div class="meta">
-          ${p.badge ? `<span class="cfg-badge">${p.badge}</span>` : ""}
           <span class="price">${money(p.price)}</span>
           <button type="button" class="cfg-add ${isSelected ? "replace" : ""}" data-id="${p.id}">
             ${isSelected ? "Выбрано ✓" : "Добавить"}
@@ -352,6 +380,112 @@ async function loadBundles() {
   renderBundles();
 }
 
+function bundleProductImages(bundle) {
+  const seen = new Set();
+  const images = [];
+  for (const product of bundle?.products || []) {
+    const url = product?.image;
+    if (!url || seen.has(url)) continue;
+    seen.add(url);
+    images.push({ url, name: product.name || "" });
+  }
+  return images;
+}
+
+function carouselViewportEl() {
+  return els.leadDialogCarousel?.querySelector(".lead-carousel-viewport") || null;
+}
+
+function carouselViewportWidth() {
+  return carouselViewportEl()?.clientWidth || 0;
+}
+
+function updateCarouselTransform() {
+  if (!els.leadCarouselTrack) return;
+  const offset = state.carouselIndex * carouselViewportWidth();
+  els.leadCarouselTrack.style.transform = `translateX(-${offset}px)`;
+}
+
+function setCarouselIndex(index) {
+  const total = state.carouselImages.length;
+  if (!total) return;
+  state.carouselIndex = ((index % total) + total) % total;
+  updateCarouselTransform();
+  if (els.leadCarouselDots) {
+    els.leadCarouselDots.querySelectorAll(".lead-carousel-dot").forEach((dot, i) => {
+      dot.classList.toggle("is-active", i === state.carouselIndex);
+      dot.setAttribute("aria-current", i === state.carouselIndex ? "true" : "false");
+    });
+  }
+}
+
+function renderLeadCarousel(images) {
+  const carousel = els.leadDialogCarousel;
+  const track = els.leadCarouselTrack;
+  const dots = els.leadCarouselDots;
+  const prev = els.leadCarouselPrev;
+  const next = els.leadCarouselNext;
+  state.carouselImages = Array.isArray(images) ? images : [];
+  state.carouselIndex = 0;
+
+  if (!carousel || !track) return;
+
+  if (!state.carouselImages.length) {
+    carousel.hidden = true;
+    track.innerHTML = "";
+    if (dots) {
+      dots.innerHTML = "";
+      dots.hidden = true;
+    }
+    if (prev) prev.hidden = true;
+    if (next) next.hidden = true;
+    return;
+  }
+
+  carousel.hidden = false;
+  track.innerHTML = state.carouselImages
+    .map(
+      (img) => `<figure class="lead-carousel-slide"><img src="${img.url}" alt="${img.name}" loading="lazy"></figure>`
+    )
+    .join("");
+  state.carouselIndex = 0;
+  requestAnimationFrame(() => updateCarouselTransform());
+
+  const showNav = state.carouselImages.length > 1;
+  if (prev) prev.hidden = !showNav;
+  if (next) next.hidden = !showNav;
+  if (dots) {
+    if (!showNav) {
+      dots.innerHTML = "";
+      dots.hidden = true;
+    } else {
+      dots.hidden = false;
+      dots.innerHTML = state.carouselImages
+        .map(
+          (_, i) =>
+            `<button type="button" class="lead-carousel-dot ${i === 0 ? "is-active" : ""}" data-index="${i}" aria-label="Фото ${i + 1}" aria-current="${i === 0 ? "true" : "false"}"></button>`
+        )
+        .join("");
+      dots.querySelectorAll(".lead-carousel-dot").forEach((dot) => {
+        dot.addEventListener("click", () => setCarouselIndex(Number(dot.dataset.index)));
+      });
+    }
+  }
+}
+
+if (els.leadCarouselPrev) {
+  els.leadCarouselPrev.addEventListener("click", () => setCarouselIndex(state.carouselIndex - 1));
+}
+if (els.leadCarouselNext) {
+  els.leadCarouselNext.addEventListener("click", () => setCarouselIndex(state.carouselIndex + 1));
+}
+
+const carouselViewport = carouselViewportEl();
+if (carouselViewport && typeof ResizeObserver !== "undefined") {
+  const carouselResize = new ResizeObserver(() => updateCarouselTransform());
+  carouselResize.observe(carouselViewport);
+}
+
 async function loadAllBundles() {
   const [allRes, featuredRes] = await Promise.all([
     fetch("/api/bundles"),
@@ -362,9 +496,43 @@ async function loadAllBundles() {
   renderFeatured();
 }
 
-function bundleMediaHtml(bundle) {
-  if (!bundle?.image) return "";
-  return `<div class="card-media" aria-hidden="true"><img src="${bundle.image}" alt="" loading="lazy"></div>`;
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function formatFaqAnswer(text) {
+  return escapeHtml(text).replace(/\n/g, "<br>");
+}
+
+async function loadFaq() {
+  try {
+    const res = await fetch("/api/faq");
+    state.faqItems = await res.json();
+  } catch (_) {
+    state.faqItems = [];
+  }
+  renderFaq();
+}
+
+function renderFaq() {
+  if (!els.faqList) return;
+  const items = Array.isArray(state.faqItems) ? state.faqItems : [];
+  if (!items.length) {
+    els.faqList.innerHTML = `<p class="muted">Раздел в подготовке.</p>`;
+    return;
+  }
+  els.faqList.innerHTML = items
+    .map(
+      (item) => `<details class="faq-item">
+        <summary>${escapeHtml(item.question)}</summary>
+        <div class="faq-answer">${formatFaqAnswer(item.answer)}</div>
+      </details>`
+    )
+    .join("");
 }
 
 function renderFeatured() {
@@ -376,8 +544,7 @@ function renderFeatured() {
   }
   els.featuredGrid.innerHTML = list
     .map(
-      (b) => `<button type="button" class="featured-card ${b.image ? "has-media" : ""}" data-id="${b.id}">
-        ${bundleMediaHtml(b)}
+      (b) => `<button type="button" class="featured-card" data-id="${b.id}">
         <div class="tag">${b.filter_tag}${b.badge ? " · " + b.badge : ""}</div>
         <h3>${b.name}</h3>
         <p>${b.description}</p>
@@ -392,17 +559,15 @@ function renderFeatured() {
         state.featuredBundles.find((b) => String(b.id) === String(btn.dataset.id)) ||
         state.allBundles.find((b) => String(b.id) === String(btn.dataset.id));
       if (!bundle) return;
-      switchTab("config");
-      state.mode = "presets";
+      state.leadFromHome = true;
       state.selectedBundle = bundle;
       openLeadDialog({
         mode: "preset",
         tier: bundle.name,
-        items: bundle.products,
+        items: bundleCheckoutItems(bundle),
         total: bundle.price,
-        image: bundle.image,
+        images: bundleProductImages(bundle),
       });
-      syncTotals();
     });
   });
 }
@@ -429,8 +594,7 @@ function renderBundles() {
   els.bundleGrid.innerHTML = state.bundles
     .map((b) => {
       const active = state.selectedBundle && Number(state.selectedBundle.id) === Number(b.id);
-      return `<button type="button" class="cfg-bundle ${active ? "is-selected" : ""} ${b.image ? "has-media" : ""}" data-id="${b.id}">
-        ${bundleMediaHtml(b)}
+      return `<button type="button" class="cfg-bundle ${active ? "is-selected" : ""}" data-id="${b.id}">
         <div class="tag">${b.filter_tag}${b.badge ? " · " + b.badge : ""}${active ? " · выбрано" : ""}</div>
         <h4>${b.name}</h4>
         <p>${b.description}</p>
@@ -450,12 +614,13 @@ function renderBundles() {
         return;
       }
       state.selectedBundle = bundle;
+      state.leadFromHome = false;
       openLeadDialog({
         mode: "preset",
         tier: bundle.name,
-        items: bundle.products,
+        items: bundleCheckoutItems(bundle),
         total: bundle.price,
-        image: bundle.image,
+        images: bundleProductImages(bundle),
       });
       syncTotals();
     });
@@ -502,7 +667,7 @@ function resetSimpleLeadForm() {
   if (successEl) successEl.classList.remove("show");
 }
 
-function openLeadDialog({ mode, tier, items, total, image }) {
+function openLeadDialog({ mode, tier, items, total, images }) {
   state.mode = mode === "preset" ? "presets" : "diy";
   resetLeadForm();
   const list = items || [];
@@ -515,19 +680,22 @@ function openLeadDialog({ mode, tier, items, total, image }) {
       ? list.map((p) => `<li><span>${p.name}</span><span class="mono">${money(p.price)}</span></li>`).join("")
       : `<li><span>Пока пусто — выбери позиции в кокпите</span><span></span></li>`;
   }
-  if (els.leadDialogHero && els.leadDialogImage) {
-    if (image) {
-      els.leadDialogImage.src = image;
-      els.leadDialogImage.alt = tier || "";
-      els.leadDialogHero.hidden = false;
-    } else {
-      els.leadDialogImage.removeAttribute("src");
-      els.leadDialogImage.alt = "";
-      els.leadDialogHero.hidden = true;
-    }
-  }
+  renderLeadCarousel(images);
   state._checkout = { mode, tier, items: list, total: sum };
-  if (els.leadDialog) els.leadDialog.showModal();
+  if (els.leadDialog) {
+    els.leadDialog.showModal();
+    requestAnimationFrame(() => updateCarouselTransform());
+  }
+}
+
+if (els.leadDialog) {
+  els.leadDialog.addEventListener("close", () => {
+    if (state.leadFromHome) {
+      state.selectedBundle = null;
+      state.leadFromHome = false;
+    }
+    renderLeadCarousel([]);
+  });
 }
 
 async function submitLead(payload, formEl, errorEl, successEl, submitBtn) {
@@ -664,3 +832,4 @@ loadAllBundles().then(() => {
   showScreen("start", false);
   syncTotals();
 });
+loadFaq();

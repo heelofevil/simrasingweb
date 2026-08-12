@@ -1,0 +1,46 @@
+{% extends "admin/base.html" %}
+{% block title %}FAQ · PITLINE Admin{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Контент</div>
+    <h1>FAQ</h1>
+    <p class="muted">Вопросы и ответы на странице сайта.</p>
+  </div>
+  <a class="btn-primary" href="{{ url_for('admin.faq_new') }}">+ Новый вопрос</a>
+</div>
+
+<div class="table-wrap">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Вопрос</th>
+        <th>Вид</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr class="{% if not item.visible %}is-hidden{% endif %}">
+        <td class="mono">{{ item.sort_order }}</td>
+        <td>
+          <strong>{{ item.question }}</strong>
+          <div class="muted small">{{ item.answer[:120] }}{% if item.answer|length > 120 %}…{% endif %}</div>
+        </td>
+        <td>{% if item.visible %}да{% else %}скрыт{% endif %}</td>
+        <td class="row-actions">
+          <a href="{{ url_for('admin.faq_edit', item_id=item.id) }}">Править</a>
+          <form method="post" action="{{ url_for('admin.faq_delete', item_id=item.id) }}"
+                onsubmit="return confirm('Удалить вопрос?');">
+            <button type="submit" class="danger">Удалить</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="muted">Пока нет вопросов — добавь первый.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -13,7 +13,7 @@
       </p>
     {% endif %}
   </div>
-  <a class="btn-ghost" href="{{ url_for('admin.bundles') }}"><span class="arrow-icon" aria-hidden="true"></span> К списку</a>
+  <a class="btn-ghost" href="{{ url_for('admin.bundles') }}">← К списку</a>
 </div>
 
 <form class="product-form js-draft-form" method="post" enctype="multipart/form-data"
@@ -67,11 +67,17 @@
     <label class="span-2">Описание
       <textarea name="description" rows="3">{{ f.get('description', bundle.description if bundle else '') if f is not none else (bundle.description if bundle else '') }}</textarea>
     </label>
-    <label class="span-2">Цена сборки, ₽
+    <label>Выездные работы, ₽
+      <input class="mono" type="number" name="field_work_price" min="0" step="1"
+             value="{{ f.get('field_work_price', bundle.field_work_price|default(0, true) if bundle else 0) if f is not none else (bundle.field_work_price|default(0, true) if bundle else 0) }}"
+             placeholder="0">
+      <span class="hint">Всегда добавляется к итоговой цене на сайте.</span>
+    </label>
+    <label class="span-2">Фикс. цена товаров, ₽
       <input class="mono" type="number" name="price_override" min="0" step="1"
              value="{{ f.get('price_override', bundle.price_override if bundle and bundle.price_override is not none else '') if f is not none else (bundle.price_override if bundle and bundle.price_override is not none else '') }}"
-             placeholder="Пусто = сумма товаров">
-      <span class="hint">Если пусто — на сайте считается сумма позиций состава.</span>
+             placeholder="Пусто = сумма выбранных товаров">
+      <span class="hint">Если пусто — считается сумма позиций. К ней всегда прибавляются выездные работы.</span>
     </label>
     <label class="span-2">Картинка набора
       <input type="file" name="image" accept="image/jpeg,image/png,image/webp,image/gif">
@@ -86,34 +92,42 @@
 
   <div class="compose-block">
     <div class="compose-head">
-      <h2>Состав</h2>
-      <p class="muted">В каждой категории — только один товар.</p>
+      <div>
+        <h2>Состав</h2>
+        <p class="muted">Выбери любые товары — ограничений по категориям нет.</p>
+      </div>
+      <div class="compose-total-wrap">
+        <span class="muted small compose-total-label">Сумма</span>
+        <div class="compose-total mono" id="composeTotal" aria-live="polite">0 ₽</div>
+      </div>
     </div>
     <div class="compose-list">
-      {% for cat_name, items in product_groups %}
-      {% set has_pick = namespace(on=false) %}
-      {% for p in items %}
-        {% if p.id in selected_ids %}{% set has_pick.on = true %}{% endif %}
-      {% endfor %}
-      <div class="compose-group {% if not has_pick.on %}is-collapsed{% endif %}" data-cat-group>
-        <button type="button" class="compose-cat" data-cat-toggle aria-expanded="{{ 'true' if has_pick.on else 'false' }}">
+      {% for group in product_groups %}
+      {% if group|length == 3 %}
+        {% set cat_name, cat_slug, items = group[0], group[1], group[2] %}
+      {% else %}
+        {% set cat_name, cat_slug, items = group[0], '', group[1] %}
+      {% endif %}
+      <div class="compose-group is-collapsed" data-cat-group data-cat-slug="{{ cat_slug }}">
+        <button type="button" class="compose-cat" data-cat-toggle aria-expanded="false">
           <span class="compose-cat-label">{{ cat_name }}</span>
           <span class="compose-chevron" aria-hidden="true">▾</span>
         </button>
         <div class="compose-body">
           {% for p in items %}
-          <label class="compose-row {% if not p.visible %}is-product-hidden{% endif %}">
-            <input type="checkbox" name="product_ids" value="{{ p.id }}" data-cat-pick
+          <div class="compose-row {% if not p.visible %}is-product-hidden{% endif %}" data-price="{{ p.price }}">
+            <input type="checkbox" name="product_ids" value="{{ p.id }}" id="pick-{{ p.id }}"
+                   data-cat-pick data-price="{{ p.price }}"
                    {% if p.id in selected_ids %}checked{% endif %}>
-            <span class="compose-main">
+            <label class="compose-pick" for="pick-{{ p.id }}">
               <span class="mono">{{ p.sku }}</span>
               <strong>{{ p.name }}</strong>
               {% if not p.visible %}<span class="status-pill blocked">скрыт</span>{% endif %}
               <span class="muted">{{ "{:,}".format(p.price).replace(",", " ") }} ₽</span>
-            </span>
+            </label>
             <input class="qty mono" type="number" name="qty_{{ p.id }}" min="1" step="1"
                    value="{{ selected_qty.get(p.id, 1) }}" title="Кол-во">
-          </label>
+          </div>
           {% endfor %}
         </div>
       </div>

@@ -23,7 +23,7 @@ def init_db() -> None:
         from sqlalchemy import inspect, text
 
         from app import models  # noqa: F401
-        from app.seed import seed_catalog
+        from app.seed import seed_catalog, seed_faq
 
         db.create_all()
 
@@ -59,6 +59,8 @@ def init_db() -> None:
                 alters.append("ALTER TABLE bundles ADD COLUMN featured_order INTEGER NOT NULL DEFAULT 0")
             if "visible" not in cols:
                 alters.append("ALTER TABLE bundles ADD COLUMN visible BOOLEAN NOT NULL DEFAULT TRUE")
+            if "field_work_price" not in cols:
+                alters.append("ALTER TABLE bundles ADD COLUMN field_work_price INTEGER NOT NULL DEFAULT 0")
             for stmt in alters:
                 db.session.execute(text(stmt))
             if alters:
@@ -81,3 +83,5 @@ def init_db() -> None:
 
         result = seed_catalog()
         print(f"Catalog seed: {result}")
+        faq_result = seed_faq()
+        print(f"FAQ seed: {faq_result}")
