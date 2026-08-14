@@ -335,6 +335,8 @@ header.is-scrolled {
 .trace-path { fill: none; stroke: var(--blue); stroke-width: 1.6; opacity: 0.85; }
 .trace-path.amber { stroke: var(--amber); opacity: 0.55; }
 
+.main-section { padding-top: 100px; }
+
 .section-head { max-width: 640px; margin-bottom: 40px; }
 .section-head .eyebrow { margin-bottom: 14px; }
 .section-head h2 { font-size: clamp(28px, 4vw, 42px); }
@@ -440,7 +442,6 @@ header.is-scrolled {
 .faq-list {
   display: flex;
   flex-direction: column;
-  gap: 1px;
   background: var(--line);
   border: 1px solid var(--line);
   border-radius: 6px;
@@ -450,7 +451,7 @@ header.is-scrolled {
 
 .faq-item {
   background: var(--panel);
-  border: none;
+  border-bottom: 1px solid var(--line);
 }
 
 .faq-item summary {
@@ -464,7 +465,7 @@ header.is-scrolled {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition: 0.3s;
 }
 
 .faq-item summary::-webkit-details-marker { display: none; }
@@ -499,11 +500,10 @@ header.is-scrolled {
 }
 
 .faq-answer {
-  padding: 0 24px 22px;
+  padding: 16px 24px 22px 24px;
   color: var(--dim);
   font-size: 15px;
   line-height: 1.65;
-  max-width: 720px;
 }
 
 .track { position: relative; padding-top: 8px; }
@@ -1496,6 +1496,10 @@ header.is-scrolled {
   color: var(--dim);
   border-bottom: 1px solid var(--line);
   padding-bottom: 8px;
+
+  span:last-of-type {
+    white-space: nowrap;
+  }
 }
 
 .cfg-checkout-cta {
@@ -1584,7 +1588,7 @@ header.is-scrolled {
   background: var(--panel);
   color: var(--text);
   padding: 28px;
-  width: min(420px, calc(100% - 32px));
+  width: min(500px, calc(100% - 32px));
   max-height: calc(100vh - 48px);
   overflow: auto;
   border-radius: 8px;
