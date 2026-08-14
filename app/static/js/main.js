@@ -1,3 +1,10 @@
+const pageHeader = document.querySelector("header");
+const syncHeaderBackground = () => {
+  if (pageHeader) pageHeader.classList.toggle("is-scrolled", window.scrollY > 0);
+};
+syncHeaderBackground();
+window.addEventListener("scroll", syncHeaderBackground, { passive: true });
+
 const money = (n) => new Intl.NumberFormat("ru-RU").format(n) + " ₽";
 
 const state = {

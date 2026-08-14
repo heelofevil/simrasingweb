@@ -15,7 +15,7 @@
       .motion path {
         stroke-dasharray: 1 1;
         stroke-dashoffset: 1;
-        animation: trail-cycle 4s ease-in-out infinite;
+        animation: trail-cycle 3s ease-in-out infinite;
       }
       @keyframes trail-cycle {
         0% { stroke-dashoffset: 1; }
