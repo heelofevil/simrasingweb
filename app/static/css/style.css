@@ -1,6 +1,5 @@
 :root {
   --bg: #0d0e10;
-  --bg-body: #0a0c0f;
   --panel: #17181b;
   --panel-2: #1e2023;
   --line: rgba(237, 239, 242, 0.06);
@@ -19,14 +18,11 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background: var(--bg-body);
+  background: var(--bg);
   color: var(--text);
   font-family: "Manrope", sans-serif;
   line-height: 1.5;
   overflow-x: hidden;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
 
 h1, h2, h3 {
@@ -52,20 +48,12 @@ img { max-width: 100%; display: block; }
 }
 
 header {
-  position: fixed;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
   z-index: 50;
-  background: transparent;
-  backdrop-filter: blur(0);
-  border-bottom: 1px solid transparent;
-  transition: background-color 0.25s ease, backdrop-filter 0.25s ease, border-color 0.25s ease;
-}
-
-header.is-scrolled {
   background: rgba(10, 12, 15, 0.82);
   backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
 }
 
 .nav {
@@ -86,7 +74,12 @@ header.is-scrolled {
   display: flex;
   align-items: center;
   gap: 8px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
+
+.logo:hover { color: var(--text); }
 
 .logo .dot {
   width: 8px;
@@ -124,7 +117,7 @@ header.is-scrolled {
   letter-spacing: 0.04em;
   padding: 10px 20px;
   border: none;
-  border-radius: 6px;
+  border-radius: 2px;
   cursor: pointer;
   transition: 0.3s;
 }
@@ -249,10 +242,6 @@ header.is-scrolled {
   gap: 16px;
   margin-top: 36px;
   flex-wrap: wrap;
-
-  .btn-primary {
-    padding: 16px 16px 16px 20px;
-  }
 }
 
 .btn {
@@ -262,28 +251,13 @@ header.is-scrolled {
   font-weight: 600;
   letter-spacing: 0.03em;
   padding: 16px 20px;
-  border-radius: 6px;
+  border-radius: 2px;
   cursor: pointer;
   border: none;
-  display: inline-flex;
+  display: block;
   align-items: center;
-  justify-content: center;
   gap: 10px;
   transition: 0.3s;
-}
-
-.arrow-icon {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  flex: 0 0 16px;
-  background-color: currentColor;
-  -webkit-mask: url("../img/arrow.svg") center / contain no-repeat;
-  mask: url("../img/arrow.svg") center / contain no-repeat;
-}
-
-.arrow-icon--right {
-  transform: rotate(180deg);
 }
 
 .btn-primary { background: var(--amber); color: #0a0c0f; text-align: center; }
@@ -300,7 +274,7 @@ header.is-scrolled {
   margin-top: 64px;
   border: 1px solid var(--line);
   background: var(--panel);
-  border-radius: 8px;
+  border-radius: 4px;
   overflow: hidden;
 }
 
@@ -341,7 +315,7 @@ header.is-scrolled {
   gap: 1px;
   background: var(--line);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 6px;
   overflow: hidden;
 }
 
@@ -363,12 +337,6 @@ header.is-scrolled {
 }
 
 .featured-card:hover { background: var(--panel-2); }
-
-.card-media {
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 16px;
-}
 
 .featured-card .card-media {
   position: absolute;
@@ -432,6 +400,75 @@ header.is-scrolled {
   font-size: 15px;
 }
 
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  max-width: 820px;
+}
+
+.faq-item {
+  background: var(--panel);
+  border: none;
+}
+
+.faq-item summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 22px 24px;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.faq-item summary::-webkit-details-marker { display: none; }
+
+.faq-item summary::after {
+  content: "+";
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 18px;
+  color: var(--amber);
+  transition: transform 0.25s ease, border-color 0.2s ease;
+}
+
+.faq-item[open] summary {
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.faq-item[open] summary::after {
+  content: "−";
+  border-color: var(--amber);
+}
+
+.faq-item summary:hover {
+  background: var(--panel-2);
+}
+
+.faq-answer {
+  padding: 0 24px 22px;
+  color: var(--dim);
+  font-size: 15px;
+  line-height: 1.65;
+  max-width: 720px;
+}
+
 .track { position: relative; padding-top: 8px; }
 .track-line {
   position: absolute;
@@ -487,7 +524,7 @@ header.is-scrolled {
 .install {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 6px;
   padding: 56px;
 }
 
@@ -519,7 +556,7 @@ header.is-scrolled {
 
 .badge {
   border: 1px solid var(--line-strong);
-  border-radius: 6px;
+  border-radius: 2px;
   padding: 10px 16px;
   font-family: "JetBrains Mono", monospace;
   font-size: 12.5px;
@@ -539,7 +576,7 @@ header.is-scrolled {
 .install-visual {
   aspect-ratio: 1 / 1;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 6px;
   position: relative;
   background: radial-gradient(circle at 50% 50%, rgba(92, 124, 149, 0.1), transparent 60%);
   overflow: hidden;
@@ -571,8 +608,15 @@ header.is-scrolled {
 
 /* CONFIGURATOR */
 .cfg-shell {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
   min-height: 560px;
-  transition: 0.3s,
+  overflow: hidden;
+  transition: min-height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 0.35s ease,
+              border-color 0.35s ease,
+              box-shadow 0.35s ease;
 }
 
 .cfg-shell.is-switching {
@@ -593,16 +637,13 @@ header.is-scrolled {
 }
 
 .cfg-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
   background: transparent;
   border: 1px solid var(--line-strong);
   color: var(--text);
   padding: 8px 14px;
   cursor: pointer;
   font-size: 13px;
-  border-radius: 6px;
+  border-radius: 2px;
   transition: 0.3s;
 }
 
@@ -668,7 +709,7 @@ header.is-scrolled {
 .cfg-branch {
   background: var(--bg);
   border: 1px solid var(--line-strong);
-  border-radius: 12px;
+  border-radius: 6px;
   padding: 28px 20px;
   cursor: pointer;
   color: var(--text);
@@ -677,6 +718,7 @@ header.is-scrolled {
 
 .cfg-branch:hover {
   border-color: var(--amber);
+  box-shadow: 0 0 0 4px var(--amber-dim);
 }
 
 .cfg-branch-icon {
@@ -728,7 +770,7 @@ header.is-scrolled {
   font-size: 12px;
   cursor: pointer;
   font-family: "JetBrains Mono", monospace;
-  border-radius: 6px;
+  border-radius: 2px;
   transition: 0.3s;
   &:hover {
     border-color: var(--dim);
@@ -753,8 +795,8 @@ header.is-scrolled {
   isolation: isolate;
   text-align: left;
   background: var(--bg);
-  border: 1px solid var(--bg);
-  border-radius: 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
   padding: 20px;
   cursor: pointer;
   color: inherit;
@@ -798,43 +840,108 @@ header.is-scrolled {
   font-size: 14px;
 }
 
-.lead-hero {
+.lead-carousel {
+  position: relative;
   margin: 0 0 16px;
-  border-radius: 8px;
+  border-radius: 4px;
   overflow: hidden;
   border: 1px solid var(--line);
   background: #12141a;
-  aspect-ratio: 16 / 9;
 }
 
-.lead-hero[hidden] {
+.lead-carousel[hidden] {
   display: none !important;
 }
 
-.lead-hero img {
+.lead-carousel-viewport {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  width: 100%;
+  container-type: inline-size;
+}
+
+.lead-carousel-track {
+  display: flex;
+  height: 100%;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.lead-carousel-slide {
+  flex: 0 0 100%;
+  flex: 0 0 100cqw;
+  width: 100%;
+  width: 100cqw;
+  min-width: 100%;
+  min-width: 100cqw;
+  margin: 0;
+  height: 100%;
+}
+
+.lead-carousel-slide img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  animation: lead-hero-in 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@keyframes lead-hero-in {
-  from {
-    opacity: 0;
-    transform: scale(1.04);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+.lead-carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: rgba(13, 14, 16, 0.82);
+  color: var(--text);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.lead-carousel-btn:hover {
+  border-color: var(--amber);
+  background: rgba(13, 14, 16, 0.95);
+}
+
+.lead-carousel-prev { left: 10px; }
+.lead-carousel-next { right: 10px; }
+
+.lead-carousel-dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.lead-carousel-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.28);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.lead-carousel-dot.is-active {
+  background: var(--amber);
+  transform: scale(1.15);
 }
 
 /* DIY FULL COCKPIT */
 .cfg-shell:has(.cfg-screen--diy.active) {
   min-height: min(78vh, 740px);
   border: 1px solid var(--line-strong);
-  border-radius: 12px;
+  border-radius: 6px;
   background: var(--panel);
   box-shadow: 0 0 0 1px rgba(201, 166, 104, 0.06);
 }
@@ -871,7 +978,7 @@ header.is-scrolled {
   background: #0d0e10;
   overflow: hidden;
   border: 1px solid var(--line-strong);
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 .diy-stage .cockpit-stage {
@@ -1107,7 +1214,7 @@ header.is-scrolled {
   max-height: 100%;
   background: rgba(23, 24, 27, 0.96);
   border: 1px solid var(--line-strong);
-  border-radius: 12px;
+  border-radius: 6px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1224,6 +1331,11 @@ header.is-scrolled {
   letter-spacing: 0;
 }
 
+.cfg-product h4 .cfg-badge {
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
 .cfg-product .specs {
   color: var(--dim);
   font-size: 12.5px;
@@ -1234,6 +1346,7 @@ header.is-scrolled {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .cfg-product .price {
@@ -1241,6 +1354,8 @@ header.is-scrolled {
   color: var(--amber);
   font-size: 13px;
   white-space: nowrap;
+  min-width: 7ch;
+  text-align: right;
 }
 
 .cfg-badge {
@@ -1256,7 +1371,7 @@ header.is-scrolled {
   padding: 8px 12px;
   cursor: pointer;
   font-size: 12px;
-  border-radius: 6px;
+  border-radius: 2px;
 }
 
 .cfg-add.replace,
@@ -1269,7 +1384,7 @@ header.is-scrolled {
 .cfg-build {
   background: var(--bg);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 4px;
   padding: 18px;
   position: sticky;
   top: 88px;
@@ -1366,14 +1481,14 @@ header.is-scrolled {
 
 .cfg-checkout-cta .form-success {
   border: 1px solid var(--line-strong);
-  border-radius: 8px;
+  border-radius: 4px;
   padding: 16px;
 }
 
 .form-panel {
   background: var(--bg);
   border: 1px solid var(--line-strong);
-  border-radius: 8px;
+  border-radius: 4px;
   padding: 28px;
 }
 
@@ -1395,7 +1510,7 @@ header.is-scrolled {
   border: 1px solid var(--line-strong);
   color: var(--text);
   padding: 12px 14px;
-  border-radius: 6px;
+  border-radius: 2px;
   margin-bottom: 18px;
 }
 
@@ -1440,7 +1555,7 @@ header.is-scrolled {
   width: min(420px, calc(100% - 32px));
   max-height: calc(100vh - 48px);
   overflow: auto;
-  border-radius: 8px;
+  border-radius: 4px;
   /* * { margin:0 } kills UA centering for <dialog> */
   margin: auto;
   position: fixed;
@@ -1471,9 +1586,8 @@ header.is-scrolled {
 }
 
 footer {
-  margin-top: auto;
   border-top: 1px solid var(--line);
-  padding: 20px 0;
+  padding: 40px 0;
   position: relative;
   z-index: 1;
 }

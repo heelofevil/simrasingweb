@@ -20,7 +20,7 @@ from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 
 from app.extensions import db
-from app.models import Bundle, BundleItem, Category, Product
+from app.models import Bundle, BundleItem, Category, FaqItem, Product
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -135,20 +135,23 @@ def _catalog_products():
 
 
 def _products_grouped():
-    grouped: list[tuple[str, list[Product]]] = []
+    grouped: list[tuple[str, str, list[Product]]] = []
     current_name = None
+    current_slug = ""
     bucket: list[Product] = []
     for product in _catalog_products():
         name = product.category.name if product.category else "—"
+        slug = product.category.slug if product.category else ""
         if name != current_name:
             if bucket:
-                grouped.append((current_name, bucket))
+                grouped.append((current_name, current_slug, bucket))
             current_name = name
+            current_slug = slug
             bucket = [product]
         else:
             bucket.append(product)
     if bucket:
-        grouped.append((current_name, bucket))
+        grouped.append((current_name, current_slug, bucket))
     return grouped
 
 
@@ -174,6 +177,7 @@ def _parse_bundle_form(form, bundle: Bundle | None = None) -> tuple[Bundle | Non
     description = (form.get("description") or "").strip()
     badge = (form.get("badge") or "").strip() or None
     price_raw = (form.get("price_override") or "").strip()
+    field_work_raw = (form.get("field_work_price") or "").strip()
     product_ids = _selected_product_ids(form)
 
     if not slug or not SLUG_RE.match(slug):
@@ -196,6 +200,11 @@ def _parse_bundle_form(form, bundle: Bundle | None = None) -> tuple[Bundle | Non
         except (TypeError, ValueError):
             return None, product_ids, "Цена сборки — целое число или пусто"
 
+    try:
+        field_work_price = max(0, int(field_work_raw or 0))
+    except (TypeError, ValueError):
+        return None, product_ids, "Выездные работы — целое число или 0"
+
     featured = form.get("featured") == "on"
     visible = form.get("visible") == "on"
     if not visible:
@@ -205,26 +214,6 @@ def _parse_bundle_form(form, bundle: Bundle | None = None) -> tuple[Bundle | Non
     found = {p.id for p in existing}
     if len(found) != len(product_ids):
         return None, product_ids, "В составе есть несуществующий товар"
-
-    by_cat: dict[int, list[Product]] = {}
-    for product in existing:
-        by_cat.setdefault(product.category_id, []).append(product)
-    dupes = [plist for plist in by_cat.values() if len(plist) > 1]
-    if dupes:
-        names = ", ".join(sorted({p.category.name for plist in dupes for p in plist if p.category}))
-        return None, product_ids, f"В каждой категории только один товар ({names})"
-
-    # Keep one product per category, stable order as selected
-    seen_cats: set[int] = set()
-    filtered_ids: list[int] = []
-    by_id = {p.id: p for p in existing}
-    for pid in product_ids:
-        product = by_id.get(pid)
-        if not product or product.category_id in seen_cats:
-            continue
-        seen_cats.add(product.category_id)
-        filtered_ids.append(pid)
-    product_ids = filtered_ids
 
     conflict = Bundle.query.filter_by(slug=slug).first()
     if conflict and (bundle is None or conflict.id != bundle.id):
@@ -240,6 +229,7 @@ def _parse_bundle_form(form, bundle: Bundle | None = None) -> tuple[Bundle | Non
     bundle.description = description
     bundle.badge = badge
     bundle.price_override = price_override
+    bundle.field_work_price = field_work_price
     bundle.sort_order = sort_order
     bundle.featured = featured
     bundle.featured_order = featured_order
@@ -325,7 +315,6 @@ def products():
         categories=cats,
         q=q,
         category=cat_slug,
-        bitrix_on=bool(current_app.config.get("BITRIX24_WEBHOOK_URL")),
     )
 
 
@@ -489,7 +478,7 @@ def bundle_create():
         )
     db.session.commit()
     flash("Сборка создана", "ok")
-    return redirect(url_for("admin.bundles"))
+    return redirect(url_for("admin.bundle_edit", bundle_id=bundle.id))
 
 
 @admin_bp.get("/bundles/<int:bundle_id>/edit")
@@ -544,7 +533,7 @@ def bundle_update(bundle_id: int):
         )
     db.session.commit()
     flash("Сборка сохранена", "ok")
-    return redirect(url_for("admin.bundles"))
+    return redirect(url_for("admin.bundle_edit", bundle_id=bundle.id))
 
 
 @admin_bp.post("/bundles/<int:bundle_id>/delete")
@@ -556,3 +545,87 @@ def bundle_delete(bundle_id: int):
     db.session.commit()
     flash(f"Удалена «{name}»", "ok")
     return redirect(url_for("admin.bundles"))
+
+
+def _parse_faq_form(form, item: FaqItem | None = None) -> tuple[FaqItem | None, str | None]:
+    question = (form.get("question") or "").strip()
+    answer = (form.get("answer") or "").strip()
+    visible = form.get("visible") == "on"
+
+    if not question:
+        return None, "Укажи вопрос"
+    if len(question) > 300:
+        return None, "Вопрос — не длиннее 300 символов"
+    if not answer:
+        return None, "Укажи ответ"
+
+    try:
+        sort_order = int(form.get("sort_order") or 0)
+    except (TypeError, ValueError):
+        return None, "Порядок — число"
+
+    if item is None:
+        item = FaqItem()
+        db.session.add(item)
+
+    item.question = question
+    item.answer = answer
+    item.sort_order = sort_order
+    item.visible = visible
+    return item, None
+
+
+@admin_bp.get("/faq")
+@login_required
+def faq_list():
+    items = FaqItem.query.order_by(FaqItem.sort_order, FaqItem.id).all()
+    return render_template("admin/faq.html", items=items)
+
+
+@admin_bp.get("/faq/new")
+@login_required
+def faq_new():
+    return render_template("admin/faq_form.html", item=None)
+
+
+@admin_bp.post("/faq/new")
+@login_required
+def faq_create():
+    item, err = _parse_faq_form(request.form)
+    if err:
+        flash(err, "error")
+        return render_template("admin/faq_form.html", item=None), 400
+    db.session.commit()
+    flash("Вопрос добавлен", "ok")
+    return redirect(url_for("admin.faq_edit", item_id=item.id))
+
+
+@admin_bp.get("/faq/<int:item_id>/edit")
+@login_required
+def faq_edit(item_id: int):
+    item = FaqItem.query.get_or_404(item_id)
+    return render_template("admin/faq_form.html", item=item)
+
+
+@admin_bp.post("/faq/<int:item_id>/edit")
+@login_required
+def faq_update(item_id: int):
+    item = FaqItem.query.get_or_404(item_id)
+    item, err = _parse_faq_form(request.form, item)
+    if err:
+        flash(err, "error")
+        return render_template("admin/faq_form.html", item=item), 400
+    db.session.commit()
+    flash("Сохранено", "ok")
+    return redirect(url_for("admin.faq_edit", item_id=item.id))
+
+
+@admin_bp.post("/faq/<int:item_id>/delete")
+@login_required
+def faq_delete(item_id: int):
+    item = FaqItem.query.get_or_404(item_id)
+    question = item.question
+    db.session.delete(item)
+    db.session.commit()
+    flash(f"Удалён вопрос «{question[:60]}»", "ok")
+    return redirect(url_for("admin.faq_list"))

@@ -19,12 +19,6 @@ class Config:
     ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "pitline-admin")
     MAX_CONTENT_LENGTH = int(os.getenv("MAX_UPLOAD_MB", "12")) * 1024 * 1024
 
-    # Bitrix24 incoming webhook, e.g. https://xxx.bitrix24.ru/rest/1/xxxxx/
-    BITRIX24_WEBHOOK_URL = os.getenv("BITRIX24_WEBHOOK_URL", "")
-    BITRIX24_SOURCE_ID = os.getenv("BITRIX24_SOURCE_ID", "WEB")
-    BITRIX24_ASSIGNED_BY_ID = os.getenv("BITRIX24_ASSIGNED_BY_ID", "")
-    BITRIX24_TIMEOUT = float(os.getenv("BITRIX24_TIMEOUT", "8"))
-
     # Lead anti-abuse (in-memory per worker)
     LEAD_RATE_IP_LIMIT = int(os.getenv("LEAD_RATE_IP_LIMIT", "8"))
     LEAD_RATE_IP_WINDOW = int(os.getenv("LEAD_RATE_IP_WINDOW", "600"))

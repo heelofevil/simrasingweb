@@ -6,7 +6,7 @@
   <title>{% block title %}Admin · PITLINE{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css', v='5') }}">
 </head>
 <body class="admin-body">
   {% if session.get('admin_ok') %}
@@ -15,6 +15,7 @@
     <nav class="admin-nav">
       <a href="{{ url_for('admin.products') }}">Товары</a>
       <a href="{{ url_for('admin.bundles') }}">Сборки</a>
+      <a href="{{ url_for('admin.faq_list') }}">FAQ</a>
       <a href="{{ url_for('main.index') }}" target="_blank" rel="noopener">Сайт ↗</a>
       <form method="post" action="{{ url_for('admin.logout') }}" class="inline">
         <button type="submit" class="linkish">Выйти</button>
@@ -35,6 +36,6 @@
     {% endwith %}
     {% block content %}{% endblock %}
   </main>
-  <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/admin.js', v='6') }}"></script>
 </body>
 </html>

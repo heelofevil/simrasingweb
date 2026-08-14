@@ -1,15 +1,12 @@
 import json
-import logging
 
 from flask import Blueprint, current_app, jsonify, render_template, request
 
-from app.bitrix import push_lead_to_bitrix
 from app.extensions import db
-from app.models import Bundle, Category, Lead, Product
+from app.models import Bundle, Category, FaqItem, Lead, Product
 from app.ratelimit import check_lead_limits
 
 bp = Blueprint("main", __name__)
-logger = logging.getLogger(__name__)
 
 
 def _bundle_publicly_available(bundle: Bundle) -> bool:
@@ -71,6 +68,16 @@ def list_bundle_tags():
     visible = [b for b in Bundle.query.filter_by(visible=True).all() if _bundle_publicly_available(b)]
     tags = sorted({b.filter_tag for b in visible if b.filter_tag})
     return jsonify(["Все"] + tags)
+
+
+@bp.get("/api/faq")
+def list_faq():
+    items = (
+        FaqItem.query.filter_by(visible=True)
+        .order_by(FaqItem.sort_order, FaqItem.id)
+        .all()
+    )
+    return jsonify([item.to_dict() for item in items])
 
 
 def _normalize_build(build) -> tuple[str | None, str | None]:
@@ -159,10 +166,4 @@ def create_lead():
     db.session.add(lead)
     db.session.commit()
 
-    bitrix = None
-    try:
-        bitrix = push_lead_to_bitrix(lead)
-    except Exception:
-        logger.exception("Bitrix push failed for lead %s", lead.id)
-
-    return jsonify({"ok": True, "id": lead.id, "bitrix": bool(bitrix)}), 201
+    return jsonify({"ok": True, "id": lead.id}), 201

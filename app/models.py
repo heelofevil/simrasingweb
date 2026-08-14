@@ -70,6 +70,7 @@ class Bundle(db.Model):
     filter_tag = db.Column(db.String(40), nullable=False, default="Все")
     description = db.Column(db.Text, nullable=False, default="")
     price_override = db.Column(db.Integer, nullable=True)
+    field_work_price = db.Column(db.Integer, nullable=False, default=0)
     badge = db.Column(db.String(40), nullable=True)
     image_file = db.Column(db.String(120), nullable=True)
     featured = db.Column(db.Boolean, nullable=False, default=False)
@@ -85,13 +86,20 @@ class Bundle(db.Model):
     )
 
     def computed_price(self) -> int:
+        items_sum = sum(
+            item.product.price * max(1, item.qty)
+            for item in self.items
+            if item.product
+        )
+        field_work = max(0, self.field_work_price or 0)
         if self.price_override is not None:
-            return self.price_override
-        return sum(item.product.price for item in self.items if item.product)
+            return self.price_override + field_work
+        return items_sum + field_work
 
-    def image_url(self) -> str:
-        filename = self.image_file or f"{self.slug}.jpg"
-        return f"/static/img/bundles/{filename}"
+    def image_url(self) -> str | None:
+        if not self.image_file:
+            return None
+        return f"/static/img/bundles/{self.image_file}"
 
     def blocked_products(self) -> list[str]:
         """Names/labels of missing or hidden products in the composition."""
@@ -143,6 +151,7 @@ class Bundle(db.Model):
             "description": self.description,
             "badge": self.badge,
             "price": self.computed_price(),
+            "field_work_price": max(0, self.field_work_price or 0),
             "image": self.image_url(),
             "featured": bool(self.featured),
             "featured_order": self.featured_order,
@@ -162,6 +171,24 @@ class BundleItem(db.Model):
 
     bundle = db.relationship("Bundle", back_populates="items")
     product = db.relationship("Product")
+
+
+class FaqItem(db.Model):
+    __tablename__ = "faq_items"
+
+    id = db.Column(db.Integer, primary_key=True)
+    question = db.Column(db.String(300), nullable=False)
+    answer = db.Column(db.Text, nullable=False, default="")
+    sort_order = db.Column(db.Integer, nullable=False, default=0)
+    visible = db.Column(db.Boolean, nullable=False, default=True)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "question": self.question,
+            "answer": self.answer,
+            "sort_order": self.sort_order,
+        }
 
 
 class Lead(db.Model):

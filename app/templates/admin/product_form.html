@@ -7,7 +7,7 @@
     <div class="eyebrow">Товар</div>
     <h1>{% if product and product.id %}Редактирование{% else %}Новый товар{% endif %}</h1>
   </div>
-  <a class="btn-ghost" href="{{ url_for('admin.products') }}"><span class="arrow-icon" aria-hidden="true"></span> К списку</a>
+  <a class="btn-ghost" href="{{ url_for('admin.products') }}">← К списку</a>
 </div>
 
 <form class="product-form js-draft-form" method="post" enctype="multipart/form-data"
@@ -41,6 +41,10 @@
       <input type="text" name="brand" maxlength="80"
              value="{{ f.get('brand', product.brand if product else 'PITLINE') if f is not none else (product.brand if product else 'PITLINE') }}">
     </label>
+    <label>Порядок
+      <input class="mono" type="number" name="sort_order" step="1"
+             value="{{ f.get('sort_order', product.sort_order if product else 0) if f is not none else (product.sort_order if product else 0) }}">
+    </label>
     <label>Цена, ₽ *
       <input class="mono" type="number" name="price" min="0" step="1" required
              value="{{ f.get('price', product.price if product else 0) if f is not none else (product.price if product else 0) }}">
@@ -48,10 +52,6 @@
     <label>Бейдж
       <input type="text" name="badge" maxlength="20" placeholder="HIT / NEW / PRO"
              value="{{ f.get('badge', product.badge if product and product.badge else '') if f is not none else (product.badge if product and product.badge else '') }}">
-    </label>
-    <label>Порядок
-      <input class="mono" type="number" name="sort_order" step="1"
-             value="{{ f.get('sort_order', product.sort_order if product else 0) if f is not none else (product.sort_order if product else 0) }}">
     </label>
     <label class="span-2">Спеки
       <input type="text" name="specs" maxlength="400"

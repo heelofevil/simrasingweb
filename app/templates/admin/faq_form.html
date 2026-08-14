@@ -1,0 +1,40 @@
+{% extends "admin/base.html" %}
+{% block title %}{% if item %}FAQ{% else %}Новый вопрос{% endif %} · Admin{% endblock %}
+{% block content %}
+{% set f = request.form if request.method == 'POST' else none %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">FAQ</div>
+    <h1>{% if item and item.id %}Редактирование{% else %}Новый вопрос{% endif %}</h1>
+  </div>
+  <a class="btn-ghost" href="{{ url_for('admin.faq_list') }}">← К списку</a>
+</div>
+
+<form class="product-form" method="post"
+      action="{% if item and item.id %}{{ url_for('admin.faq_update', item_id=item.id) }}{% else %}{{ url_for('admin.faq_create') }}{% endif %}">
+  <div class="form-grid">
+    <label class="span-2">Вопрос *
+      <input type="text" name="question" required maxlength="300"
+             value="{{ f.get('question', item.question if item else '') if f is not none else (item.question if item else '') }}"
+             placeholder="Как работает доставка?">
+    </label>
+    <label>Порядок
+      <input class="mono" type="number" name="sort_order" step="1"
+             value="{{ f.get('sort_order', item.sort_order if item else 0) if f is not none else (item.sort_order if item else 0) }}">
+      <span class="hint">Меньше число — выше в списке.</span>
+    </label>
+    <label class="check-label">
+      <input type="checkbox" name="visible"
+             {% if f is not none %}{% if f.get('visible') == 'on' %}checked{% endif %}{% elif not item or item.visible %}checked{% endif %}>
+      Показывать на сайте
+    </label>
+    <label class="span-2">Ответ *
+      <textarea name="answer" rows="8" required
+                placeholder="Развёрнутый ответ для посетителя">{{ f.get('answer', item.answer if item else '') if f is not none else (item.answer if item else '') }}</textarea>
+    </label>
+  </div>
+  <div class="form-actions">
+    <button type="submit" class="btn-primary">Сохранить</button>
+  </div>
+</form>
+{% endblock %}

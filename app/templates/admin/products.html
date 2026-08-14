@@ -5,9 +5,7 @@
   <div>
     <div class="eyebrow">Каталог</div>
     <h1>Товары</h1>
-    <p class="muted">
-      {% if bitrix_on %}Битрикс24: заявки уходят в CRM.{% else %}Битрикс24 не настроен — задай BITRIX24_WEBHOOK_URL в .env.{% endif %}
-    </p>
+    <p class="muted">Создание и редактирование позиций каталога.</p>
   </div>
   <a class="btn-primary" href="{{ url_for('admin.product_new') }}">+ Новый товар</a>
 </div>
