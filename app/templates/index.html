@@ -131,20 +131,18 @@
           <div class="cfg-hub">
             <div class="cfg-branches">
               <button type="button" class="cfg-branch" data-mode="presets">
-                <span class="cfg-branch-icon" aria-hidden="true">
-                  <img src="{{ url_for('static', filename='img/steering-wheel.svg') }}" alt="" width="32" height="32">
-                </span>
-                <span class="cfg-branch-label">Готовые<br>сборки</span>
+                <span class="cfg-branch-illustration cfg-branch-illustration--presets" aria-hidden="true"></span>
+                <h3 class="cfg-branch-label">Готовые сборки</h3>
               </button>
               <button type="button" class="cfg-branch" data-mode="diy">
-                <span class="cfg-branch-icon" aria-hidden="true">⚒</span>
-                <span class="cfg-branch-label">Собрать<br>самому</span>
+                <span class="cfg-branch-illustration cfg-branch-illustration--diy" aria-hidden="true"></span>
+                <h3 class="cfg-branch-label">Собрать самому</h3>
               </button>
             </div>
           </div>
         </div>
 
-        <div class="cfg-screen" data-screen="presets" id="screenPresets">
+        <div class="cfg-screen cfg-screen--presets" data-screen="presets" id="screenPresets">
           <div class="cfg-screen-head"><h3>Готовые сборки</h3></div>
           <div class="cfg-tags" id="bundleTags"></div>
           <div class="cfg-bundle-grid" id="bundleGrid"></div>
