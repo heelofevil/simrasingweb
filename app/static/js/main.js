@@ -1,3 +1,10 @@
+const pageHeader = document.querySelector("header");
+const syncHeaderBackground = () => {
+  if (pageHeader) pageHeader.classList.toggle("is-scrolled", window.scrollY > 0);
+};
+syncHeaderBackground();
+window.addEventListener("scroll", syncHeaderBackground, { passive: true });
+
 const money = (n) => new Intl.NumberFormat("ru-RU").format(n) + " ₽";
 
 const state = {
@@ -533,6 +540,48 @@ function renderFaq() {
       </details>`
     )
     .join("");
+  setupFaqTransitions();
+}
+
+function setupFaqTransitions() {
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  els.faqList.querySelectorAll(".faq-item").forEach((item) => {
+    const summary = item.querySelector("summary");
+    const answer = item.querySelector(".faq-answer");
+    if (!summary || !answer || reduceMotion) return;
+
+    summary.addEventListener("click", (event) => {
+      event.preventDefault();
+
+      item.getAnimations().forEach((animation) => animation.cancel());
+
+      const isOpening = !item.open;
+      const startHeight = item.offsetHeight;
+      if (isOpening) item.open = true;
+
+      const endHeight = isOpening
+        ? summary.offsetHeight + answer.offsetHeight
+        : summary.offsetHeight;
+
+      item.style.overflow = "hidden";
+      const animation = item.animate(
+        { height: [`${startHeight}px`, `${endHeight}px`] },
+        { duration: 300, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }
+      );
+
+      animation.onfinish = () => {
+        if (!isOpening) item.open = false;
+        item.style.height = "";
+        item.style.overflow = "";
+      };
+
+      animation.oncancel = () => {
+        item.style.height = "";
+        item.style.overflow = "";
+      };
+    });
+  });
 }
 
 function renderFeatured() {
