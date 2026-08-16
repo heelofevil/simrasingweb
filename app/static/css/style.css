@@ -722,6 +722,7 @@ header.is-scrolled {
   position: relative;
   display: flex;
   flex: 1;
+  flex-direction: column;
   width: 100%;
   text-align: center;
   max-width: none;
@@ -768,7 +769,8 @@ header.is-scrolled {
   align-items: start;
   justify-content: end;
   flex-direction: column;
-  background: var(--bg);
+  min-height: 280px;
+  background: transparent;
   border: 1px solid var(--line-strong);
   border-radius: 12px;
   padding: 28px 20px;
