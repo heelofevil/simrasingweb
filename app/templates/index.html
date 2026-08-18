@@ -35,7 +35,7 @@
             <h1>Не собирай железо<br>по обзорам. <span class="hl">Садись</span><br>и езжай быстро.</h1>
             <p class="lede">Говоришь бюджет и цель — получаешь готовый сетап: кокпит, база, педали, руль. Доставим, соберём, настроим FFB под твой стиль и научим выжимать из него всё — очно или по видеосвязи.</p>
             <div class="hero-actions">
-              <button type="button" class="btn btn-primary" data-goto="config">Подобрать сетап →</button>
+              <button type="button" class="btn btn-primary" data-goto="config">Подобрать сетап <span class="arrow-icon arrow-icon--right" aria-hidden="true"></span></button>
               <button type="button" class="btn btn-ghost" data-scroll="#home-featured">Смотреть топ сборки</button>
             </div>
           </div>
@@ -57,7 +57,7 @@
     <section class="wrap section-pad" id="home-featured">
       <div class="section-head reveal">
         <div class="eyebrow">Топ сборки</div>
-        <h2>Три самых жёстких сетапа</h2>
+        <h2>Три самых топовых сетапа</h2>
         <p>Готовые конфигурации — открой и запроси расчёт.</p>
       </div>
       <div class="featured-grid reveal" id="featuredGrid"></div>
@@ -102,7 +102,7 @@
   <!-- FAQ -->
   <section class="panel" id="tab-faq" data-panel>
     <div class="wrap section-pad">
-      <div class="section-head reveal">
+      <div class="main-section section-head reveal">
         <div class="eyebrow">FAQ</div>
         <h2>Частые вопросы</h2>
         <p>Коротко о сборке, доставке и расчёте — если не нашёл ответ, оставь заявку.</p>
@@ -116,7 +116,7 @@
   <!-- CONFIGURATOR -->
   <section class="panel" id="tab-config" data-panel>
     <div class="wrap section-pad">
-      <div class="section-head reveal">
+      <div class="main-section section-head reveal">
         <div class="eyebrow">Конфигуратор</div>
         <h2>Собери сетап как в боксах</h2>
         <p>Два пути: взять готовую сборку или собрать самому по категориям. В конце — точный расчёт от инженера.</p>
@@ -124,30 +124,26 @@
 
       <div class="cfg-shell reveal" id="cfgApp">
         <div class="cfg-topbar" id="cfgTopbar" hidden>
-          <button type="button" class="cfg-back" id="cfgBack">← Назад</button>
+          <button type="button" class="cfg-back" id="cfgBack"><span class="arrow-icon" aria-hidden="true"></span> Назад</button>
+          <button type="button" class="cfg-reset" id="diyResetBtn" hidden aria-label="Сбросить сборку">Сбросить</button>
         </div>
 
         <div class="cfg-screen active" data-screen="start" id="screenStart">
           <div class="cfg-hub">
-            <div class="cfg-hub-brand">PITLINE</div>
-            <h3 class="cfg-hub-title">Конфигуратор</h3>
-            <p class="cfg-hub-sub">Соберите свой идеальный сетап</p>
             <div class="cfg-branches">
               <button type="button" class="cfg-branch" data-mode="presets">
-                <span class="cfg-branch-icon" aria-hidden="true">
-                  <img src="{{ url_for('static', filename='img/steering-wheel.svg') }}" alt="" width="32" height="32">
-                </span>
-                <span class="cfg-branch-label">Готовые<br>сборки</span>
+                <span class="cfg-branch-illustration cfg-branch-illustration--presets" aria-hidden="true"></span>
+                <h3 class="cfg-branch-label">Готовые сборки</h3>
               </button>
               <button type="button" class="cfg-branch" data-mode="diy">
-                <span class="cfg-branch-icon" aria-hidden="true">⚒</span>
-                <span class="cfg-branch-label">Собрать<br>самому</span>
+                <span class="cfg-branch-illustration cfg-branch-illustration--diy" aria-hidden="true"></span>
+                <h3 class="cfg-branch-label">Собрать самому</h3>
               </button>
             </div>
           </div>
         </div>
 
-        <div class="cfg-screen" data-screen="presets" id="screenPresets">
+        <div class="cfg-screen cfg-screen--presets" data-screen="presets" id="screenPresets">
           <div class="cfg-screen-head"><h3>Готовые сборки</h3></div>
           <div class="cfg-tags" id="bundleTags"></div>
           <div class="cfg-bundle-grid" id="bundleGrid"></div>
@@ -158,98 +154,185 @@
             <div class="cockpit-stage" id="cockpitStage" aria-label="Визуализация кокпита">
               <svg class="cockpit-svg" viewBox="0 0 640 460" preserveAspectRatio="xMidYMid meet" role="img">
                 <defs>
-                  <linearGradient id="ckFloor" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#1a1c20"/>
-                    <stop offset="100%" stop-color="#0d0e10"/>
-                  </linearGradient>
                   <linearGradient id="ckMetal" x1="0" y1="0" x2="1" y2="1">
                     <stop offset="0%" stop-color="#2a2d33"/>
                     <stop offset="100%" stop-color="#15171a"/>
                   </linearGradient>
                 </defs>
 
-                <rect width="640" height="460" fill="url(#ckFloor)"/>
-                <ellipse cx="320" cy="420" rx="220" ry="18" fill="#000" opacity="0.45"/>
-
-                <g class="ck-part" data-part="cockpit">
-                  <path class="ck-solid" d="M110 390 L150 210 L490 210 L530 390 Z" fill="url(#ckMetal)" stroke="#c9a668" stroke-width="2"/>
-                  <path class="ck-solid" d="M190 210 L210 140 L430 140 L450 210" fill="none" stroke="#606266" stroke-width="3"/>
-                  <path class="ck-ghost" d="M110 390 L150 210 L490 210 L530 390 Z M190 210 L210 140 L430 140 L450 210" fill="none" stroke="#c9a668" stroke-width="1.5" stroke-dasharray="6 5"/>
-                </g>
-
-                <g class="ck-part" data-part="monitor">
+                <g class="ck-part" data-part="accessories" transform="translate(-65 0)">
                   <g class="ck-solid">
-                    <rect x="230" y="48" width="180" height="88" rx="4" fill="#12141a" stroke="#c9a668" stroke-width="2"/>
-                    <rect x="240" y="58" width="160" height="68" rx="2" fill="#0a0c10"/>
-                    <path d="M300 136 L320 158 L340 136" fill="#2a2d33" stroke="#c9a668" stroke-width="1.5"/>
+                    <path d="M118 373 L258 400 Q278 404 296 395 L506 290 L350 264 Z" fill="#181b20" stroke="var(--amber)" stroke-width="1.5" opacity="0.7"/>
                   </g>
-                  <rect class="ck-ghost" x="230" y="48" width="180" height="88" rx="4" fill="none" stroke="#c9a668" stroke-width="1.5" stroke-dasharray="5 4"/>
+                  <path class="ck-ghost" d="M118 373 L258 400 Q278 404 296 395 L506 290 L350 264 Z" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="5 4"/>
                 </g>
 
-                <g class="ck-part" data-part="base">
+                <!-- Рама и кресло: ракурс 3/4 сзади-слева -->
+                <g class="ck-part" data-part="cockpit" transform="translate(-65 0)">
                   <g class="ck-solid">
-                    <rect x="268" y="200" width="104" height="58" rx="8" fill="#1c1f24" stroke="#c9a668" stroke-width="2"/>
-                    <rect x="288" y="188" width="64" height="18" rx="4" fill="#252830" stroke="#96999e" stroke-width="1"/>
-                    <circle cx="320" cy="228" r="14" fill="#0d0e10" stroke="#c9a668" stroke-width="2"/>
+                    <path d="M76 386 L286 428 L570 286 L350 252 Z" fill="none" stroke="#30343b" stroke-width="10" stroke-linejoin="round"/>
+                    <path d="M76 386 L286 428 L570 286 L350 252 Z" fill="none" stroke="var(--amber)" stroke-width="2"/>
+                    <g transform="translate(-20 40)">
+                      <path d="M157 314 C139 289 130 252 132 211 L140 104 C143 65 161 43 194 46 L249 55 C279 60 300 81 308 113 L332 198 C338 221 352 234 375 245 C397 255 402 273 389 287 C376 301 350 302 326 288 L292 340 L157 314 Z" fill="url(#ckMetal)" stroke="var(--amber)" stroke-width="2.5"/>
+                      <path d="M164 109 C166 91 175 82 187 83 L201 86 C210 88 213 97 211 111 L207 137 C205 149 197 154 187 151 L176 148 C166 145 162 136 163 124 Z" fill="#0d0e10" stroke="var(--amber)" stroke-width="1.5"/>
+                      <path d="M230 119 C230 102 239 94 251 96 L267 100 C277 103 282 112 283 126 L284 151 C284 163 277 169 267 166 L250 162 C239 159 233 151 232 139 Z" fill="#0d0e10" stroke="var(--amber)" stroke-width="1.5"/>
+                      <path d="M155 81 C185 60 246 65 282 90 M148 169 C190 148 259 153 317 184 M151 229 C202 211 272 219 348 252 M177 72 C161 144 162 230 184 295 M226 57 C218 130 229 207 253 261 M273 76 C271 142 293 216 326 266" fill="none" stroke="#60656d" stroke-width="1" opacity="0.72"/>
+                    </g>
                   </g>
-                  <rect class="ck-ghost" x="268" y="200" width="104" height="58" rx="8" fill="none" stroke="#c9a668" stroke-width="1.5" stroke-dasharray="5 4"/>
-                </g>
-
-                <g class="ck-part" data-part="wheel">
-                  <g class="ck-solid">
-                    <circle cx="320" cy="168" r="46" fill="none" stroke="#c9a668" stroke-width="10"/>
-                    <circle cx="320" cy="168" r="14" fill="#c9a668"/>
-                    <path d="M320 122 L320 142 M320 194 L320 214 M274 168 L294 168 M346 168 L366 168" stroke="#c9a668" stroke-width="5" stroke-linecap="round"/>
-                  </g>
-                  <circle class="ck-ghost" cx="320" cy="168" r="46" fill="none" stroke="#c9a668" stroke-width="2" stroke-dasharray="6 5"/>
-                </g>
-
-                <g class="ck-part" data-part="pedals">
-                  <g class="ck-solid">
-                    <rect x="250" y="318" width="28" height="52" rx="3" fill="#22262c" stroke="#c9a668" stroke-width="1.5"/>
-                    <rect x="290" y="308" width="30" height="62" rx="3" fill="#2a2f36" stroke="#c9a668" stroke-width="2"/>
-                    <rect x="332" y="318" width="28" height="52" rx="3" fill="#22262c" stroke="#c9a668" stroke-width="1.5"/>
-                  </g>
-                  <g class="ck-ghost" fill="none" stroke="#c9a668" stroke-width="1.5" stroke-dasharray="4 3">
-                    <rect x="250" y="318" width="28" height="52" rx="3"/>
-                    <rect x="290" y="308" width="30" height="62" rx="3"/>
-                    <rect x="332" y="318" width="28" height="52" rx="3"/>
+                  <g class="ck-ghost" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="6 5">
+                    <path d="M76 386 L286 428 L570 286 L350 252 Z"/>
+                    <g transform="translate(-20 40)">
+                      <path d="M157 314 C139 289 130 252 132 211 L140 104 C143 65 161 43 194 46 L249 55 C279 60 300 81 308 113 L332 198 C338 221 352 234 375 245 C397 255 402 273 389 287 C376 301 350 302 326 288 L292 340 L157 314 Z"/>
+                      <path d="M164 109 C166 91 175 82 187 83 L201 86 C210 88 213 97 211 111 L207 137 C205 149 197 154 187 151 L176 148 C166 145 162 136 163 124 Z"/>
+                      <path d="M230 119 C230 102 239 94 251 96 L267 100 C277 103 282 112 283 126 L284 151 C284 163 277 169 267 166 L250 162 C239 159 233 151 232 139 Z"/>
+                    </g>
                   </g>
                 </g>
 
-                <g class="ck-part" data-part="shifter">
+                <g class="ck-part" data-part="monitor" transform="translate(0 -25)">
                   <g class="ck-solid">
-                    <rect x="430" y="268" width="44" height="28" rx="4" fill="#1c1f24" stroke="#c9a668" stroke-width="1.5"/>
-                    <path d="M452 268 L452 220 L470 204" fill="none" stroke="#c9a668" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="472" cy="200" r="8" fill="#e0c08a"/>
+                    <path d="M480 181 L480 310" fill="none" stroke="#30343b" stroke-width="8" stroke-linecap="round"/>
+                    <path d="M480 181 L480 310" fill="none" stroke="var(--amber)" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M330 46 Q330 37 340 38 L617 55 Q627 56 626 66 L617 181 Q616 191 606 190 L339 169 Q329 168 329 158 Z" fill="#12141a" stroke="var(--amber)" stroke-width="2.2"/>
+                    <path d="M343 53 L612 69 L604 175 L342 155 Z" fill="#090b0e" stroke="#30343b" stroke-width="1.2"/>
                   </g>
-                  <g class="ck-ghost" fill="none" stroke="#c9a668" stroke-width="1.5" stroke-dasharray="4 3">
-                    <rect x="430" y="268" width="44" height="28" rx="4"/>
-                    <path d="M452 268 L452 220 L470 204" stroke-width="2"/>
-                    <circle cx="472" cy="200" r="8"/>
+                  <g class="ck-ghost" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="5 4">
+                    <path d="M480 181 L480 310"/>
+                    <path d="M330 46 Q330 37 340 38 L617 55 Q627 56 626 66 L617 181 Q616 191 606 190 L339 169 Q329 168 329 158 Z"/>
+                    <path d="M343 53 L612 69 L604 175 L342 155 Z"/>
                   </g>
                 </g>
 
-                <g class="ck-part" data-part="handbrake">
+                <g class="ck-part" data-part="base" transform="translate(-80 5)">
                   <g class="ck-solid">
-                    <rect x="168" y="278" width="40" height="18" rx="3" fill="#1c1f24" stroke="#c9a668" stroke-width="1.5"/>
-                    <path d="M188 278 L168 230" stroke="#c9a668" stroke-width="7" stroke-linecap="round"/>
-                    <circle cx="166" cy="226" r="7" fill="#e0c08a"/>
+                    <path d="M402 143 L458 131 L530 144 L469 157 Z" fill="#30343b" stroke="var(--amber)" stroke-width="1.5"/>
+                    <path d="M402 143 L469 157 L465 220 L398 210 Z" fill="#20242a" stroke="var(--amber)" stroke-width="2"/>
+                    <path d="M469 157 L530 144 L527 205 L465 220 Z" fill="#171a1f" stroke="var(--amber)" stroke-width="2"/>
+                    <path d="M478 162 L520 153 M477 171 L520 162 M476 180 L519 171 M475 189 L518 180 M474 198 L517 189 M473 207 L516 198" stroke="#62676f" stroke-width="1.2"/>
+                    <ellipse cx="432" cy="181" rx="27" ry="24" transform="rotate(8 432 181)" fill="#15181d" stroke="var(--amber)" stroke-width="2"/>
+                    <ellipse cx="432" cy="181" rx="18" ry="16" transform="rotate(8 432 181)" fill="#242830" stroke="#777c84" stroke-width="1.5"/>
+                    <circle cx="432" cy="181" r="6" fill="#0d0e10" stroke="var(--amber)" stroke-width="1.5"/>
+                    <g fill="#0d0e10" stroke="var(--amber)" stroke-width="1">
+                      <circle cx="430" cy="162" r="2.5"/>
+                      <circle cx="451" cy="180" r="2.5"/>
+                      <circle cx="432" cy="201" r="2.5"/>
+                      <circle cx="412" cy="181" r="2.5"/>
+                    </g>
                   </g>
-                  <g class="ck-ghost" fill="none" stroke="#c9a668" stroke-width="1.5" stroke-dasharray="4 3">
-                    <rect x="168" y="278" width="40" height="18" rx="3"/>
-                    <path d="M188 278 L168 230" stroke-width="2"/>
-                    <circle cx="166" cy="226" r="7"/>
+                  <g class="ck-ghost" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="5 4">
+                    <path d="M402 143 L458 131 L530 144 L527 205 L465 220 L398 210 L402 143 Z"/>
+                    <path d="M402 143 L469 157 L530 144 M469 157 L465 220"/>
+                    <ellipse cx="432" cy="181" rx="27" ry="24" transform="rotate(8 432 181)"/>
                   </g>
                 </g>
 
-                <g class="ck-part" data-part="accessories">
+                <g class="ck-part" data-part="wheel" transform="translate(-35 5)">
                   <g class="ck-solid">
-                    <ellipse cx="320" cy="300" rx="70" ry="16" fill="#1a1c20" stroke="#c9a668" stroke-width="1.5" opacity="0.9"/>
-                    <path d="M270 248 Q320 268 370 248" fill="none" stroke="#c9a668" stroke-width="3" opacity="0.7"/>
+                    <path d="M300 160 C294 159 291 164 292 172 L295 199 C296 207 301 210 306 206 L309 202 L306 163 Z" fill="#191c21" stroke="var(--amber)" stroke-width="1.5"/>
+                    <path d="M397 171 C404 171 407 176 405 184 L400 208 C398 215 394 218 389 214 L387 210 L393 174 Z" fill="#191c21" stroke="var(--amber)" stroke-width="1.5"/>
+                    <ellipse cx="352" cy="184" rx="57" ry="52" transform="rotate(8 352 184)" fill="none" stroke="#30343b" stroke-width="8"/>
+                    <ellipse cx="352" cy="184" rx="57" ry="52" transform="rotate(8 352 184)" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
+                    <path d="M318 164 C327 154 340 153 352 158 L365 161 C376 163 383 171 383 181 L381 202 C380 211 372 216 362 213 L340 208 C329 206 321 200 320 190 Z" fill="#171a1f" stroke="var(--amber)" stroke-width="2"/>
+                    <path d="M320 171 L302 174 L301 193 L321 190 M382 177 L401 181 L398 201 L380 194" fill="#23272d" stroke="var(--amber)" stroke-width="4" stroke-linejoin="round"/>
+                    <ellipse cx="352" cy="185" rx="13" ry="12" transform="rotate(8 352 185)" fill="#272b32" stroke="var(--amber)" stroke-width="2"/>
+                    <circle cx="352" cy="185" r="5" fill="#0d0e10" stroke="#e0c08a" stroke-width="1.5"/>
+                    <g fill="#0d0e10" stroke="var(--amber)" stroke-width="1.2">
+                      <circle cx="333" cy="169" r="4"/>
+                      <circle cx="371" cy="175" r="4"/>
+                      <circle cx="333" cy="194" r="4"/>
+                      <circle cx="369" cy="201" r="4"/>
+                    </g>
+                    <g fill="var(--amber)">
+                      <circle cx="333" cy="169" r="1.3"/>
+                      <circle cx="371" cy="175" r="1.3"/>
+                      <circle cx="333" cy="194" r="1.3"/>
+                      <circle cx="369" cy="201" r="1.3"/>
+                    </g>
+                    <path d="M316 143 Q351 126 387 148 M307 220 Q348 244 391 221" fill="none" stroke="#70757d" stroke-width="1.2" opacity="0.8"/>
                   </g>
-                  <ellipse class="ck-ghost" cx="320" cy="300" rx="70" ry="16" fill="none" stroke="#c9a668" stroke-width="1.5" stroke-dasharray="5 4"/>
+                  <g class="ck-ghost" fill="none" stroke="var(--amber)" stroke-width="1.8" stroke-dasharray="6 5">
+                    <ellipse cx="352" cy="184" rx="57" ry="52" transform="rotate(8 352 184)"/>
+                    <path d="M318 164 C327 154 340 153 352 158 L365 161 C376 163 383 171 383 181 L381 202 C380 211 372 216 362 213 L340 208 C329 206 321 200 320 190 Z"/>
+                    <path d="M320 171 L302 174 L301 193 L321 190 M382 177 L401 181 L398 201 L380 194"/>
+                    <ellipse cx="352" cy="185" rx="13" ry="12" transform="rotate(8 352 185)"/>
+                    <path d="M300 160 C294 159 291 164 292 172 L295 199 C296 207 301 210 306 206 M397 171 C404 171 407 176 405 184 L400 208 C398 215 394 218 389 214"/>
+                  </g>
                 </g>
+
+                <g class="ck-part" data-part="pedals" transform="translate(75 65) scale(0.72)">
+                  <g class="ck-solid">
+                    <path d="M410 315 L493 331 L548 303 L466 288 Z" fill="#181b20" stroke="var(--amber)" stroke-width="2"/>
+                    <path d="M420 305 L489 318 L530 299 L463 287" fill="none" stroke="#62676f" stroke-width="1.2"/>
+                    <path d="M416 270 L426 313 M451 266 L459 319 M487 262 L492 320" stroke="#2e333a" stroke-width="5.5" stroke-linecap="round"/>
+                    <path d="M416 270 L426 313 M451 266 L459 319 M487 262 L492 320" stroke="var(--amber)" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M400 242 Q401 236 407 236 L431 240 Q437 241 436 247 L432 268 Q431 274 425 273 L402 269 Q397 268 398 262 Z" fill="#22262c" stroke="var(--amber)" stroke-width="1.5"/>
+                    <path d="M435 237 Q436 231 442 232 L467 236 Q473 237 472 243 L468 265 Q467 271 461 270 L438 266 Q433 265 434 259 Z" fill="#292e35" stroke="var(--amber)" stroke-width="2"/>
+                    <path d="M471 232 Q472 226 478 227 L503 231 Q509 232 508 238 L504 260 Q503 266 497 265 L474 261 Q469 260 470 254 Z" fill="#22262c" stroke="var(--amber)" stroke-width="1.5"/>
+                    <g fill="#0d0e10" stroke="var(--amber)" stroke-width="1">
+                      <circle cx="408" cy="248" r="2.3"/><circle cx="426" cy="251" r="2.3"/>
+                      <circle cx="405" cy="262" r="2.3"/><circle cx="423" cy="265" r="2.3"/>
+                      <circle cx="443" cy="243" r="2.3"/><circle cx="461" cy="246" r="2.3"/>
+                      <circle cx="440" cy="258" r="2.3"/><circle cx="458" cy="261" r="2.3"/>
+                      <circle cx="479" cy="238" r="2.3"/><circle cx="497" cy="241" r="2.3"/>
+                      <circle cx="476" cy="253" r="2.3"/><circle cx="494" cy="256" r="2.3"/>
+                    </g>
+                    <g fill="#0d0e10" stroke="var(--amber)" stroke-width="1.5">
+                      <circle cx="426" cy="313" r="5"/>
+                      <circle cx="459" cy="319" r="5"/>
+                      <circle cx="492" cy="320" r="5"/>
+                    </g>
+                  </g>
+                  <g class="ck-ghost" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="4 3">
+                    <path d="M410 315 L493 331 L548 303 L466 288 Z"/>
+                    <path d="M416 270 L426 313 M451 266 L459 319 M487 262 L492 320"/>
+                    <path d="M400 242 Q401 236 407 236 L431 240 Q437 241 436 247 L432 268 Q431 274 425 273 L402 269 Q397 268 398 262 Z"/>
+                    <path d="M435 237 Q436 231 442 232 L467 236 Q473 237 472 243 L468 265 Q467 271 461 270 L438 266 Q433 265 434 259 Z"/>
+                    <path d="M471 232 Q472 226 478 227 L503 231 Q509 232 508 238 L504 260 Q503 266 497 265 L474 261 Q469 260 470 254 Z"/>
+                  </g>
+                </g>
+
+                <g class="ck-part" data-part="shifter" transform="translate(-30 75)">
+                  <g class="ck-solid">
+                    <path d="M347 265 L399 273 L399 310 L347 302 Z" fill="#20242a" stroke="var(--amber)" stroke-width="1.5"/>
+                    <path d="M399 273 L417 261 L417 298 L399 310 Z" fill="#171a1f" stroke="var(--amber)" stroke-width="1.5"/>
+                    <path d="M347 265 L399 273 L417 261 L365 253 Z" fill="#292e35" stroke="var(--amber)" stroke-width="2"/>
+                    <path d="M381 267 L381 221" fill="none" stroke="#30353c" stroke-width="5" stroke-linecap="round"/>
+                    <path d="M381 267 L381 221" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-linecap="round"/>
+                    <circle cx="381" cy="212" r="9" fill="#252a31" stroke="var(--amber)" stroke-width="2"/>
+                    <g fill="#0d0e10" stroke="var(--amber)" stroke-width="1">
+                      <circle cx="355" cy="264" r="2"/>
+                      <circle cx="397" cy="270" r="2"/>
+                      <circle cx="366" cy="257" r="2"/>
+                      <circle cx="408" cy="263" r="2"/>
+                    </g>
+                  </g>
+                  <g class="ck-ghost" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="4 3">
+                    <path d="M347 265 L399 273 L399 310 L347 302 Z M399 273 L417 261 L417 298 L399 310 M347 265 L399 273 L417 261 L365 253 Z"/>
+                    <path d="M381 267 L381 221"/>
+                    <circle cx="381" cy="212" r="9"/>
+                  </g>
+                </g>
+
+                <g class="ck-part" data-part="handbrake" transform="translate(75 75)">
+                  <g class="ck-solid">
+                    <path d="M314 273 L357 280 L357 313 L314 306 Z" fill="#20242a" stroke="var(--amber)" stroke-width="1.5"/>
+                    <path d="M357 280 L374 269 L374 301 L357 313 Z" fill="#171a1f" stroke="var(--amber)" stroke-width="1.5"/>
+                    <path d="M314 273 L357 280 L374 269 L331 262 Z" fill="#292e35" stroke="var(--amber)" stroke-width="2"/>
+                    <path d="M340 277 L325 247" fill="none" stroke="#30353c" stroke-width="6" stroke-linecap="round"/>
+                    <path d="M340 277 L325 247" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M322 253 Q318 255 315 250 L294 219 Q291 214 296 211 L302 207 Q307 205 310 210 L331 241 Q334 246 329 249 Z" fill="#252a31" stroke="var(--amber)" stroke-width="2"/>
+                    <g fill="#0d0e10" stroke="var(--amber)" stroke-width="1">
+                      <circle cx="321" cy="272" r="2"/><circle cx="353" cy="278" r="2"/>
+                      <circle cx="333" cy="264" r="2"/><circle cx="366" cy="269" r="2"/>
+                    </g>
+                  </g>
+                  <g class="ck-ghost" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="4 3">
+                    <path d="M314 273 L357 280 L357 313 L314 306 Z M357 280 L374 269 L374 301 L357 313 M314 273 L357 280 L374 269 L331 262 Z"/>
+                    <path d="M340 277 L325 247"/>
+                    <path d="M322 253 Q318 255 315 250 L294 219 Q291 214 296 211 L302 207 Q307 205 310 210 L331 241 Q334 246 329 249 Z"/>
+                  </g>
+                </g>
+
               </svg>
             </div>
 
