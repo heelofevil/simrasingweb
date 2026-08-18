@@ -104,7 +104,29 @@ header.is-scrolled {
   display: inline-block;
 }
 
-.tabs { display: flex; gap: 8px; }
+.tabs {
+  --tab-indicator-x: 0px;
+  --tab-indicator-scale: 0;
+  position: relative;
+  display: flex;
+  gap: 16px;
+}
+
+.tabs::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--amber);
+  transform: translate3d(var(--tab-indicator-x), 0, 0) scaleX(var(--tab-indicator-scale));
+  transform-origin: left center;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+  pointer-events: none;
+}
 
 .tab {
   background: transparent;
@@ -119,7 +141,10 @@ header.is-scrolled {
 .tab:hover { color: var(--text); }
 .tab.active {
   color: var(--text);
-  border-bottom-color: var(--amber);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabs::after { transition: none; }
 }
 
 .nav-cta {

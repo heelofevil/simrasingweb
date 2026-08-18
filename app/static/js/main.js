@@ -225,10 +225,21 @@ if (els.diyReset) {
   els.diyReset.addEventListener("click", resetDiyBuild);
 }
 
+const mainTabs = document.getElementById("mainTabs");
+
+function syncTabIndicator() {
+  const activeTab = mainTabs?.querySelector(".tab.active");
+  if (!mainTabs || !activeTab) return;
+
+  mainTabs.style.setProperty("--tab-indicator-x", `${activeTab.offsetLeft}px`);
+  mainTabs.style.setProperty("--tab-indicator-scale", activeTab.offsetWidth / 100);
+}
+
 function switchTab(name) {
   document.querySelectorAll("#mainTabs .tab").forEach((t) => {
     t.classList.toggle("active", t.dataset.tab === name);
   });
+  syncTabIndicator();
   document.querySelectorAll("[data-panel]").forEach((p) => {
     p.classList.toggle("active", p.id === `tab-${name}`);
   });
@@ -246,6 +257,10 @@ function switchTab(name) {
 document.querySelectorAll("#mainTabs .tab").forEach((btn) => {
   btn.addEventListener("click", () => switchTab(btn.dataset.tab));
 });
+
+syncTabIndicator();
+document.fonts?.ready.then(syncTabIndicator);
+window.addEventListener("resize", syncTabIndicator);
 
 document.querySelectorAll("[data-goto]").forEach((btn) => {
   btn.addEventListener("click", () => switchTab(btn.dataset.goto));
