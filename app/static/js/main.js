@@ -32,6 +32,7 @@ const state = {
 const els = {
   topbar: document.getElementById("cfgTopbar"),
   back: document.getElementById("cfgBack"),
+  diyReset: document.getElementById("diyResetBtn"),
   bundleTags: document.getElementById("bundleTags"),
   bundleGrid: document.getElementById("bundleGrid"),
   catBar: document.getElementById("catBar"),
@@ -116,11 +117,14 @@ function syncTotals() {
   if (els.diyCartBtn) {
     els.diyCartBtn.classList.toggle("has-items", n > 0);
   }
+  if (els.diyReset) {
+    els.diyReset.disabled = n === 0;
+  }
 }
 
 function syncCockpit() {
   if (!els.cockpitStage) return;
-  const focusSlug = state.openCategory || state.activeCategory;
+  const focusSlug = state.openCategory || null;
   els.cockpitStage.querySelectorAll(".ck-part").forEach((el) => {
     const slug = el.dataset.part;
     const on = Boolean(state.build[slug]);
@@ -185,6 +189,16 @@ function showScreen(name, pushHistory = true) {
   const onStart = name === "start";
   if (els.topbar) els.topbar.hidden = onStart;
   els.back.hidden = onStart;
+  if (els.diyReset) els.diyReset.hidden = name !== "diy";
+  if (name !== "diy") {
+    state.openCategory = null;
+    syncOverlay();
+    syncCockpit();
+  }
+  if (name !== "presets") {
+    state.selectedBundle = null;
+    if (state.bundles.length) renderBundles();
+  }
 }
 
 function goBack() {
@@ -195,6 +209,22 @@ function goBack() {
 
 els.back.addEventListener("click", goBack);
 
+function resetDiyBuild() {
+  if (!buildList().length) return;
+  state.build = {};
+  state.selectedBundle = null;
+  state.openCategory = null;
+  renderCats();
+  renderProducts();
+  syncOverlay();
+  syncCockpit();
+  syncTotals();
+}
+
+if (els.diyReset) {
+  els.diyReset.addEventListener("click", resetDiyBuild);
+}
+
 function switchTab(name) {
   document.querySelectorAll("#mainTabs .tab").forEach((t) => {
     t.classList.toggle("active", t.dataset.tab === name);
@@ -202,6 +232,14 @@ function switchTab(name) {
   document.querySelectorAll("[data-panel]").forEach((p) => {
     p.classList.toggle("active", p.id === `tab-${name}`);
   });
+  if (name !== "config") {
+    state.openCategory = null;
+    state.selectedBundle = null;
+    syncOverlay();
+    syncCockpit();
+    if (state.bundles.length) renderBundles();
+    clearConfiguratorFocus();
+  }
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -252,7 +290,6 @@ document.querySelectorAll(".cfg-branch").forEach((btn) => {
 async function loadCategories() {
   const res = await fetch("/api/categories");
   state.categories = await res.json();
-  if (!state.activeCategory) state.activeCategory = state.categories[0]?.slug || null;
   renderCats();
   bindCockpitClicks();
   syncCockpit();
@@ -281,6 +318,14 @@ function closeOverlay() {
   renderCats();
   syncOverlay();
   syncCockpit();
+  clearConfiguratorFocus();
+}
+
+function clearConfiguratorFocus() {
+  const active = document.activeElement;
+  if (active instanceof HTMLElement && active.closest("#cfgApp, #leadDialog, .featured-grid")) {
+    active.blur();
+  }
 }
 
 function renderCats() {
@@ -536,50 +581,24 @@ function renderFaq() {
     .map(
       (item) => `<details class="faq-item">
         <summary>${escapeHtml(item.question)}</summary>
-        <div class="faq-answer">${formatFaqAnswer(item.answer)}</div>
+        <div class="faq-answer-body">
+          <div class="faq-answer">${formatFaqAnswer(item.answer)}</div>
+        </div>
       </details>`
     )
     .join("");
-  setupFaqTransitions();
+  setupFaqAccordion();
 }
 
-function setupFaqTransitions() {
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function setupFaqAccordion() {
+  if (!els.faqList) return;
 
   els.faqList.querySelectorAll(".faq-item").forEach((item) => {
-    const summary = item.querySelector("summary");
-    const answer = item.querySelector(".faq-answer");
-    if (!summary || !answer || reduceMotion) return;
-
-    summary.addEventListener("click", (event) => {
-      event.preventDefault();
-
-      item.getAnimations().forEach((animation) => animation.cancel());
-
-      const isOpening = !item.open;
-      const startHeight = item.offsetHeight;
-      if (isOpening) item.open = true;
-
-      const endHeight = isOpening
-        ? summary.offsetHeight + answer.offsetHeight
-        : summary.offsetHeight;
-
-      item.style.overflow = "hidden";
-      const animation = item.animate(
-        { height: [`${startHeight}px`, `${endHeight}px`] },
-        { duration: 300, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }
-      );
-
-      animation.onfinish = () => {
-        if (!isOpening) item.open = false;
-        item.style.height = "";
-        item.style.overflow = "";
-      };
-
-      animation.oncancel = () => {
-        item.style.height = "";
-        item.style.overflow = "";
-      };
+    item.addEventListener("toggle", () => {
+      if (!item.open) return;
+      els.faqList.querySelectorAll(".faq-item").forEach((other) => {
+        if (other !== item) other.open = false;
+      });
     });
   });
 }
@@ -656,12 +675,6 @@ function renderBundles() {
     btn.addEventListener("click", () => {
       const bundle = state.bundles.find((b) => String(b.id) === String(btn.dataset.id));
       if (!bundle) return;
-      if (state.selectedBundle && Number(state.selectedBundle.id) === Number(bundle.id)) {
-        state.selectedBundle = null;
-        renderBundles();
-        syncTotals();
-        return;
-      }
       state.selectedBundle = bundle;
       state.leadFromHome = false;
       openLeadDialog({
@@ -671,6 +684,7 @@ function renderBundles() {
         total: bundle.price,
         images: bundleProductImages(bundle),
       });
+      renderBundles();
       syncTotals();
     });
   });
@@ -739,11 +753,11 @@ function openLeadDialog({ mode, tier, items, total, images }) {
 
 if (els.leadDialog) {
   els.leadDialog.addEventListener("close", () => {
-    if (state.leadFromHome) {
-      state.selectedBundle = null;
-      state.leadFromHome = false;
-    }
+    state.selectedBundle = null;
+    state.leadFromHome = false;
     renderLeadCarousel([]);
+    if (state.bundles.length) renderBundles();
+    clearConfiguratorFocus();
   });
 }
 
